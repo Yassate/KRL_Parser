@@ -1,0 +1,1 @@
+java -jar antlr-4.8-complete.jar -Dlanguage=Python3 -visitor krl.g4
