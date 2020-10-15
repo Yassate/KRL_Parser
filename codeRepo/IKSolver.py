@@ -94,26 +94,29 @@ def createPlot(errors):
 def saveErrors(errors):
     np.savetxt("plots/errors {}".format(time.ctime()), errors)
 
-class Position:
+
+class Position(object):
     def __init__(self):
         x = 0
         y = 0
         z = 0
 
 
-class Orientation:
+class Orientation(object):
     def __init__(self):
         self.x = 0
         self.y = 0
         self.z = 0
         self.w = 0
 
-class Pose:
+
+class Pose(object):
     def __init__(self):
         self.position = Position()
         self.orientation = Orientation()
 
-class JointTrajectoryPoint:
+
+class JointTrajectoryPoint(object):
     def __init__(self):
         self.positions = []
 
