@@ -1,13 +1,14 @@
+import sys
 import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(dir_path + r"\generated")
+print(sys.path)
 import tkinter
 import inspect
 from antlr4 import *
 from krlLexer import krlLexer
 from krlParser import krlParser
 from krlVisitor import krlVisitor
-from ikpy.chain import Chain
-from ikpy.link import OriginLink, URDFLink
-import matplotlib.pyplot
 import numpy as np
 import IKSolver
 
