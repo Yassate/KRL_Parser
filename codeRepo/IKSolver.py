@@ -203,6 +203,7 @@ class KukaIKSolver(object):
         self.T6_G = self.T6_G.subs(s)
 
         # # Composition of Homogenous Transforms
+
         self.T0_2 = simplify(self.T0_1 * self.T1_2)  # base_link to link 2
         self.T0_3 = simplify(self.T0_2 * self.T2_3)  # base_link to link 3
         self.T0_4 = simplify(self.T0_3 * self.T3_4)  # base_link to link 3
