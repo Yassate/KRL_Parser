@@ -1,0 +1,132 @@
+&ACCESS RVO1
+&REL 274
+&COMMENT Blindnietmutter setzen
+&PARAM DISKPATH = KRC:\R1\Program\Production\223
+DEF msn223v_030_01_030r2( )
+;FOLD INI
+  ;FOLD BASISTECH INI
+    GLOBAL INTERRUPT DECL 3 WHEN $STOPMESS==TRUE DO IR_STOPM ( )
+    INTERRUPT ON 3 
+    BAS (#INITMOV,0 )
+  ;ENDFOLD (BASISTECH INI)
+  ;FOLD USER INI
+    ;Make your modifications here
+  ;ENDFOLD (USER INI)
+;ENDFOLD (INI)
+
+;FOLD ; Anlagenbezeichn: 030RB_200    Stations-Nr: ST030;%{PE}%R 8.2.12,%MKUKATPBASIS,%CCOMMENT,%VNORMAL,%P 2:Anlagenbezeichn: 030RB_200    Stations-Nr: ST030
+;ENDFOLD
+;FOLD ; Stand / Version: V1.0;%{PE}%R 8.2.12,%MKUKATPBASIS,%CCOMMENT,%VNORMAL,%P 2:Stand / Version: V1.0
+;ENDFOLD
+;FOLD ; Name Bearbeiter: QTSwiss;%{PE}%R 8.2.12,%MKUKATPBASIS,%CCOMMENT,%VNORMAL,%P 2:Name Bearbeiter: QTSwiss
+;ENDFOLD
+;FOLD ; Translator Version:07.08.2018 - Version 12.38;%{PE}%R 8.2.12,%MKUKATPBASIS,%CCOMMENT,%VNORMAL,%P 2:Translator Version:07.08.2018 - Version 12.38
+;ENDFOLD
+
+;FOLD WAIT FOR ( IN 126 'I0126:Frg. Stanznieten 030DT_100' );%{PE}%R 8.5.19 %MKUKATPBASIS %CEXT_WAIT_FOR %VEXT_WAIT_FOR,%P 2:, 4:, 5:$IN, 6:126, 7:I0126:Frg. Stanznieten 030DT_100, 9:
+WAIT FOR  ( $IN[126] ) 
+;ENDFOLD
+;FOLD OUT 125 'Q0125:Aus Stoerbereich 030DT_100' State=FALSE ;%{PE}%R 8.5.19,%MKUKATPBASIS,%COUT,%VOUTX,%P 2:125, 3:Q0125:Aus Stoerbereich 030DT_100, 5:FALSE, 6:
+$OUT[125]=FALSE
+;ENDFOLD
+;FOLD OUT 161 'Q0161:Aus Stoerbereich 030DTW111' State=FALSE ;%{PE}%R 8.5.19,%MKUKATPBASIS,%COUT,%VOUTX,%P 2:161, 3:Q0161:Aus Stoerbereich 030DTW111, 5:FALSE, 6:
+$OUT[161]=FALSE
+;ENDFOLD
+
+;FOLD ; Kollisionsueberwachung zwischen 030RB_200 (KR210R3100ultra) und 050RB_100 (KR420_R3080_4) ein;%{PE}%R 8.2.12,%MKUKATPBASIS,%CCOMMENT,%VNORMAL,%P 2:Kollisionsueberwachung zwischen 030RB_200 (KR210R3100ultra) und 050RB_100 (KR420_R3080_4) ein
+;ENDFOLD
+;FOLD Collision.Monitoring_15_On ;%{PE}%MKUKATPUSER
+COLLSTOP( 15, 1 ) ;not Interrupt-Controlled
+;ENDFOLD
+
+;FOLD COLLDETECT UseDataSet DataSet[1];%{PE}%R 8.5.19,%MKUKATPBASIS,%CTQ_MON,%VTQ_CDSET,%P 2:TQ_CDSET, 4:1
+USE_CD_PARAMS(1)
+;ENDFOLD
+
+;FOLD PTP HP005 CONT Vel=100 % PDATHH Tool[64]:NULL [64]:NULL ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP005; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP005
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP005 C_Dis
+;ENDFOLD
+;FOLD PTP HP010 CONT Vel=100 % PDATHH Tool[64]:NULL Base[64]:NULL ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP010; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP010
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP010 C_Dis
+;ENDFOLD
+;FOLD PTP HP015 CONT Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP015; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP015
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP015 C_Dis
+;ENDFOLD
+;FOLD PTP HP020 CONT Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP020; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP020
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP020 C_Dis
+;ENDFOLD
+;FOLD PTP HP025 Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP025; Kuka.BlendingEnabled=False; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP025
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP025
+;ENDFOLD
+;FOLD PTP HP030 Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP030; Kuka.BlendingEnabled=False; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP030
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP030
+;ENDFOLD
+
+;FOLD OUT 125 'Q0125:Aus Stoerbereich 030DT_100' State=TRUE ;%{PE}%R 8.5.19,%MKUKATPBASIS,%COUT,%VOUTX,%P 2:125, 3:Q0125:Aus Stoerbereich 030DT_100, 5:TRUE, 6:
+$OUT[125]=TRUE
+;ENDFOLD
+;FOLD OUT 161 'Q0161:Aus Stoerbereich 030DTW111' State=TRUE ;%{PE}%R 8.5.19,%MKUKATPBASIS,%COUT,%VOUTX,%P 2:161, 3:Q0161:Aus Stoerbereich 030DTW111, 5:TRUE, 6:
+$OUT[161]=TRUE
+;ENDFOLD
+
+;FOLD ; Kollisionsueberwachung zwischen 030RB_200 (KR210R3100ultra) und 050RB_100 (KR420_R3080_4) aus;%{PE}%R 8.2.12,%MKUKATPBASIS,%CCOMMENT,%VNORMAL,%P 2:Kollisionsueberwachung zwischen 030RB_200 (KR210R3100ultra) und 050RB_100 (KR420_R3080_4) aus
+;ENDFOLD
+;FOLD Collision.Monitoring_15_Off . ;%{PE}%MKUKATPUSER
+
+COLLSTOP( 15, 2+0 )
+
+;ENDFOLD
+
+;FOLD COLLDETECT Off;%{PE}%R 8.5.19,%MKUKATPBASIS,%CTQ_MON,%VTQ_OFF,%P 2:TQ_OFF 
+USE_CD_PARAMS( 0)
+;ENDFOLD
+
+END
