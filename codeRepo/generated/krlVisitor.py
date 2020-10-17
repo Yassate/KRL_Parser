@@ -11,7 +11,6 @@ class krlVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by krlParser#module.
     def visitModule(self, ctx:krlParser.ModuleContext):
-        print("MODULE VISITED, BW")
         return self.visitChildren(ctx)
 
 
@@ -197,9 +196,6 @@ class krlVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by krlParser#statement.
     def visitStatement(self, ctx:krlParser.StatementContext):
-        if ctx.start.type == ctx.parser.LIN:
-            lin_move_target = ctx.children[1].start.text
-            print(f"Linear movement to point {lin_move_target}")
         return self.visitChildren(ctx)
 
 
@@ -235,13 +231,11 @@ class krlVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by krlParser#assignmentExpression.
     def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
-        #print("ASSIGNMENT EXPRESSION VISITED, BW")
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by krlParser#expression.
     def visitExpression(self, ctx:krlParser.ExpressionContext):
-        #print("EXPRESSION VISITED, BW")
         return self.visitChildren(ctx)
 
 
