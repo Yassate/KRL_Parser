@@ -5209,8 +5209,6 @@ class krlParser ( Parser ):
                 return visitor.visitChildren(self)
 
 
-
-
     def literal(self):
 
         localctx = krlParser.LiteralContext(self, self._ctx, self.state)
