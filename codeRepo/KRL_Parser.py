@@ -3,8 +3,6 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path + r"\generated")
 print(sys.path)
-import tkinter
-import inspect
 from antlr4 import *
 from krlLexer import krlLexer
 from krlParser import krlParser

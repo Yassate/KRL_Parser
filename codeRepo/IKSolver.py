@@ -2,7 +2,6 @@ import transformations as tf
 from mpmath import *
 from sympy import *
 import numpy as np
-import matplotlib.pyplot as plt
 import time
 
 printLogs = True
