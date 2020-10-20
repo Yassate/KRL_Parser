@@ -64,29 +64,27 @@ class krlVisitorImpl(krlVisitor):
     def visitChild(self, ctx, index):
         return ctx.getChild(index).accept(self)
 
-    # Visit a parse tree produced by krlParser#variableDeclarationInDataList.
-    def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
-        #print(ctx.getText())
-
-        #CORRECT DECLARATION
-        if ctx.getChild(0).getText() == "DECL":
-            new_variable = krlVariable(ctx.getChild(1).getText(), self.visitChild(ctx, 2))
-            #print("Variable type: " + ctx.children[1].getText())
-            #print("Variable name: " + self.visitChild(ctx, 2))
-            #TODO Implement multiple variable declaration (e.g. INT SUCCESS, COUNT, INDEX) and value assignment
-            if ctx.getChildCount() > 2:
-                if ctx.getChild(3).getChildCount() == 0:
-                    new_variable.value = "LALA"
-                    pass
-                    #endof declaration, without value assignment and other variables (e.g. INT SUCCESS, COUNT, INDEX)
-
-            self.variables.append(new_variable)
+    def visitDataList(self, ctx:krlParser.DataListContext):
 
         return self.visitChildren(ctx)
 
-    def visitVariableInitialisation(self, ctx:krlParser.VariableInitialisationContext):
-        ctx.getChild(1).accept(self)
-        #return "5" + self.visitChildren(ctx)
+    def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
+        #children: 0 - "DECL"; 1 - type (INT, LDAT, PDAT etc.); 2 - value
+        #CORRECT DECLARATION
+        if ctx.getChild(0).getText() == "DECL":
+            new_variable = krlVariable(ctx.getChild(1).getText(), self.visitChild(ctx, 2))
+            if ctx.getChildCount() > 2:
+                # TODO Implement multiple variable declaration (e.g. INT SUCCESS, COUNT, INDEX) and value assignment
+                # TODO implement incorrect declaration handling (without "DECL"; maybe use code from assignment visitor"
+                if ctx.getChild(3).getChildCount() == 0:
+                    new_variable.value = "LALA"
+                    pass
+            self.variables.append(new_variable)
+        #TODO what to return?
+        #return self.visitChildren(ctx)
+
+    def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
+        return ctx.getChild(1).accept(self)
 
     def visitStructElementList(self, ctx: krlParser.StructElementListContext):
         struct_elements = {}
@@ -105,7 +103,6 @@ class krlVisitorImpl(krlVisitor):
         if isinstance(ctx.getChild(0), krlParser.StructLiteralContext):
             x = self.visitChildren(ctx)
             return self.visitChildren(ctx)
-            #return ctx.getChild(1).accept(self)
         elif isinstance(ctx.getChild(0), krlParser.EnumElementContext):
             return self.visitChildren(ctx)
         else:
