@@ -32,6 +32,10 @@ class krlVariable:
         self.name = name
         self.value = None
 
+    def __str__(self):
+        return f"Name: {self.name}, type: {self.type}, value: {self.value}"
+
+#TODO: #OVERALL >> Implement 2 visitors - first for Semantic Analysis ang getting definitions, second for evaluate
 class krlVisitorImpl(krlVisitor):
     def __init__(self):
         super().__init__()
@@ -58,14 +62,17 @@ class krlVisitorImpl(krlVisitor):
             c = node.getChild(i)
             childResult = c.accept(self)
             if childResult is not None:
-                result = c.accept(self)
+                result = childResult
         return result
 
     def visitChild(self, ctx, index):
         return ctx.getChild(index).accept(self)
 
-    def visitDataList(self, ctx:krlParser.DataListContext):
 
+    def visitModule(self, ctx:krlParser.ModuleContext):
+        return self.visitChildren(ctx)
+
+    def visitDataList(self, ctx:krlParser.DataListContext):
         return self.visitChildren(ctx)
 
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):

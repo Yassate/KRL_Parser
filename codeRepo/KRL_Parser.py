@@ -32,6 +32,7 @@ src_tree, dat_tree = src_file_to_ast(file_path)
 
 myVisitor = krlVisitorImpl()
 myVisitor.visit(dat_tree)
+myVisitor.visit(src_tree)
 
 
 print(pp.pprint(myVisitor.variables))
