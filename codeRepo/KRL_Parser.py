@@ -8,9 +8,6 @@ from krlLexer import krlLexer
 from krlParser import krlParser
 from krlVisitorImpl import krlVisitorImpl
 import pprint as pp
-from krlVisitor import krlVisitor
-import numpy as np
-import IKSolver
 
 def file_to_ast(file_path):
     text = FileStream(file_path)#
