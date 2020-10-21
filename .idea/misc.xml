@@ -16,8 +16,8 @@
         <PerGrammarGenerationSettings>
           <option name="fileName" value="$PROJECT_DIR$/codeRepo/generated/krl.g4" />
           <option name="autoGen" value="true" />
-          <option name="outputDir" value="D:\Programowanie\PycharmProjects\KRL_Parser\codeRepo\generated" />
-          <option name="libDir" value="D:\Programowanie\PycharmProjects\KRL_Parser\codeRepo\generated" />
+          <option name="outputDir" value="E:\!TRANSFER\Python\KRL_Parser\codeRepo\generated" />
+          <option name="libDir" value="E:\!TRANSFER\Python\KRL_Parser\codeRepo\generated" />
           <option name="encoding" value="" />
           <option name="pkg" value="" />
           <option name="language" value="Python3" />
