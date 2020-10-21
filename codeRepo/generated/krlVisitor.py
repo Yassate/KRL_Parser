@@ -1,4 +1,4 @@
-# Generated from D:/Programowanie/PycharmProjects/KRL_Parser/codeRepo/generated\krl.g4 by ANTLR 4.8
+# Generated from E:/!TRANSFER/Python/KRL_Parser/codeRepo/generated\krl.g4 by ANTLR 4.8
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .krlParser import krlParser
@@ -196,6 +196,21 @@ class krlVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by krlParser#statement.
     def visitStatement(self, ctx:krlParser.StatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#ptpMoveStatement.
+    def visitPtpMoveStatement(self, ctx:krlParser.PtpMoveStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#linMoveStatement.
+    def visitLinMoveStatement(self, ctx:krlParser.LinMoveStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#linRelMoveStatement.
+    def visitLinRelMoveStatement(self, ctx:krlParser.LinRelMoveStatementContext):
         return self.visitChildren(ctx)
 
 

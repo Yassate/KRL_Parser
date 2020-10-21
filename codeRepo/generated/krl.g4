@@ -169,7 +169,7 @@ routineImplementationSection
    ;
 
 statementList
-   : statement*
+   : (statement|ptpMoveStatement|linMoveStatement|linRelMoveStatement)*
    ;
 
 statement
@@ -192,13 +192,22 @@ statement
    | NEWLINE
    | GLOBAL? INTERRUPT DECL primary WHEN expression DO assignmentExpression NEWLINE
    | INTERRUPT IDENTIFIER primary? NEWLINE
-   | (PTP | PTP_REL) geometricExpression (C_PTP (C_DIS | C_ORI | C_VEL)?)? NEWLINE
-   | LIN geometricExpression (C_DIS | C_ORI | C_VEL)? NEWLINE
-   | LIN_REL geometricExpression (C_DIS | C_ORI | C_VEL)? enumElement? NEWLINE
    | (CIRC | CIRC_REL) geometricExpression ',' geometricExpression (',' IDENTIFIER primary)? (C_DIS | C_ORI | C_VEL)? NEWLINE
    | TRIGGER WHEN (IDENTIFIER) '=' expression DELAY '=' expression DO assignmentExpression (PRIO '=' expression)? NEWLINE
    | analogInputStatement NEWLINE
    | analogOutputStatement NEWLINE
+   ;
+
+ptpMoveStatement
+   : (PTP | PTP_REL) geometricExpression (C_PTP (C_DIS | C_ORI | C_VEL)?)? NEWLINE
+   ;
+
+linMoveStatement
+   : LIN geometricExpression (C_DIS | C_ORI | C_VEL)? NEWLINE
+   ;
+
+linRelMoveStatement
+   : LIN_REL geometricExpression (C_DIS | C_ORI | C_VEL)? enumElement? NEWLINE
    ;
 
 analogOutputStatement
