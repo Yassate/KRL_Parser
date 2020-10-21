@@ -1,4 +1,4 @@
-# Generated from E:/!TRANSFER/Python/KRL_Parser/codeRepo/generated\krl.g4 by ANTLR 4.8
+# Generated from D:/Programowanie/PycharmProjects/KRL_Parser/codeRepo/generated\krl.g4 by ANTLR 4.8
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .krlParser import krlParser
@@ -194,8 +194,118 @@ class krlVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by krlParser#statement.
-    def visitStatement(self, ctx:krlParser.StatementContext):
+    # Visit a parse tree produced by krlParser#continueStatement.
+    def visitContinueStatement(self, ctx:krlParser.ContinueStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#exitStatement.
+    def visitExitStatement(self, ctx:krlParser.ExitStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#forLoop.
+    def visitForLoop(self, ctx:krlParser.ForLoopContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#goto.
+    def visitGoto(self, ctx:krlParser.GotoContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#halt.
+    def visitHalt(self, ctx:krlParser.HaltContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#ifStatement.
+    def visitIfStatement(self, ctx:krlParser.IfStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#loop.
+    def visitLoop(self, ctx:krlParser.LoopContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#repeat.
+    def visitRepeat(self, ctx:krlParser.RepeatContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#switch.
+    def visitSwitch(self, ctx:krlParser.SwitchContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#waitFor.
+    def visitWaitFor(self, ctx:krlParser.WaitForContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#waitSec.
+    def visitWaitSec(self, ctx:krlParser.WaitSecContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#whileLoop.
+    def visitWhileLoop(self, ctx:krlParser.WhileLoopContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#returnStatement.
+    def visitReturnStatement(self, ctx:krlParser.ReturnStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#brakeStatement.
+    def visitBrakeStatement(self, ctx:krlParser.BrakeStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#assignmentStatement.
+    def visitAssignmentStatement(self, ctx:krlParser.AssignmentStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#gotoBlock.
+    def visitGotoBlock(self, ctx:krlParser.GotoBlockContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#newlineStatement.
+    def visitNewlineStatement(self, ctx:krlParser.NewlineStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#interruptDecl.
+    def visitInterruptDecl(self, ctx:krlParser.InterruptDeclContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#interrupt.
+    def visitInterrupt(self, ctx:krlParser.InterruptContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#circMoveStatement.
+    def visitCircMoveStatement(self, ctx:krlParser.CircMoveStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#trigger.
+    def visitTrigger(self, ctx:krlParser.TriggerContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#anInputStatement.
+    def visitAnInputStatement(self, ctx:krlParser.AnInputStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#anOutStatement.
+    def visitAnOutStatement(self, ctx:krlParser.AnOutStatementContext):
         return self.visitChildren(ctx)
 
 

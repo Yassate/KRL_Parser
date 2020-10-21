@@ -169,45 +169,37 @@ routineImplementationSection
    ;
 
 statementList
-   : (statement|ptpMoveStatement|linMoveStatement|linRelMoveStatement)*
+   : statement*
    ;
 
 statement
-   : CONTINUE NEWLINE
-   | EXIT NEWLINE
-   | FOR IDENTIFIER '=' expression TO expression (IDENTIFIER expression)? NEWLINE statementList ENDFOR
-   | GOTO IDENTIFIER NEWLINE
-   | HALT NEWLINE
-   | IF expression THEN NEWLINE statementList (ELSE NEWLINE statementList)? ENDIF NEWLINE
-   | LOOP NEWLINE statementList ENDLOOP NEWLINE
-   | REPEAT NEWLINE statementList UNTIL expression NEWLINE
-   | SWITCH expression NEWLINE switchBlockStatementGroups ENDSWITCH NEWLINE
-   | WAIT FOR expression NEWLINE
-   | WAIT SEC expression NEWLINE
-   | WHILE expression NEWLINE statementList ENDWHILE NEWLINE
-   | RETURN (assignmentExpression)? NEWLINE
-   | BRAKE (IDENTIFIER)? NEWLINE
-   | assignmentExpression NEWLINE
-   | IDENTIFIER ':' NEWLINE
-   | NEWLINE
-   | GLOBAL? INTERRUPT DECL primary WHEN expression DO assignmentExpression NEWLINE
-   | INTERRUPT IDENTIFIER primary? NEWLINE
-   | (CIRC | CIRC_REL) geometricExpression ',' geometricExpression (',' IDENTIFIER primary)? (C_DIS | C_ORI | C_VEL)? NEWLINE
-   | TRIGGER WHEN (IDENTIFIER) '=' expression DELAY '=' expression DO assignmentExpression (PRIO '=' expression)? NEWLINE
-   | analogInputStatement NEWLINE
-   | analogOutputStatement NEWLINE
-   ;
-
-ptpMoveStatement
-   : (PTP | PTP_REL) geometricExpression (C_PTP (C_DIS | C_ORI | C_VEL)?)? NEWLINE
-   ;
-
-linMoveStatement
-   : LIN geometricExpression (C_DIS | C_ORI | C_VEL)? NEWLINE
-   ;
-
-linRelMoveStatement
-   : LIN_REL geometricExpression (C_DIS | C_ORI | C_VEL)? enumElement? NEWLINE
+   : CONTINUE NEWLINE                                                                                                               #continueStatement
+   | EXIT NEWLINE                                                                                                                   #exitStatement
+   | FOR IDENTIFIER '=' expression TO expression (IDENTIFIER expression)? NEWLINE statementList ENDFOR                              #forLoop
+   | GOTO IDENTIFIER NEWLINE                                                                                                        #goto
+   | HALT NEWLINE                                                                                                                   #halt
+   | IF expression THEN NEWLINE statementList (ELSE NEWLINE statementList)? ENDIF NEWLINE                                           #ifStatement
+   | LOOP NEWLINE statementList ENDLOOP NEWLINE                                                                                     #loop
+   | REPEAT NEWLINE statementList UNTIL expression NEWLINE                                                                          #repeat
+   | SWITCH expression NEWLINE switchBlockStatementGroups ENDSWITCH NEWLINE                                                         #switch
+   | WAIT FOR expression NEWLINE                                                                                                    #waitFor
+   | WAIT SEC expression NEWLINE                                                                                                    #waitSec
+   | WHILE expression NEWLINE statementList ENDWHILE NEWLINE                                                                        #whileLoop
+   | RETURN (assignmentExpression)? NEWLINE                                                                                         #returnStatement
+   | BRAKE (IDENTIFIER)? NEWLINE                                                                                                    #brakeStatement
+   | assignmentExpression NEWLINE                                                                                                   #assignment
+   | IDENTIFIER ':' NEWLINE                                                                                                         #gotoBlock
+   | NEWLINE                                                                                                                        #newl
+   | GLOBAL? INTERRUPT DECL primary WHEN expression DO assignmentExpression NEWLINE                                                 #interruptDecl
+   | INTERRUPT IDENTIFIER primary? NEWLINE                                                                                          #interrupt
+   | PTP geometricExpression (C_PTP (C_DIS | C_ORI | C_VEL)?)? NEWLINE                                                              #ptpMove
+   | PTP_REL geometricExpression (C_PTP (C_DIS | C_ORI | C_VEL)?)? NEWLINE                                                          #ptpRelMove
+   | LIN geometricExpression (C_DIS | C_ORI | C_VEL)? NEWLINE                                                                       #linMove
+   | LIN_REL geometricExpression (C_DIS | C_ORI | C_VEL)? enumElement? NEWLINE                                                      #linRelMove
+   | (CIRC | CIRC_REL) geometricExpression ',' geometricExpression (',' IDENTIFIER primary)? (C_DIS | C_ORI | C_VEL)? NEWLINE       #circMove
+   | TRIGGER WHEN (IDENTIFIER) '=' expression DELAY '=' expression DO assignmentExpression (PRIO '=' expression)? NEWLINE           #trigger
+   | analogInputStatement NEWLINE                                                                                                   #anInputStatement
+   | analogOutputStatement NEWLINE                                                                                                  #anOutStatement
    ;
 
 analogOutputStatement

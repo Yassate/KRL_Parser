@@ -1,4 +1,4 @@
-# Generated from E:/!TRANSFER/Python/KRL_Parser/codeRepo/generated\krl.g4 by ANTLR 4.8
+# Generated from D:/Programowanie/PycharmProjects/KRL_Parser/codeRepo/generated\krl.g4 by ANTLR 4.8
 from antlr4 import *
 from io import StringIO
 from typing.io import TextIO

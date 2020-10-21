@@ -1,4 +1,4 @@
-# Generated from E:/!TRANSFER/Python/KRL_Parser/codeRepo/generated\krl.g4 by ANTLR 4.8
+# Generated from D:/Programowanie/PycharmProjects/KRL_Parser/codeRepo/generated\krl.g4 by ANTLR 4.8
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -3064,127 +3064,494 @@ class krlParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def CONTINUE(self):
-            return self.getToken(krlParser.CONTINUE, 0)
+
+        def getRuleIndex(self):
+            return krlParser.RULE_statement
+
+     
+        def copyFrom(self, ctx:ParserRuleContext):
+            super().copyFrom(ctx)
+
+
+
+    class WhileLoopContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def WHILE(self):
+            return self.getToken(krlParser.WHILE, 0)
+        def expression(self):
+            return self.getTypedRuleContext(krlParser.ExpressionContext,0)
 
         def NEWLINE(self, i:int=None):
             if i is None:
                 return self.getTokens(krlParser.NEWLINE)
             else:
                 return self.getToken(krlParser.NEWLINE, i)
+        def statementList(self):
+            return self.getTypedRuleContext(krlParser.StatementListContext,0)
+
+        def ENDWHILE(self):
+            return self.getToken(krlParser.ENDWHILE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitWhileLoop" ):
+                return visitor.visitWhileLoop(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class ExitStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
 
         def EXIT(self):
             return self.getToken(krlParser.EXIT, 0)
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
 
-        def FOR(self):
-            return self.getToken(krlParser.FOR, 0)
-
-        def IDENTIFIER(self, i:int=None):
-            if i is None:
-                return self.getTokens(krlParser.IDENTIFIER)
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitExitStatement" ):
+                return visitor.visitExitStatement(self)
             else:
-                return self.getToken(krlParser.IDENTIFIER, i)
+                return visitor.visitChildren(self)
 
-        def expression(self, i:int=None):
-            if i is None:
-                return self.getTypedRuleContexts(krlParser.ExpressionContext)
+
+    class AssignmentStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def assignmentExpression(self):
+            return self.getTypedRuleContext(krlParser.AssignmentExpressionContext,0)
+
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAssignmentStatement" ):
+                return visitor.visitAssignmentStatement(self)
             else:
-                return self.getTypedRuleContext(krlParser.ExpressionContext,i)
+                return visitor.visitChildren(self)
 
 
-        def TO(self):
-            return self.getToken(krlParser.TO, 0)
+    class InterruptDeclContext(StatementContext):
 
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def INTERRUPT(self):
+            return self.getToken(krlParser.INTERRUPT, 0)
+        def DECL(self):
+            return self.getToken(krlParser.DECL, 0)
+        def primary(self):
+            return self.getTypedRuleContext(krlParser.PrimaryContext,0)
+
+        def WHEN(self):
+            return self.getToken(krlParser.WHEN, 0)
+        def expression(self):
+            return self.getTypedRuleContext(krlParser.ExpressionContext,0)
+
+        def DO(self):
+            return self.getToken(krlParser.DO, 0)
+        def assignmentExpression(self):
+            return self.getTypedRuleContext(krlParser.AssignmentExpressionContext,0)
+
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+        def GLOBAL(self):
+            return self.getToken(krlParser.GLOBAL, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitInterruptDecl" ):
+                return visitor.visitInterruptDecl(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class IfStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def IF(self):
+            return self.getToken(krlParser.IF, 0)
+        def expression(self):
+            return self.getTypedRuleContext(krlParser.ExpressionContext,0)
+
+        def THEN(self):
+            return self.getToken(krlParser.THEN, 0)
+        def NEWLINE(self, i:int=None):
+            if i is None:
+                return self.getTokens(krlParser.NEWLINE)
+            else:
+                return self.getToken(krlParser.NEWLINE, i)
         def statementList(self, i:int=None):
             if i is None:
                 return self.getTypedRuleContexts(krlParser.StatementListContext)
             else:
                 return self.getTypedRuleContext(krlParser.StatementListContext,i)
 
-
-        def ENDFOR(self):
-            return self.getToken(krlParser.ENDFOR, 0)
-
-        def GOTO(self):
-            return self.getToken(krlParser.GOTO, 0)
-
-        def HALT(self):
-            return self.getToken(krlParser.HALT, 0)
-
-        def IF(self):
-            return self.getToken(krlParser.IF, 0)
-
-        def THEN(self):
-            return self.getToken(krlParser.THEN, 0)
-
         def ENDIF(self):
             return self.getToken(krlParser.ENDIF, 0)
-
         def ELSE(self):
             return self.getToken(krlParser.ELSE, 0)
 
-        def LOOP(self):
-            return self.getToken(krlParser.LOOP, 0)
-
-        def ENDLOOP(self):
-            return self.getToken(krlParser.ENDLOOP, 0)
-
-        def REPEAT(self):
-            return self.getToken(krlParser.REPEAT, 0)
-
-        def UNTIL(self):
-            return self.getToken(krlParser.UNTIL, 0)
-
-        def SWITCH(self):
-            return self.getToken(krlParser.SWITCH, 0)
-
-        def switchBlockStatementGroups(self):
-            return self.getTypedRuleContext(krlParser.SwitchBlockStatementGroupsContext,0)
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitIfStatement" ):
+                return visitor.visitIfStatement(self)
+            else:
+                return visitor.visitChildren(self)
 
 
-        def ENDSWITCH(self):
-            return self.getToken(krlParser.ENDSWITCH, 0)
+    class ReturnStatementContext(StatementContext):
 
-        def WAIT(self):
-            return self.getToken(krlParser.WAIT, 0)
-
-        def SEC(self):
-            return self.getToken(krlParser.SEC, 0)
-
-        def WHILE(self):
-            return self.getToken(krlParser.WHILE, 0)
-
-        def ENDWHILE(self):
-            return self.getToken(krlParser.ENDWHILE, 0)
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
 
         def RETURN(self):
             return self.getToken(krlParser.RETURN, 0)
-
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
         def assignmentExpression(self):
             return self.getTypedRuleContext(krlParser.AssignmentExpressionContext,0)
 
 
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitReturnStatement" ):
+                return visitor.visitReturnStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class TriggerContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def TRIGGER(self):
+            return self.getToken(krlParser.TRIGGER, 0)
+        def WHEN(self):
+            return self.getToken(krlParser.WHEN, 0)
+        def expression(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(krlParser.ExpressionContext)
+            else:
+                return self.getTypedRuleContext(krlParser.ExpressionContext,i)
+
+        def DELAY(self):
+            return self.getToken(krlParser.DELAY, 0)
+        def DO(self):
+            return self.getToken(krlParser.DO, 0)
+        def assignmentExpression(self):
+            return self.getTypedRuleContext(krlParser.AssignmentExpressionContext,0)
+
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+        def IDENTIFIER(self):
+            return self.getToken(krlParser.IDENTIFIER, 0)
+        def PRIO(self):
+            return self.getToken(krlParser.PRIO, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitTrigger" ):
+                return visitor.visitTrigger(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class BrakeStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
         def BRAKE(self):
             return self.getToken(krlParser.BRAKE, 0)
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+        def IDENTIFIER(self):
+            return self.getToken(krlParser.IDENTIFIER, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitBrakeStatement" ):
+                return visitor.visitBrakeStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class SwitchContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def SWITCH(self):
+            return self.getToken(krlParser.SWITCH, 0)
+        def expression(self):
+            return self.getTypedRuleContext(krlParser.ExpressionContext,0)
+
+        def NEWLINE(self, i:int=None):
+            if i is None:
+                return self.getTokens(krlParser.NEWLINE)
+            else:
+                return self.getToken(krlParser.NEWLINE, i)
+        def switchBlockStatementGroups(self):
+            return self.getTypedRuleContext(krlParser.SwitchBlockStatementGroupsContext,0)
+
+        def ENDSWITCH(self):
+            return self.getToken(krlParser.ENDSWITCH, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitSwitch" ):
+                return visitor.visitSwitch(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class AnOutStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def analogOutputStatement(self):
+            return self.getTypedRuleContext(krlParser.AnalogOutputStatementContext,0)
+
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAnOutStatement" ):
+                return visitor.visitAnOutStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class HaltContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def HALT(self):
+            return self.getToken(krlParser.HALT, 0)
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitHalt" ):
+                return visitor.visitHalt(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class GotoContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def GOTO(self):
+            return self.getToken(krlParser.GOTO, 0)
+        def IDENTIFIER(self):
+            return self.getToken(krlParser.IDENTIFIER, 0)
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitGoto" ):
+                return visitor.visitGoto(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class AnInputStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def analogInputStatement(self):
+            return self.getTypedRuleContext(krlParser.AnalogInputStatementContext,0)
+
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitAnInputStatement" ):
+                return visitor.visitAnInputStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class WaitSecContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def WAIT(self):
+            return self.getToken(krlParser.WAIT, 0)
+        def SEC(self):
+            return self.getToken(krlParser.SEC, 0)
+        def expression(self):
+            return self.getTypedRuleContext(krlParser.ExpressionContext,0)
+
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitWaitSec" ):
+                return visitor.visitWaitSec(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class LoopContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def LOOP(self):
+            return self.getToken(krlParser.LOOP, 0)
+        def NEWLINE(self, i:int=None):
+            if i is None:
+                return self.getTokens(krlParser.NEWLINE)
+            else:
+                return self.getToken(krlParser.NEWLINE, i)
+        def statementList(self):
+            return self.getTypedRuleContext(krlParser.StatementListContext,0)
+
+        def ENDLOOP(self):
+            return self.getToken(krlParser.ENDLOOP, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitLoop" ):
+                return visitor.visitLoop(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class GotoBlockContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def IDENTIFIER(self):
+            return self.getToken(krlParser.IDENTIFIER, 0)
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitGotoBlock" ):
+                return visitor.visitGotoBlock(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class RepeatContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def REPEAT(self):
+            return self.getToken(krlParser.REPEAT, 0)
+        def NEWLINE(self, i:int=None):
+            if i is None:
+                return self.getTokens(krlParser.NEWLINE)
+            else:
+                return self.getToken(krlParser.NEWLINE, i)
+        def statementList(self):
+            return self.getTypedRuleContext(krlParser.StatementListContext,0)
+
+        def UNTIL(self):
+            return self.getToken(krlParser.UNTIL, 0)
+        def expression(self):
+            return self.getTypedRuleContext(krlParser.ExpressionContext,0)
+
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitRepeat" ):
+                return visitor.visitRepeat(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class InterruptContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
 
         def INTERRUPT(self):
             return self.getToken(krlParser.INTERRUPT, 0)
-
-        def DECL(self):
-            return self.getToken(krlParser.DECL, 0)
-
+        def IDENTIFIER(self):
+            return self.getToken(krlParser.IDENTIFIER, 0)
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
         def primary(self):
             return self.getTypedRuleContext(krlParser.PrimaryContext,0)
 
 
-        def WHEN(self):
-            return self.getToken(krlParser.WHEN, 0)
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitInterrupt" ):
+                return visitor.visitInterrupt(self)
+            else:
+                return visitor.visitChildren(self)
 
-        def DO(self):
-            return self.getToken(krlParser.DO, 0)
 
-        def GLOBAL(self):
-            return self.getToken(krlParser.GLOBAL, 0)
+    class NewlineStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitNewlineStatement" ):
+                return visitor.visitNewlineStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class ContinueStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def CONTINUE(self):
+            return self.getToken(krlParser.CONTINUE, 0)
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitContinueStatement" ):
+                return visitor.visitContinueStatement(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class CircMoveStatementContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
 
         def geometricExpression(self, i:int=None):
             if i is None:
@@ -3192,48 +3559,88 @@ class krlParser ( Parser ):
             else:
                 return self.getTypedRuleContext(krlParser.GeometricExpressionContext,i)
 
-
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
         def CIRC(self):
             return self.getToken(krlParser.CIRC, 0)
-
         def CIRC_REL(self):
             return self.getToken(krlParser.CIRC_REL, 0)
+        def IDENTIFIER(self):
+            return self.getToken(krlParser.IDENTIFIER, 0)
+        def primary(self):
+            return self.getTypedRuleContext(krlParser.PrimaryContext,0)
 
         def C_DIS(self):
             return self.getToken(krlParser.C_DIS, 0)
-
         def C_ORI(self):
             return self.getToken(krlParser.C_ORI, 0)
-
         def C_VEL(self):
             return self.getToken(krlParser.C_VEL, 0)
 
-        def TRIGGER(self):
-            return self.getToken(krlParser.TRIGGER, 0)
-
-        def DELAY(self):
-            return self.getToken(krlParser.DELAY, 0)
-
-        def PRIO(self):
-            return self.getToken(krlParser.PRIO, 0)
-
-        def analogInputStatement(self):
-            return self.getTypedRuleContext(krlParser.AnalogInputStatementContext,0)
-
-
-        def analogOutputStatement(self):
-            return self.getTypedRuleContext(krlParser.AnalogOutputStatementContext,0)
-
-
-        def getRuleIndex(self):
-            return krlParser.RULE_statement
-
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitStatement" ):
-                return visitor.visitStatement(self)
+            if hasattr( visitor, "visitCircMoveStatement" ):
+                return visitor.visitCircMoveStatement(self)
             else:
                 return visitor.visitChildren(self)
 
+
+    class ForLoopContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def FOR(self):
+            return self.getToken(krlParser.FOR, 0)
+        def IDENTIFIER(self, i:int=None):
+            if i is None:
+                return self.getTokens(krlParser.IDENTIFIER)
+            else:
+                return self.getToken(krlParser.IDENTIFIER, i)
+        def expression(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(krlParser.ExpressionContext)
+            else:
+                return self.getTypedRuleContext(krlParser.ExpressionContext,i)
+
+        def TO(self):
+            return self.getToken(krlParser.TO, 0)
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+        def statementList(self):
+            return self.getTypedRuleContext(krlParser.StatementListContext,0)
+
+        def ENDFOR(self):
+            return self.getToken(krlParser.ENDFOR, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitForLoop" ):
+                return visitor.visitForLoop(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class WaitForContext(StatementContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a krlParser.StatementContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def WAIT(self):
+            return self.getToken(krlParser.WAIT, 0)
+        def FOR(self):
+            return self.getToken(krlParser.FOR, 0)
+        def expression(self):
+            return self.getTypedRuleContext(krlParser.ExpressionContext,0)
+
+        def NEWLINE(self):
+            return self.getToken(krlParser.NEWLINE, 0)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitWaitFor" ):
+                return visitor.visitWaitFor(self)
+            else:
+                return visitor.visitChildren(self)
 
 
 
@@ -3247,6 +3654,7 @@ class krlParser ( Parser ):
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,53,self._ctx)
             if la_ == 1:
+                localctx = krlParser.ContinueStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
                 self.state = 432
                 self.match(krlParser.CONTINUE)
@@ -3255,6 +3663,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 2:
+                localctx = krlParser.ExitStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
                 self.state = 434
                 self.match(krlParser.EXIT)
@@ -3263,6 +3672,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 3:
+                localctx = krlParser.ForLoopContext(self, localctx)
                 self.enterOuterAlt(localctx, 3)
                 self.state = 436
                 self.match(krlParser.FOR)
@@ -3295,6 +3705,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 4:
+                localctx = krlParser.GotoContext(self, localctx)
                 self.enterOuterAlt(localctx, 4)
                 self.state = 450
                 self.match(krlParser.GOTO)
@@ -3305,6 +3716,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 5:
+                localctx = krlParser.HaltContext(self, localctx)
                 self.enterOuterAlt(localctx, 5)
                 self.state = 453
                 self.match(krlParser.HALT)
@@ -3313,6 +3725,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 6:
+                localctx = krlParser.IfStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 6)
                 self.state = 455
                 self.match(krlParser.IF)
@@ -3343,6 +3756,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 7:
+                localctx = krlParser.LoopContext(self, localctx)
                 self.enterOuterAlt(localctx, 7)
                 self.state = 468
                 self.match(krlParser.LOOP)
@@ -3357,6 +3771,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 8:
+                localctx = krlParser.RepeatContext(self, localctx)
                 self.enterOuterAlt(localctx, 8)
                 self.state = 474
                 self.match(krlParser.REPEAT)
@@ -3373,6 +3788,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 9:
+                localctx = krlParser.SwitchContext(self, localctx)
                 self.enterOuterAlt(localctx, 9)
                 self.state = 481
                 self.match(krlParser.SWITCH)
@@ -3389,6 +3805,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 10:
+                localctx = krlParser.WaitForContext(self, localctx)
                 self.enterOuterAlt(localctx, 10)
                 self.state = 488
                 self.match(krlParser.WAIT)
@@ -3401,6 +3818,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 11:
+                localctx = krlParser.WaitSecContext(self, localctx)
                 self.enterOuterAlt(localctx, 11)
                 self.state = 493
                 self.match(krlParser.WAIT)
@@ -3413,6 +3831,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 12:
+                localctx = krlParser.WhileLoopContext(self, localctx)
                 self.enterOuterAlt(localctx, 12)
                 self.state = 498
                 self.match(krlParser.WHILE)
@@ -3429,6 +3848,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 13:
+                localctx = krlParser.ReturnStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 13)
                 self.state = 505
                 self.match(krlParser.RETURN)
@@ -3445,6 +3865,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 14:
+                localctx = krlParser.BrakeStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 14)
                 self.state = 510
                 self.match(krlParser.BRAKE)
@@ -3461,6 +3882,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 15:
+                localctx = krlParser.AssignmentStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 15)
                 self.state = 515
                 self.assignmentExpression()
@@ -3469,6 +3891,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 16:
+                localctx = krlParser.GotoBlockContext(self, localctx)
                 self.enterOuterAlt(localctx, 16)
                 self.state = 518
                 self.match(krlParser.IDENTIFIER)
@@ -3479,12 +3902,14 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 17:
+                localctx = krlParser.NewlineStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 17)
                 self.state = 521
                 self.match(krlParser.NEWLINE)
                 pass
 
             elif la_ == 18:
+                localctx = krlParser.InterruptDeclContext(self, localctx)
                 self.enterOuterAlt(localctx, 18)
                 self.state = 523
                 self._errHandler.sync(self)
@@ -3513,6 +3938,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 19:
+                localctx = krlParser.InterruptContext(self, localctx)
                 self.enterOuterAlt(localctx, 19)
                 self.state = 534
                 self.match(krlParser.INTERRUPT)
@@ -3531,6 +3957,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 20:
+                localctx = krlParser.CircMoveStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 20)
                 self.state = 540
                 _la = self._input.LA(1)
@@ -3575,6 +4002,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 21:
+                localctx = krlParser.TriggerContext(self, localctx)
                 self.enterOuterAlt(localctx, 21)
                 self.state = 554
                 self.match(krlParser.TRIGGER)
@@ -3614,6 +4042,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 22:
+                localctx = krlParser.AnInputStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 22)
                 self.state = 571
                 self.analogInputStatement()
@@ -3622,6 +4051,7 @@ class krlParser ( Parser ):
                 pass
 
             elif la_ == 23:
+                localctx = krlParser.AnOutStatementContext(self, localctx)
                 self.enterOuterAlt(localctx, 23)
                 self.state = 574
                 self.analogOutputStatement()
