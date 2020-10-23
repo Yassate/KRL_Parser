@@ -6,7 +6,7 @@ print(sys.path)
 from antlr4 import *
 from krlLexer import krlLexer
 from krlParser import krlParser
-from semanalyzer import krlVisitorImpl
+from semanalyzer import SemanticAnalyzer
 import pprint as pp
 
 def file_to_ast(file_path):
@@ -27,7 +27,7 @@ def src_file_to_ast(src_file_path):
 
 src_tree, dat_tree = src_file_to_ast(file_path)
 
-myVisitor = krlVisitorImpl()
+myVisitor = SemanticAnalyzer()
 myVisitor.visit(dat_tree)
 myVisitor.visit(src_tree)
 

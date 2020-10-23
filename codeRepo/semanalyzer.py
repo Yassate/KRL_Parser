@@ -4,6 +4,7 @@ from krlParser import krlParser
 from symtables import *
 from dataclasses import dataclass
 
+
 @dataclass
 class E6Pos():
     X: float
@@ -28,7 +29,7 @@ class E6Pos():
     E6: float
 
 
-class krlVariable:
+class KrlVariable:
     def __init__(self, type, name):
         self.type = type
         self.name = name
@@ -39,12 +40,13 @@ class krlVariable:
 
 
 # TODO: #OVERALL >> Implement 2 visitors - first for Semantic Analysis ang getting definitions, second for evaluate
-class krlVisitorImpl(krlVisitor):
+class SemanticAnalyzer(krlVisitor):
     def __init__(self):
         super().__init__()
         self.variables = []
         self.literals = []
-        self.globalSymTable = ScopedSymbolTable(scope_name="GLOBAL", scope_level=1)
+        self.globalScope = ScopedSymbolTable(scope_name="GLOBAL", scope_level=1)
+        self.currentScope = self.globalScope
 
     def _parse_literal(self, ctx):
         literal_type = ctx.getChild(0).symbol.type
@@ -72,18 +74,18 @@ class krlVisitorImpl(krlVisitor):
     def visitChild(self, ctx, index):
         return ctx.getChild(index).accept(self)
 
-    def visitModule(self, ctx:krlParser.ModuleContext):
+    def visitModule(self, ctx: krlParser.ModuleContext):
 
         return self.visitChildren(ctx)
 
-    def visitDataList(self, ctx:krlParser.DataListContext):
+    def visitDataList(self, ctx: krlParser.DataListContext):
         return self.visitChildren(ctx)
 
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         #children: 0 - "DECL"; 1 - type (INT, LDAT, PDAT etc.); 2 - value
         #CORRECT DECLARATION
         if ctx.getChild(0).getText() == "DECL":
-            new_variable = krlVariable(ctx.getChild(1).getText(), self.visitChild(ctx, 2))
+            new_variable = KrlVariable(ctx.getChild(1).getText(), self.visitChild(ctx, 2))
             if ctx.getChildCount() > 2:
                 # TODO >> Implement multiple variable declaration (e.g. INT SUCCESS, COUNT, INDEX) and value assignment
                 # TODO >> implement incorrect declaration handling (without "DECL"; maybe use code from assignment visitor"
