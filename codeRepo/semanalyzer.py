@@ -1,6 +1,7 @@
 from krlVisitor import krlVisitor
 from krlLexer import krlLexer
 from krlParser import krlParser
+from symtables import *
 from dataclasses import dataclass
 
 @dataclass
@@ -26,6 +27,7 @@ class E6Pos():
     E5: float
     E6: float
 
+
 class krlVariable:
     def __init__(self, type, name):
         self.type = type
@@ -35,12 +37,14 @@ class krlVariable:
     def __str__(self):
         return f"Name: {self.name}, type: {self.type}, value: {self.value}"
 
-#TODO: #OVERALL >> Implement 2 visitors - first for Semantic Analysis ang getting definitions, second for evaluate
+
+# TODO: #OVERALL >> Implement 2 visitors - first for Semantic Analysis ang getting definitions, second for evaluate
 class krlVisitorImpl(krlVisitor):
     def __init__(self):
         super().__init__()
         self.variables = []
         self.literals = []
+        self.globalSymTable = ScopedSymbolTable(scope_name="GLOBAL", scope_level=1)
 
     def _parse_literal(self, ctx):
         literal_type = ctx.getChild(0).symbol.type
@@ -68,8 +72,8 @@ class krlVisitorImpl(krlVisitor):
     def visitChild(self, ctx, index):
         return ctx.getChild(index).accept(self)
 
-
     def visitModule(self, ctx:krlParser.ModuleContext):
+
         return self.visitChildren(ctx)
 
     def visitDataList(self, ctx:krlParser.DataListContext):
@@ -81,13 +85,13 @@ class krlVisitorImpl(krlVisitor):
         if ctx.getChild(0).getText() == "DECL":
             new_variable = krlVariable(ctx.getChild(1).getText(), self.visitChild(ctx, 2))
             if ctx.getChildCount() > 2:
-                # TODO Implement multiple variable declaration (e.g. INT SUCCESS, COUNT, INDEX) and value assignment
-                # TODO implement incorrect declaration handling (without "DECL"; maybe use code from assignment visitor"
+                # TODO >> Implement multiple variable declaration (e.g. INT SUCCESS, COUNT, INDEX) and value assignment
+                # TODO >> implement incorrect declaration handling (without "DECL"; maybe use code from assignment visitor"
                 if ctx.getChild(3).getChildCount() == 0:
                     new_variable.value = "LALA"
                     pass
             self.variables.append(new_variable)
-        #TODO what to return?
+        # TODO >> what to return?
         #return self.visitChildren(ctx)
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):

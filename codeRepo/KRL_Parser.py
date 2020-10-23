@@ -6,7 +6,7 @@ print(sys.path)
 from antlr4 import *
 from krlLexer import krlLexer
 from krlParser import krlParser
-from krlVisitorImpl import krlVisitorImpl
+from semanalyzer import krlVisitorImpl
 import pprint as pp
 
 def file_to_ast(file_path):
