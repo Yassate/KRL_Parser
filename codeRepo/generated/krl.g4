@@ -131,7 +131,7 @@ routineBody
    ;
 
 routineDataSection
-   : (forwardDeclaration NEWLINE | variableDeclaration NEWLINE | (NEWLINE) NEWLINE | importStatement NEWLINE)*
+   : NEWLINE? (forwardDeclaration NEWLINE | variableDeclaration NEWLINE | (NEWLINE) NEWLINE | importStatement NEWLINE)*
    ;
 
 forwardDeclaration

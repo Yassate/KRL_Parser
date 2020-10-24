@@ -29,24 +29,14 @@ class E6Pos():
     E6: float
 
 
-class KrlVariable:
-    def __init__(self, type, name):
-        self.type = type
-        self.name = name
-        self.value = None
-
-    def __str__(self):
-        return f"Name: {self.name}, type: {self.type}, value: {self.value}"
-
-
 # TODO: #OVERALL >> Implement 2 visitors - first for Semantic Analysis ang getting definitions, second for evaluate
 class SemanticAnalyzer(krlVisitor):
     def __init__(self):
         super().__init__()
-        self.variables = []
-        self.literals = []
-        self.globalScope = ScopedSymbolTable(scope_name="GLOBAL", scope_level=1)
-        self.currentScope = self.globalScope
+        self._globalscope = ScopedSymbolTable(scope_name="GLOBAL", scope_level=1)
+        self._modulescope = None
+        self._currentscope = None
+
 
     def _parse_literal(self, ctx):
         literal_type = ctx.getChild(0).symbol.type
@@ -75,24 +65,37 @@ class SemanticAnalyzer(krlVisitor):
         return ctx.getChild(index).accept(self)
 
     def visitModule(self, ctx: krlParser.ModuleContext):
+        return self.visitChildren(ctx)
 
+    def visitModuleName(self, ctx: krlParser.ModuleNameContext):
+        scope_name = ctx.IDENTIFIER().accept(self)
+        if self._modulescope is None:
+            self._modulescope = ScopedSymbolTable(scope_name, scope_level=2)
+            self._currentscope = self._modulescope
         return self.visitChildren(ctx)
 
     def visitDataList(self, ctx: krlParser.DataListContext):
         return self.visitChildren(ctx)
 
+    # TODO >> this method is copy of visitVariableDeclarationInDataList; to refactor
+    def visitVariableDeclaration(self, ctx: krlParser.VariableDeclarationContext):
+        if ctx.DECL() is not None:
+            var_type = ctx.typeVar().accept(self)
+            self._currentscope.insert(Symbol(ctx.variableName().accept(self), var_type))
+            var_list_rest = ctx.variableListRest()
+            if var_list_rest is not None:
+                for name in var_list_rest.accept(self):
+                    self._currentscope.insert(Symbol(name, var_type))
+
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
-        #children: 0 - "DECL"; 1 - type (INT, LDAT, PDAT etc.); 2 - value
-        #CORRECT DECLARATION
-        if ctx.getChild(0).getText() == "DECL":
-            new_variable = KrlVariable(ctx.getChild(1).getText(), self.visitChild(ctx, 2))
-            if ctx.getChildCount() > 2:
-                # TODO >> Implement multiple variable declaration (e.g. INT SUCCESS, COUNT, INDEX) and value assignment
-                # TODO >> implement incorrect declaration handling (without "DECL"; maybe use code from assignment visitor"
-                if ctx.getChild(3).getChildCount() == 0:
-                    new_variable.value = "LALA"
-                    pass
-            self.variables.append(new_variable)
+        if ctx.DECL() is not None:
+            var_type = ctx.typeVar().accept(self)
+            self._currentscope.insert(Symbol(ctx.variableName().accept(self), var_type))
+            var_list_rest = ctx.variableListRest()
+            if var_list_rest is not None:
+                for name in var_list_rest.accept(self):
+                    self._currentscope.insert(Symbol(name, var_type))
+            # TODO >> implement incorrect declaration handling (without "DECL"; maybe use code from assignment visitor"
         # TODO >> what to return?
         #return self.visitChildren(ctx)
 
@@ -123,3 +126,9 @@ class SemanticAnalyzer(krlVisitor):
 
     def visitTerminal(self, node):
         return node.getText()
+
+    def visitVariableListRest(self, ctx: krlParser.VariableListRestContext):
+        names = []
+        for name in ctx.variableName():
+            names.append(name.accept(self))
+        return names

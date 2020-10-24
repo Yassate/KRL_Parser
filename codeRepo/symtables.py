@@ -12,7 +12,7 @@ class ScopedSymbolTable:
     def _init_builtins(self):
         builtin_types = ["INT", "REAL", "BOOL", "CHAR", "E6POS", "E6AXIS"]
         for type_ in builtin_types:
-            self.insert(type_)
+            self.insert(Symbol(type_))
 
     # TODO >> Rewrite __str__ method
     def __str__(self):
@@ -44,5 +44,4 @@ class ScopedSymbolTable:
 
     def lookup(self, name):
         print(f"Lookup: {name}")
-        symbol = self._symbols.get(name)
-        return symbol
+        return self._symbols.get(name)

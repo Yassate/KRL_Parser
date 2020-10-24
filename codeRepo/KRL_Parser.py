@@ -8,6 +8,7 @@ from krlLexer import krlLexer
 from krlParser import krlParser
 from semanalyzer import SemanticAnalyzer
 import pprint as pp
+from symtables import ScopedSymbolTable
 
 def file_to_ast(file_path):
     text = FileStream(file_path)#

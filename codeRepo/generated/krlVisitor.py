@@ -264,8 +264,8 @@ class krlVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by krlParser#assignmentStatement.
-    def visitAssignmentStatement(self, ctx:krlParser.AssignmentStatementContext):
+    # Visit a parse tree produced by krlParser#assignment.
+    def visitAssignment(self, ctx:krlParser.AssignmentContext):
         return self.visitChildren(ctx)
 
 
@@ -274,8 +274,8 @@ class krlVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by krlParser#newlineStatement.
-    def visitNewlineStatement(self, ctx:krlParser.NewlineStatementContext):
+    # Visit a parse tree produced by krlParser#newl.
+    def visitNewl(self, ctx:krlParser.NewlContext):
         return self.visitChildren(ctx)
 
 
@@ -289,8 +289,28 @@ class krlVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by krlParser#circMoveStatement.
-    def visitCircMoveStatement(self, ctx:krlParser.CircMoveStatementContext):
+    # Visit a parse tree produced by krlParser#ptpMove.
+    def visitPtpMove(self, ctx:krlParser.PtpMoveContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#ptpRelMove.
+    def visitPtpRelMove(self, ctx:krlParser.PtpRelMoveContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#linMove.
+    def visitLinMove(self, ctx:krlParser.LinMoveContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#linRelMove.
+    def visitLinRelMove(self, ctx:krlParser.LinRelMoveContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#circMove.
+    def visitCircMove(self, ctx:krlParser.CircMoveContext):
         return self.visitChildren(ctx)
 
 
@@ -306,21 +326,6 @@ class krlVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by krlParser#anOutStatement.
     def visitAnOutStatement(self, ctx:krlParser.AnOutStatementContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by krlParser#ptpMoveStatement.
-    def visitPtpMoveStatement(self, ctx:krlParser.PtpMoveStatementContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by krlParser#linMoveStatement.
-    def visitLinMoveStatement(self, ctx:krlParser.LinMoveStatementContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by krlParser#linRelMoveStatement.
-    def visitLinRelMoveStatement(self, ctx:krlParser.LinRelMoveStatementContext):
         return self.visitChildren(ctx)
 
 
