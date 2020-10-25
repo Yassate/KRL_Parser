@@ -45,7 +45,7 @@ class ModuleProcessor:
         self._module_name = self._semanalyzer.get_module_name()
 
     def process_module(self):
-        self._krlinterpreter = KrlInterpreter()
+        self._krlinterpreter = KrlInterpreter(self._symtable)
         self._krlinterpreter.visit(self._dat_tree)
         self._krlinterpreter.visit(self._dat_tree)
 

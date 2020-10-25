@@ -85,9 +85,7 @@ class SemanticAnalyzer(krlVisitor):
         return ctx.getChild(1).accept(self)
 
     def visitLiteral(self, ctx: krlParser.LiteralContext):
-        if isinstance(ctx.getChild(0), krlParser.StructLiteralContext):
-            return self.visitChildren(ctx)
-        elif isinstance(ctx.getChild(0), krlParser.EnumElementContext):
+        if ctx.structLiteral() is not None or ctx.enumElement() is not None:
             return self.visitChildren(ctx)
         else:
             return self._parse_literal(ctx)
@@ -102,17 +100,5 @@ class SemanticAnalyzer(krlVisitor):
         return names
 
 
-    # Those methods should be probably used in interpreter, not in semanalyzer
-    def visitStructElementList(self, ctx: krlParser.StructElementListContext):
-        struct_elements = {}
-        for a in ctx.children:
-            element = a.accept(self)
-            if len(element) > 1:
-                struct_elements.update(element)
-        return struct_elements
 
-    def visitStructElement(self, ctx: krlParser.StructElementContext):
-        key = ctx.getChild(0).getText()
-        val = ctx.getChild(1).accept(self)
-        return {key: val}
 
