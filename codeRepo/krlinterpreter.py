@@ -2,23 +2,13 @@ from krlVisitor import krlVisitor
 from krlLexer import krlLexer
 from krlParser import krlParser
 from symtables import *
+from callstack import Callstack, ActivationRecord, ARType
 
-
-class SemanticAnalyzer(krlVisitor):
+# TODO >> IMPLEMENTATION IS COPIED FROM SEMANALYZER.PY -> TO CHANGE
+class KrlInterpreter(krlVisitor):
     def __init__(self):
         super().__init__()
-        self._global_symtable = ScopedSymbolTable(scope_name="GLOBAL", scope_level=1)
-        self._module_symtable = None
-        self._current_symtable = None
-
-    def get_global_symtable(self):
-        return self._global_symtable
-
-    def get_module_symtable(self):
-        return self._module_symtable
-
-    def get_module_name(self):
-        return self._module_symtable.scope_name
+        self._callstack = Callstack()
 
     def _parse_literal(self, ctx):
         literal_type = ctx.getChild(0).symbol.type
@@ -49,37 +39,31 @@ class SemanticAnalyzer(krlVisitor):
     def visitModule(self, ctx: krlParser.ModuleContext):
         return self.visitChildren(ctx)
 
-    def visitModuleData(self, ctx:krlParser.ModuleDataContext):
-        return self.visitChildren(ctx)
-
     def visitModuleName(self, ctx: krlParser.ModuleNameContext):
         scope_name = ctx.IDENTIFIER().accept(self)
-        if self._module_symtable is None:
-            self._module_symtable = ScopedSymbolTable(scope_name, scope_level=2)
-            self._current_symtable = self._module_symtable
-        return self.visitChildren(ctx)
+        a_record = ActivationRecord(name=scope_name, type=ARType.MODULE, nesting_level=1)
+        self._callstack.push(a_record)
+        self.visitChildren(ctx)
+        self._callstack.pop()
+    # TODO I WAS HERE
 
-    # TODO >> this method is copy of visitVariableDeclarationInDataList; to refactor
     def visitVariableDeclaration(self, ctx: krlParser.VariableDeclarationContext):
         if ctx.DECL() is not None:
             var_type = ctx.typeVar().accept(self)
-            self._current_symtable.insert(Symbol(ctx.variableName().accept(self), var_type))
+            self._currentscope.insert(Symbol(ctx.variableName().accept(self), var_type))
             var_list_rest = ctx.variableListRest()
             if var_list_rest is not None:
                 for name in var_list_rest.accept(self):
-                    self._current_symtable.insert(Symbol(name, var_type))
+                    self._currentscope.insert(Symbol(name, var_type))
 
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL() is not None:
             var_type = ctx.typeVar().accept(self)
-            self._current_symtable.insert(Symbol(ctx.variableName().accept(self), var_type))
+            self._currentscope.insert(Symbol(ctx.variableName().accept(self), var_type))
             var_list_rest = ctx.variableListRest()
             if var_list_rest is not None:
                 for name in var_list_rest.accept(self):
-                    self._current_symtable.insert(Symbol(name, var_type))
-            # TODO >> implement GLOBAL/CONST declaration handling
-        # TODO >> what to return?
-        #return self.visitChildren(ctx)
+                    self._currentscope.insert(Symbol(name, var_type))
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
         return ctx.getChild(1).accept(self)
@@ -115,4 +99,3 @@ class SemanticAnalyzer(krlVisitor):
         key = ctx.getChild(0).getText()
         val = ctx.getChild(1).accept(self)
         return {key: val}
-

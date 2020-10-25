@@ -22,9 +22,10 @@ class BuiltInSymbol(Symbol):
 
 
 class ProcedureSymbol(Symbol):
-    def __init__(self, name, params=None):
+    def __init__(self, name, params=None, ctx = None):
         super(ProcedureSymbol, self).__init__(name)
         self.params = params if params is not None else []
+        self.ctx = None
 
     def __str__(self):
         return '<{class_name}(name={name}, parameters={params})>'.format(
