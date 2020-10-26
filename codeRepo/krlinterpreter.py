@@ -4,7 +4,6 @@ from krlParser import krlParser
 from symtables import *
 from callstack import Callstack, ActivationRecord, ARType
 
-# TODO >> IMPLEMENTATION IS COPIED FROM SEMANALYZER.PY -> TO CHANGE
 class KrlInterpreter(krlVisitor):
     def __init__(self, module_symtable):
         super().__init__()
@@ -30,13 +29,11 @@ class KrlInterpreter(krlVisitor):
     def visitModule(self, ctx: krlParser.ModuleContext):
         return self.visitChildren(ctx)
 
-    def visitModuleData(self, ctx:krlParser.ModuleDataContext):
+    def visitModuleData(self, ctx: krlParser.ModuleDataContext):
         scope_name = ctx.moduleName().accept(self)
         a_record = ActivationRecord(name=scope_name, type=ARType.MODULE, nesting_level=1)
         self._callstack.push(a_record)
         self.visitChildren(ctx)
-        self._callstack.pop()
-        #TODO Callstack pop trzeba wywalic dopóki plik .src nie zostanie przemielony
 
     def visitModuleName(self, ctx: krlParser.ModuleNameContext):
         return ctx.IDENTIFIER().accept(self)
@@ -103,6 +100,12 @@ class KrlInterpreter(krlVisitor):
 
     def visitTerminal(self, node):
         return node.getText()
+
+
+    def visitPtpMove(self, ctx: krlParser.PtpMoveContext):
+        target_name = self.visitChild(ctx, 1)
+        target_coords = self._callstack.peek().get(target_name)
+        return self.visitChildren(ctx)
 
     #def visitVariableListRest(self, ctx: krlParser.VariableListRestContext):
         #names = []

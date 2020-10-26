@@ -94,28 +94,33 @@ def saveErrors(errors):
     np.savetxt("plots/errors {}".format(time.ctime()), errors)
 
 
-class Position(object):
-    def __init__(self):
-        x = 0
-        y = 0
-        z = 0
+class Position:
+    def __init__(self, x=0, y=0, z=0):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def to_list(self):
+        return [self.x, self,y, self.z]
 
 
-class Orientation(object):
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-        self.z = 0
-        self.w = 0
+class Orientation:
+    def __init__(self, x=0, y=0, z=0, w=1):
+        self.x = x
+        self.y = y
+        self.z = z
+        self.w = w
+    def to_list(self):
+        return [self.x, self.y, self.z, self.z]
 
 
-class Pose(object):
+class Pose:
     def __init__(self):
         self.position = Position()
         self.orientation = Orientation()
 
 
-class JointTrajectoryPoint(object):
+class JointTrajectoryPoint:
     def __init__(self):
         self.positions = []
 
@@ -154,7 +159,7 @@ s = {alpha0: 0, a0: 0, d1: 1.045,
 ########################################################################################
 ########################################################################################
 
-class DummyReq(object):
+class DummyReq:
     # poses = [Pose()]
     def __init__(self, pos, orient):
         self.poses = [Pose()]
@@ -170,10 +175,20 @@ class DummyReq(object):
         print("Pos : ", self.poses[0].position)
         print("Orient : ", self.poses[0].orientation)
 
+    def set_euler(self, A, B, C):
+        quat = tf.quaternion_from_euler(A, B, C)
+        self.poses[0].position.x = quat[0]
+        self.poses[1].position.x = quat[1]
+        self.poses[2].position.x = quat[2]
+        self.poses[3].position.x = quat[3]
+
+    def get_euler(self):
+        tf.transformations.euler_from_quaternion(self.orientation)
+
 
 # Class to solve IK problem for the Kuka KR210
 # This class creates the symbolic transforms only once during initialization
-class KukaIKSolver(object):
+class KukaIKSolver:
 
     def __init__(self):
 
@@ -202,23 +217,33 @@ class KukaIKSolver(object):
         self.T6_G = self.T6_G.subs(s)
 
         # # Composition of Homogenous Transforms
+        #self.T0_2 = simplify(self.T0_1 * self.T1_2)  # base_link to link 2
+        #self.T0_3 = simplify(self.T0_2 * self.T2_3)  # base_link to link 3
+        #self.T0_4 = simplify(self.T0_3 * self.T3_4)  # base_link to link 3
+        #self.T0_5 = simplify(self.T0_4 * self.T4_5)  # base_link to link 3
+        #self.T0_6 = simplify(self.T0_5 * self.T5_6)  # base_link to link 3
+        #self.T0_G = simplify(self.T0_6 * self.T6_G)  # base_link to link 3
 
-        self.T0_2 = simplify(self.T0_1 * self.T1_2)  # base_link to link 2
-        self.T0_3 = simplify(self.T0_2 * self.T2_3)  # base_link to link 3
-        self.T0_4 = simplify(self.T0_3 * self.T3_4)  # base_link to link 3
-        self.T0_5 = simplify(self.T0_4 * self.T4_5)  # base_link to link 3
-        self.T0_6 = simplify(self.T0_5 * self.T5_6)  # base_link to link 3
-        self.T0_G = simplify(self.T0_6 * self.T6_G)  # base_link to link 3
+        # TODO temporary deleted "simplify" because is terribly slow
+        self.T0_2 = self.T0_1 * self.T1_2  # base_link to link 2
+        self.T0_3 = self.T0_2 * self.T2_3  # base_link to link 3
+        self.T0_4 = self.T0_3 * self.T3_4  # base_link to link 3
+        self.T0_5 = self.T0_4 * self.T4_5  # base_link to link 3
+        self.T0_6 = self.T0_5 * self.T5_6  # base_link to link 3
+        self.T0_G = self.T0_6 * self.T6_G  # base_link to link 3
+
 
         # # Correction Needed to account for orientation difference between definition
         # # of gripper_link in URDF versus DH Convention
-        self.R_corr = Matrix(simplify(rot_z(pi) * rot_y(-pi / 2)))
+        #self.R_corr = Matrix(simplify(rot_z(pi) * rot_y(-pi / 2)))
+        self.R_corr = Matrix(rot_z(pi) * rot_y(-pi / 2))
         # self.R_corr = self.R_corr[0:3, 0:3] # Extract rotation matrix from homogeneous transform
 
         # Compute complete transform for End effector
         R_corr2 = self.R_corr.row_insert(3, Matrix([[0, 0, 0]]))
         R_corr2 = R_corr2.col_insert(3, Matrix([0, 0, 0, 1]))
-        self.T_total = simplify(self.T0_G * R_corr2)
+        #self.T_total = simplify(self.T0_G * R_corr2)
+        self.T_total = self.T0_G * R_corr2
 
         # Rotation transform between link 3 and 6, defined symbollically based
         # on the Modified DH parameters.
@@ -237,6 +262,7 @@ class KukaIKSolver(object):
         self.old_theta6 = 0
         pass
 
+    # TODO >> Forward kinematics gives wrong Y coordinates (wrong sign)
     def performFK(self, theta_t):
         theta_s = {q1: theta_t[0], q2: theta_t[1], q3: theta_t[2], q4: theta_t[3], q5: theta_t[4], q6: theta_t[5]}
         # theta_s = {q1: theta_t[0], q}
