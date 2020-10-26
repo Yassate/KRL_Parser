@@ -61,7 +61,7 @@ class KrlInterpreter(krlVisitor):
             if var_list_rest is not None:
                 for name in var_list_rest.accept(self):
                     pass
-                    # TODO >> implement multiple variable declaration (np. DECL INT I,X,V = 0)
+                    # TODO >> Implement multiple variable declaration (np. DECL INT I,X,V = 0)
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
         return ctx.getChild(1).accept(self)

@@ -1,0 +1,327 @@
+DEF KUE_WEG2(STARTP:IN,ZIELP:OUT,ZIELBASE:IN)
+E6POS STARTP,ZIELP
+FRAME ZIELBASE
+
+
+;DAS PROGRAMM BERECHNET DEN STATUS DER ACHSE 5 
+;VOM ZIELPUNKT SO, DASS DIE ACHSEN 4 UND 6 MOEGLICHST
+;WENIG DREHEN. DAS PROGRAMM BENOETIGT DIE KOORDINATEN
+;X,Y,Z,A,B UND C VON START- UND ZIELPUNKT, DEN STATUS
+;VOM STARTPUNKT UND DAS BASE VOM ZIELPUNKT, $TOOL VOM
+;ZIELPUNKT UND STARTPUNKT MUESSEN IDENTISCH SEIN. DAS
+;AKTUELL GUELTIGE $TOOL UND $BASE MUSS DAS TOOL UND
+;BASE VOM STARTPUNKT SEIN. FALLS SICH DER STATUS FUER DEN
+;GRUNDBEREICH BZW. ACHSE2/3 VOM START- ZUM ZIELPUNKT
+;AENDERT, KANN DAS PROGRAMM NICHT VERWENDET WERDEN.
+;VERSION 2.0, 14.10.09
+
+E6AXIS STARTW
+E6AXIS ZIELW
+E6POS ZIELNEU,ZPOHNETURN
+INT RET, U_ZAEHL
+REAL A4DIF
+REAL A6DIF
+FRAME UMR_FRAME
+
+RET=0
+ZIELP.S = STARTP.S
+CONTINUE
+STARTW = $AXIS_ACT
+$TARGET_STATUS = #BEST
+
+;RUECKWAERTSTRAFO FUER STARTPUNKT
+STARTW = INVERSE( STARTP, STARTW, RET )
+
+
+;ZIELPUNKT IN BASE VOM STARTPUNKT UMRECHNEN
+UMR_FRAME=$BASE
+INV_FRAME(UMR_FRAME)
+ZIELNEU = UMR_FRAME:ZIELBASE:ZIELP
+
+;DIE RUECKWAERTSTRAFO FUER DEN ZIELPUNKT 
+;MUSS OHNE STATUS UND TURN GEMACHT WERDEN
+ZPOHNETURN.X=ZIELNEU.X
+ZPOHNETURN.Y=ZIELNEU.Y
+ZPOHNETURN.Z=ZIELNEU.Z
+ZPOHNETURN.A=ZIELNEU.A
+ZPOHNETURN.B=ZIELNEU.B
+ZPOHNETURN.C=ZIELNEU.C
+
+;RUECKWAERTSTRAFO FUER ZIELPUNKT, FALLS
+;STARTPUNKT KORREKT BERECHNET
+IF RET == 0 THEN
+   ZIELW = INVERSE( ZPOHNETURN, STARTW, RET )
+ELSE
+   ;RUECKWAERTSTRAFO FUER STARTPUNKT FEHLGESCHLAGEN
+   ;MELDUNG AUSGEBEN
+   SWITCH RET
+      CASE -1
+         SetNotify("Nicht alle Komponenten des Startpunktes progr.")
+      CASE -2
+         SetNotify("$TOOL oder $BASE ungueltig")
+      CASE 1
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A1+")
+      CASE 2
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A2+")
+      CASE 4
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A3+")
+      CASE 8
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A4+")
+      CASE 16
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A5+")
+      CASE 32
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A6+")
+      CASE 64
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A1-")
+      CASE 128
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A2-")
+      CASE 256
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A3-")
+      CASE 512
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A4-")
+      CASE 1024
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A5-")
+      CASE 2048
+         SetNotify("Rueckwaertstrafo Startpunkt: Softwareendschalter A6-")
+      DEFAULT
+         SetNotify("Fehler bei Rueckwaertstrafo Startpunkt")
+   ENDSWITCH
+   HALT
+   GOTO ENDE
+ENDIF
+
+
+;FALLS DER STARTPUNKT SEHR NAHE AN ALPHA5 IST, 
+;WIRD DIE RUECKWAERTSTRAFO NICHT EXAKT DURCHGEFUEHRT.
+;DESWEGEN WIRD VORLAUFSTOP AUSGELOEST UND ALS START-
+;WINKEL WIRD $AXIS_ACT VERWENDET
+IF ((STARTW.A5<0.25) AND (STARTW.A5>-0.25)) THEN
+   WAIT FOR TRUE
+   STARTW.A4 = $AXIS_ACT.A4
+   STARTW.A6 = $AXIS_ACT.A6
+   IF ( (STARTW.A4>=180) OR (STARTW.A4<-180) ) THEN
+      U_ZAEHL = STARTW.A4/360
+      STARTW.A4 = STARTW.A4 - 360*U_ZAEHL
+   ENDIF
+   IF ( (STARTW.A6>=180) OR (STARTW.A6<-180) ) THEN
+      U_ZAEHL = STARTW.A6/360
+      STARTW.A6 = STARTW.A6 - 360*U_ZAEHL
+   ENDIF
+ENDIF
+
+
+IF RET == 0 THEN
+
+   ;TURN VOM ZIELPUNKT BESTIMMEN
+   TURN_DET(ZIELW,ZIELP)
+
+   ;STATUS UND TURN ANHAND DES ERGEBNISSES DER 
+   ;RUECKWAERTSTRAFO EINTRAGEN
+   IF (ZIELW.A5) >= 0 THEN
+      ZIELP.S = ZIELP.S B_AND 'B111111111011'
+      ZIELP.T = ZIELP.T B_AND 'B111111101111'
+   ELSE
+      ZIELP.S = ZIELP.S B_OR 'B000000000100'
+      ZIELP.T = ZIELP.T B_OR 'B000000010000'   
+   ENDIF
+ENDIF
+
+ENDE:
+END
+
+
+;FUNKTION ZUR BESTIMMUNG DES TURNS
+DEF TURN_DET(WINKEL:IN,PUNKT:OUT)
+E6AXIS WINKEL
+E6POS PUNKT
+
+PUNKT.T = 0
+
+IF WINKEL.A1<0 THEN
+   PUNKT.T = PUNKT.T B_OR 1
+ELSE
+   PUNKT.T = PUNKT.T B_AND B_NOT(1)
+ENDIF
+
+IF WINKEL.A2<0 THEN
+   PUNKT.T = PUNKT.T B_OR 2
+ELSE
+   PUNKT.T = PUNKT.T B_AND B_NOT(2)
+ENDIF
+   
+IF WINKEL.A3<0 THEN
+   PUNKT.T = PUNKT.T B_OR 4
+ELSE
+   PUNKT.T = PUNKT.T B_AND B_NOT(4)
+ENDIF
+
+IF WINKEL.A4<0 THEN
+   PUNKT.T = PUNKT.T B_OR 8
+ELSE
+   PUNKT.T = PUNKT.T B_AND B_NOT(8)
+ENDIF
+
+IF WINKEL.A5<0 THEN
+   PUNKT.T = PUNKT.T B_OR 16
+ELSE
+   PUNKT.T = PUNKT.T B_AND B_NOT(16)
+ENDIF
+
+IF WINKEL.A6<0 THEN
+   PUNKT.T = PUNKT.T B_OR 32
+ELSE
+   PUNKT.T = PUNKT.T B_AND B_NOT(32)
+ENDIF
+
+END
+
+
+DEFFCT  REAL ARCTAN2 (Y: IN, X: IN)
+; Arcustangens mit 2 Argumenten und Check, ob x und y numerisch 0 sind
+
+REAL       X, Y
+
+REAL       ATAN_EPS
+
+ATAN_EPS = 0.00011
+
+IF  (  (ABS(X) < ATAN_EPS)  AND  (ABS(Y) < ATAN_EPS)  )  THEN
+    RETURN (0)
+ELSE
+    RETURN ( ATAN2(Y, X) )
+ENDIF
+
+ENDFCT
+
+
+DEF  MAT_MAL_VEK (A[,]:OUT, X[]:OUT, B[]:OUT, N:IN, M:IN)
+; b = A * x wird berechnet, wobei dim(A) = N x M
+
+REAL   A[,], X[], B[]
+INT    N, M
+
+REAl   SUM
+INT    I, J
+
+FOR I=1 TO N
+    SUM = 0
+    FOR J=1 TO M
+	SUM = SUM + A[I,J]*X[J]
+    ENDFOR
+    B[I] = SUM
+ENDFOR
+
+END
+
+
+DEF  RPY_TO_MAT (T[,]:OUT,A :IN,B :IN,C :IN )
+; Umwandlung von RPY-Winkeln A, B, C in eine Trafo-Matrix T
+; T = Rot_z(A) * Rot_y(B) * Rot_x(C)
+
+REAL T[,], A, B, C 
+REAL COS_A, SIN_A, COS_B, SIN_B, COS_C, SIN_C
+
+COS_A=COS(A)
+SIN_A=SIN(A)
+
+COS_B=COS(B)
+SIN_B=SIN(B)
+
+COS_C=COS(C)
+SIN_C=SIN(C)
+
+T[1,1]  =  COS_A*COS_B
+T[1,2]  = -SIN_A*COS_C + COS_A*SIN_B*SIN_C
+T[1,3]  =  SIN_A*SIN_C + COS_A*SIN_B*COS_C
+
+T[2,1]  =  SIN_A*COS_B
+T[2,2]  =  COS_A*COS_C + SIN_A*SIN_B*SIN_C
+T[2,3]  = -COS_A*SIN_C + SIN_A*SIN_B*COS_C
+
+T[3,1]  = -SIN_B
+T[3,2]  =  COS_B*SIN_C
+T[3,3]  =  COS_B*COS_C
+
+END    
+
+
+DEF  MAT_TO_RPY (T[,]:OUT, A:OUT, B:OUT, C:OUT)
+; Umwandlung einer Trafo-Matrix T in die RPY-Winkel A, B, C
+; T = Rot_z(A) * Rot_y(B) * Rot_x(C)
+
+REAL     T[,], A, B, C
+
+REAL     SIN_A, COS_A, SIN_B, ABS_COS_B, SIN_C, COS_C
+
+A = ARCTAN2 (T[2,1], T[1,1])
+SIN_A = SIN(A)    
+COS_A = COS(A) 
+
+SIN_B = -T[3,1]
+ABS_COS_B = COS_A*T[1,1] + SIN_A*T[2,1]
+B = ARCTAN2 (SIN_B, ABS_COS_B);       Hier: -90 <= B <= +90 !!
+
+SIN_C =  SIN_A*T[1,3] - COS_A*T[2,3]
+COS_C = -SIN_A*T[1,2] + COS_A*T[2,2]
+C = ARCTAN2 (SIN_C, COS_C)
+
+END
+
+
+DEF  INV_ORI_MAT (O[,]:OUT)
+; Invertieren der orthogonalen 3x3-Orientierungsmatrix durch Transponieren
+
+REAL      O[,]
+
+REAL      TAUSCH
+INT       I, J
+
+FOR I=1 TO 3
+    FOR J=I+1 TO 3
+	TAUSCH = O[I,J]
+	O[I,J] = O[J,I]
+	O[J,I] = TAUSCH
+    ENDFOR
+ENDFOR
+
+END
+
+
+DEF  INV_FRAME (F:OUT)
+
+FRAME      F
+
+REAL       O[3,3], MINUS_P[3], INV_P[3]
+
+; Orientierung invertieren:
+RPY_TO_MAT (O[,], F.A, F.B, F.C)
+INV_ORI_MAT (O[,])
+MAT_TO_RPY (O[,], F.A, F.B, F.C)
+
+; Ort invertieren:
+MINUS_P[1] = -F.X
+MINUS_P[2] = -F.Y
+MINUS_P[3] = -F.Z
+
+MAT_MAL_VEK (O[,], MINUS_P[], INV_P[], 3, 3)
+
+F.X = INV_P[1]
+F.Y = INV_P[2]
+F.Z = INV_P[3]
+
+END
+
+
+DEF SetNotify (N_Msg[]:IN)
+  CHAR N_Msg[]
+  DECL KrlMsg_T Msg
+  DECL KrlMsgPar_T Par[3]
+  DECL KrlMsgOpt_T Opt
+  INT nHandle
+  BOOL dummy
+  dummy=STRCOPY(Msg.Msg_txt[],N_Msg[])
+  Msg.Modul[]="KUE2"
+  Msg.Nr=100
+  Opt = {VL_Stop TRUE, Clear_P_Reset FALSE, Log_To_DB FALSE}
+  nHandle = Set_KrlMsg (#Notify, Msg, Par[], Opt)
+END

@@ -70,16 +70,16 @@ solver = KukaIKSolver()
 req = solver.performFK([0, 0, 0, 0, 0, 0])
 IK = solver.handle_calculate_IK2(req)
 
-# TODO >> Test cases, write unit tests for IKSolver
+# TODO >> Test cases, write unit tests for IKSolver; get test cases from Delmia for FK and IK test on random FK params
 
 Positions = []
-Positions.append([-0, 90-90, -90+90, 0, 0, 0])
-Positions.append([-0, 90-90, -90+45, 0, 0, 0])
-Positions.append([-45, 90-90, -90+45, 0, 0, 0])
-Positions.append([-45, 90-90, -90+90, 0, 0, 0])
-Positions.append([-45, 90-90, -90+90, 0, 30, 0])
-Positions.append([-45, 90-90, -90+90, 0, 30, 30])
-Positions.append([-45, 90-90, -90+90, 30, 30, 30])
+Positions.append([0, -90, 90, 0, 0, 0])
+Positions.append([0, -90, 45, 0, 0, 0])
+Positions.append([45, -90, 45, 0, 0, 0])
+Positions.append([45, -90, 90, 0, 0, 0])
+Positions.append([45, -90, 90, 0, 30, 0])
+Positions.append([45, -90, 90, 0, 30, 30])
+Positions.append([45, -90, 90, 30, 30, 30])
 
 solved = []
 
