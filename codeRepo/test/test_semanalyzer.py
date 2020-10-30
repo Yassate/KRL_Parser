@@ -4,7 +4,7 @@ from krlLexer import krlLexer
 from krlParser import krlParser
 from antlr4 import *
 
-class TestSemanticAnalyzer(TestCase):
+class VisitorTester(TestCase):
     def setUp(self):
         self.sem_analyzer = SemanticAnalyzer()
 
@@ -15,8 +15,8 @@ class TestSemanticAnalyzer(TestCase):
         stream = CommonTokenStream(lexer)
         return krlParser(stream)
 
-    # TODO >> write test for other types of literals and rename test functions
-    def test_visit_float_literal(self):
+class VisitLiteralTest(VisitorTester):
+    def test_visit_float_literal_returns_float(self):
         test_string = "2.3"
         parser = self.parser_from_string(test_string)
         literal_node = parser.literal()
@@ -24,5 +24,6 @@ class TestSemanticAnalyzer(TestCase):
         result = literal_node.accept(self.sem_analyzer)
         self.assertIsInstance(result, float)
         self.assertEqual(result, 2.3)
+
 
 
