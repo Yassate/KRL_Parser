@@ -9,7 +9,7 @@ from krlParser import krlParser
 from semanalyzer import SemanticAnalyzer
 from krlinterpreter import KrlInterpreter
 from iksolver import KukaIKSolver, DummyReq, Position, Orientation, rtod, dtor
-
+import transformations as tf
 
 import pprint as pp
 from symtables import ScopedSymbolTable
@@ -56,39 +56,43 @@ class ModuleProcessor:
         self._krlinterpreter.visit(self._dat_tree)
         self._krlinterpreter.visit(self._src_tree)
 
+def main():
 
-src_file_path = r"testFiles\exampleKukaPath.src"
+    src_file_path = r"testFiles\exampleKukaPath.src"
 
-current_module = ModuleProcessor(src_file_path)
-current_module.analyze_semantics()
-current_module.process_module()
+    current_module = ModuleProcessor(src_file_path)
+    current_module.analyze_semantics()
+    current_module.process_module()
 
+    #print(pp.pprint(myVisitor.variables))
+    solver = KukaIKSolver()
+    req = solver.performFK([0, 0, 0, 0, 0, 0])
+    IK = solver.handle_calculate_IK2(req)
 
+    # TODO >> Test cases, write unit tests for IKSolver; get test cases from Delmia for FK and IK test on random FK params
+    Positions = []
+    Positions.append([0, -90, 90, 0, 0, 0])
+    Positions.append([0, -90, 45, 0, 0, 0])
+    Positions.append([45, -90, 45, 0, 0, 0])
+    Positions.append([45, -90, 90, 0, 0, 0])
+    Positions.append([45, -90, 90, 0, 30, 0])
+    Positions.append([45, -90, 90, 0, 30, 30])
+    Positions.append([45, -90, 90, 30, 30, 30])
 
-#print(pp.pprint(myVisitor.variables))
-solver = KukaIKSolver()
-req = solver.performFK([0, 0, 0, 0, 0, 0])
-IK = solver.handle_calculate_IK2(req)
+    solved = []
+    solved_ang = []
 
-# TODO >> Test cases, write unit tests for IKSolver; get test cases from Delmia for FK and IK test on random FK params
+    for position in Positions:
+        req = solver.performFK(axes_deg_to_radian(position))
+        solved.append(req.poses[0].position)
+        orient_quat = req.poses[0].orientation
+        eul = req.poses[0].euler.getABC_deg()
+        solved_ang.append(orient_quat)
 
-Positions = []
-Positions.append([0, -90, 90, 0, 0, 0])
-Positions.append([0, -90, 45, 0, 0, 0])
-Positions.append([45, -90, 45, 0, 0, 0])
-Positions.append([45, -90, 90, 0, 0, 0])
-Positions.append([45, -90, 90, 0, 30, 0])
-Positions.append([45, -90, 90, 0, 30, 30])
-Positions.append([45, -90, 90, 30, 30, 30])
+    Pos = Position()
+    Orient = Orientation()
+    #req = DummyReq(Pos.to_list(), Orient.to_list())
+    #req.set_euler()
+    print("A")
 
-solved = []
-
-for position in Positions:
-    req = solver.performFK(axes_deg_to_radian(position))
-    solved.append(req.poses[0].position)
-
-Pos = Position()
-Orient = Orientation()
-req = DummyReq(Pos.to_list(), Orient.to_list())
-#req.set_euler()
-print("A")
+main()

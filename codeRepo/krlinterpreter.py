@@ -89,18 +89,21 @@ class KrlInterpreter(krlVisitor):
 
     def _parse_literal(self, ctx):
         literal_type = ctx.getChild(0).symbol.type
+        value = ctx.getText()
         if literal_type == krlLexer.FLOATLITERAL:
-            return float(ctx.getText())
+            return float(value)
         elif literal_type == krlLexer.INTLITERAL:
-            return int(ctx.getText())
+            return int(value)
         elif literal_type == krlLexer.TRUE or literal_type == krlLexer.FALSE:
-            return bool(ctx.getText())
+            if value.lower() == "true":
+                return True
+            elif value.lower() == "false":
+                return False
         elif literal_type == krlLexer.CHARLITERAL or literal_type == krlLexer.STRINGLITERAL:
-            return ctx.getText()
+            return value
 
     def visitTerminal(self, node):
         return node.getText()
-
 
     def visitPtpMove(self, ctx: krlParser.PtpMoveContext):
         target_name = self.visitChild(ctx, 1)
