@@ -9,6 +9,8 @@ from krlParser import krlParser
 from semanalyzer import SemanticAnalyzer
 from krlinterpreter import KrlInterpreter
 from iksolver import KukaIKSolver, DummyReq, Position, Orientation, rtod, dtor
+from iksolver import KukaIKSolver2
+
 import transformations as tf
 
 import pprint as pp
@@ -66,15 +68,15 @@ def main():
 
     #print(pp.pprint(myVisitor.variables))
     solver = KukaIKSolver()
-    req = solver.performFK([0, 0, 0, 0, 0, 0])
-    IK = solver.handle_calculate_IK2(req)
+    #req = solver.performFK([0, 0, 0, 0, 0, 0])
+    #IK = solver.handle_calculate_IK2(req)
 
     Positions = []
-    #Positions.append([0, -90, 90, 0, 0, 0])
-    #Positions.append([0, -90, 45, 0, 0, 0])
-    #Positions.append([45, -90, 45, 0, 0, 0])
-    #Positions.append([45, -90, 90, 0, 0, 0])
-    #Positions.append([45, -90, 90, 0, 30, 0])
+    Positions.append([0, -90, 90, 0, 0, 0])
+    Positions.append([0, -90, 45, 0, 0, 0])
+    Positions.append([45, -90, 45, 0, 0, 0])
+    Positions.append([45, -90, 90, 0, 0, 0])
+    Positions.append([45, -90, 90, 0, 30, 0])
     Positions.append([45, -90, 90, 0, 30, 30])
     Positions.append([45, -90, 90, 30, 30, 30])
 
@@ -87,6 +89,13 @@ def main():
         orient_quat = req.poses[0].orientation
         eul = req.poses[0].euler.getABC_deg()
         solved_ang.append(orient_quat)
+        print("AXIS ANGLES:")
+        print(position)
+        print("XYZ")
+        print(f"x: {req.poses[0].position.x}, y: {req.poses[0].position.y}, z: {req.poses[0].position.z}")
+        print("EULERS:")
+        print(eul)
+        print("\r\n")
 
     Pos = Position()
     Orient = Orientation()

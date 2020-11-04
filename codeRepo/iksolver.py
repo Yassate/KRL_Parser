@@ -154,21 +154,31 @@ s = {alpha0: 0,     a0: 0,      d1: 1.045,
      alpha6: 0,     a6: 0,      d7: 0.29,  q7: 0}
 
 
-
 # ### Kuka KR360_R2830 ###
 # # DH Parameters
 ##NEW< FOR TESTS
-# s = {alpha0: 0, a0: 0, d1: 1.045,
-#      alpha1: -pi / 2, a1: 0.50, d2: 0, q2: q2 - pi / 2,
-#      alpha2: 0, a2: 1.3, d3: 0,
-#      alpha3: -pi / 2, a3: -0.055, d4: 1.025,
-#      alpha4: pi / 2, a4: 0, d5: 0, q5: q5 + pi/2,
-#      alpha5: -pi / 2, a5: 0, d6: 0,
-#      alpha6: 0, a6: 0, d7: 0.29, q7: 0}
+# s = {alpha0: -pi/2, a0: 0.50,   d1: 1.045,
+#      alpha1: 0,     a1: 1.30,   d2: 0,      q2: q2-pi/2,
+#      alpha2: pi/2,  a2: -0.055, d3: 0,      q3: q3+pi,
+#      alpha3: -pi/2, a3: 0,      d4: 1.025,
+#      alpha4: pi/2,  a4: 0,      d5: 0,
+#      alpha5: 0,     a5: 0,      d6: 0.29}
+#
+# s = {alpha0: 0,     a0: 0,      d1: 1.045,
+#      alpha1: -pi/2, a1: 0.50,   d2: 0,      q2: q2-pi/2,
+#      alpha2: 0,     a2: 1.30,   d3: 0,
+#      alpha3: -pi/2, a3: -0.055, d4: 0,
+#      alpha4: pi/2,  a4: 0,      d5: 1.025,
+#      alpha5: -pi/2, a5: 0,      d6: 0,
+#      alpha6: 0,     a6: 0,      d7: 0.29, q7:0}
 
-
-########################################################################################
-########################################################################################
+s = {alpha0: 0,     a0: 0,      d1: 1.045,
+     alpha1: -pi/2, a1: 0.50,   d2: 0,     q2: q2-pi/2,
+     alpha2: 0,     a2: 1.3,    d3: 0,     q3: q3+pi,
+     alpha3: pi/2, a3: 0.055, d4: 1.025,
+     alpha4: -pi/2,  a4: 0,      d5: 0,
+     alpha5: pi/2, a5: 0,      d6: 0,
+     alpha6: 0,     a6: 0,      d7: 0.29,  q7: 0}
 
 class DummyReq:
     # poses = [Pose()]
@@ -262,7 +272,7 @@ class KukaIKSolver:
         R_corr2 = self.R_corr.row_insert(3, Matrix([[0, 0, 0]]))
         R_corr2 = R_corr2.col_insert(3, Matrix([0, 0, 0, 1]))
         #self.T_total = simplify(self.T0_G * R_corr2)
-        self.T_total = self.T0_G * R_corr2
+        self.T_total = self.T0_G# * R_corr2
 
         # Rotation transform between link 3 and 6, defined symbollically based
         # on the Modified DH parameters.
@@ -342,6 +352,8 @@ class KukaIKSolver:
         rpyrxyz = (round(rtod(rpyrxyz[0]), 5), round(rtod(rpyrxyz[1]), 5), round(rtod(rpyrxyz[2]), 5))
         rpyrzyx = (round(rtod(rpyrzyx[0]), 5), round(rtod(rpyrzyx[1]), 5), round(rtod(rpyrzyx[2]), 5))
 
+        print(rpyszyx)
+        print(rpyrzyx)
 
 
         quatFinal = tf.transformations.quaternion_from_matrix(T_total_prime.tolist())
@@ -556,3 +568,147 @@ class KukaIKSolver:
                 joint_trajectory_list.append(joint_trajectory_point)
 
             return joint_trajectory_list
+
+
+class KukaIKSolver2:
+
+    def __init__(self):
+
+        self.T0_1 = createMatrix(alpha0, a0, q1, d1)
+        self.T0_1 = self.T0_1.subs(s)
+
+        self.T1_2 = createMatrix(alpha1, a1, q2, d2)
+        self.T1_2 = self.T1_2.subs(s)
+
+        self.T2_3 = createMatrix(alpha2, a2, q3, d3)
+        self.T2_3 = self.T2_3.subs(s)
+
+        self.T3_4 = createMatrix(alpha3, a3, q4, d4)
+        self.T3_4 = self.T3_4.subs(s)
+
+        self.T4_5 = createMatrix(alpha4, a4, q5, d5)
+        self.T4_5 = self.T4_5.subs(s)
+
+        self.T5_6 = createMatrix(alpha5, a5, q6, d6)
+        self.T5_6 = self.T5_6.subs(s)
+
+        # # Composition of Homogenous Transforms
+        self.T0_2 = simplify(self.T0_1 * self.T1_2)  # base_link to link 2
+        self.T0_3 = simplify(self.T0_2 * self.T2_3)  # base_link to link 3
+        self.T0_4 = simplify(self.T0_3 * self.T3_4)  # base_link to link 3
+        #self.T0_5 = simplify(self.T0_4 * self.T4_5)  # base_link to link 3
+        #self.T0_6 = simplify(self.T0_5 * self.T5_6)  # base_link to link 3
+        #self.T0_G = simplify(self.T0_6 * self.T6_G)  # base_link to link 3
+
+        init_printing(use_unicode=True)
+
+        print(self.T0_2)
+        print(self.T0_3)
+        print(self.T0_4)
+
+        # INFO temporary deleted "simplify" because is terribly slow
+        self.T0_2 = self.T0_1 * self.T1_2  # base_link to link 2
+        self.T0_3 = self.T0_2 * self.T2_3  # base_link to link 3
+        self.T0_4 = self.T0_3 * self.T3_4  # base_link to link 4
+        self.T0_5 = self.T0_4 * self.T4_5  # base_link to link 5
+        self.T0_6 = self.T0_5 * self.T5_6  # base_link to link 6
+
+
+
+        # # Correction Needed to account for orientation difference between definition
+        # # of gripper_link in URDF versus DH Convention
+        #self.R_corr = Matrix(simplify(rot_z(pi) * rot_y(-pi / 2)))
+        self.R_corr = Matrix(rot_z(np.pi) * rot_y(-np.pi / 2))
+
+        #self.R_corr = self.R_corr[0:3, 0:3] # Extract rotation matrix from homogeneous transform
+
+        # Compute complete transform for End effector
+        R_corr2 = self.R_corr.row_insert(3, Matrix([[0, 0, 0]]))
+        R_corr2 = R_corr2.col_insert(3, Matrix([0, 0, 0, 1]))
+        #self.T_total = simplify(self.T0_G * R_corr2)
+        self.T_total = self.T0_6 * R_corr2
+
+        # Rotation transform between link 3 and 6, defined symbollically based
+        # on the Modified DH parameters.
+        # This is used to solve for joints 4,5,6 by comparing with computed R3_6
+        self.R3_6_prime = (self.T3_4 * self.T4_5 * self.T5_6)
+        self.R3_6_prime = self.R3_6_prime[:3, :3]
+        # R3_6_prime =
+        # [-s4s6 +c4c5c6,-s4c6 -s6c4c5,-s5c4]
+        # [         s5c6,        -s5s6,   c5]
+        # [-s4c5c6 -s6c4, s4s6c5 -c4c6, s4s5]
+        # Where, s = sin, c =cos, 4,5,6 = q4,q5,q6
+        # So that, -s5c6 = -sin(q5)cos(q6)
+
+        # Memoization for theta4 and theta6
+        self.old_theta4 = 0
+        self.old_theta6 = 0
+        pass
+
+    # INFO >> My modifications of input angles according to KUKA robot rotation signs
+    def performFK(self, theta_t):
+        #theta_t[0] = -theta_t[0]
+        #theta_t[1] = theta_t[1] + dtor(90)
+        #theta_t[2] = theta_t[2] - dtor(90)
+        #theta_t[3] = -theta_t[3]
+        #theta_t[5] = theta_t[5]
+
+
+
+        theta_s = {q1: theta_t[0], q2: theta_t[1], q3: theta_t[2], q4: theta_t[3], q5: theta_t[4], q6: theta_t[5]}
+        # theta_s = {q1: theta_t[0], q}
+        debugLog("Values generated by FK on given angles ::::::\n")
+        origin = Matrix([[0], [0], [0], [1]])
+
+        T0_2_prime = self.T0_2.evalf(subs=theta_s)
+        p2 = T0_2_prime * origin
+        rpy2 = tf.transformations.euler_from_matrix(T0_2_prime.tolist())
+        quat2 = tf.transformations.quaternion_from_matrix(T0_2_prime.tolist())
+        debugLog("Link 2 position : {}".format(p2.tolist()))
+
+        T0_3_prime = self.T0_3.evalf(subs=theta_s)
+        p3 = T0_3_prime * origin
+        rpy3 = tf.transformations.euler_from_matrix(T0_3_prime.tolist())
+        quat3 = tf.transformations.quaternion_from_matrix(T0_3_prime.tolist())
+        debugLog("Link 3 position : {}".format(p3.tolist()))
+
+        T0_5_prime = self.T0_5.evalf(subs=theta_s)
+        p5 = T0_5_prime * origin
+        rpy5 = tf.transformations.euler_from_matrix(T0_5_prime.tolist())
+        quat5 = tf.transformations.quaternion_from_matrix(T0_5_prime.tolist())
+        debugLog("Link 5/Wrist Center position : {}".format(p5.tolist()))
+
+        T0_6_prime = self.T0_6.evalf(subs=theta_s)
+        p6 = T0_6_prime * origin
+        rpy6 = tf.transformations.euler_from_matrix(T0_6_prime.tolist())
+        quat6 = tf.transformations.quaternion_from_matrix(T0_6_prime.tolist())
+
+        T0_G_prime = self.T0_6.evalf(subs=theta_s)
+        pG = T0_6_prime * origin
+        rpyG = tf.transformations.euler_from_matrix(T0_G_prime.tolist())
+        quatG = tf.transformations.quaternion_from_matrix(T0_G_prime.tolist())
+        debugLog("Gripper/End Effector position : {}".format(pG.tolist()))
+
+        self.T0_6.evalf(subs=theta_s)
+
+        #self.T_total = self.T0_G * self.R_corr
+        T_total_prime = self.T_total.evalf(subs=theta_s)
+        pFinal = T_total_prime * origin
+        rpyFinal = tf.transformations.euler_from_matrix(T_total_prime.tolist())
+
+
+        rpysxyz = tf.transformations.euler_from_matrix(T_total_prime.tolist(), 'sxyz')
+        rpyszyx = tf.transformations.euler_from_matrix(T_total_prime.tolist(), 'szyx')
+        rpyrxyz = tf.transformations.euler_from_matrix(T_total_prime.tolist(), 'rxyz')
+        rpyrzyx = tf.transformations.euler_from_matrix(T_total_prime.tolist(), 'rzyx')
+
+        rpysxyz = (round(rtod(rpysxyz[0]), 5), round(rtod(rpysxyz[1]), 5), round(rtod(rpysxyz[2]), 5))
+        rpyszyx = (round(rtod(rpyszyx[0]), 5), round(rtod(rpyszyx[1]), 5), round(rtod(rpyszyx[2]), 5))
+        rpyrxyz = (round(rtod(rpyrxyz[0]), 5), round(rtod(rpyrxyz[1]), 5), round(rtod(rpyrxyz[2]), 5))
+        rpyrzyx = (round(rtod(rpyrzyx[0]), 5), round(rtod(rpyrzyx[1]), 5), round(rtod(rpyrzyx[2]), 5))
+
+        quatFinal = tf.transformations.quaternion_from_matrix(T_total_prime.tolist())
+        debugLog("EE URDF position : {}".format(pFinal.tolist()))
+        debugLog("EE URDF quat : {}".format(quatFinal))
+
+        return DummyReq(pFinal, quatFinal, rpyFinal)
