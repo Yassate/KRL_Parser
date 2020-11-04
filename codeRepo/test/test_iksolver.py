@@ -81,3 +81,5 @@ class FK_tester(unittest.TestCase):
         self.assertAlmostEqual(target_xyz[0], calc_xyz[0], delta=0.1)
         self.assertAlmostEqual(target_xyz[1], calc_xyz[1], delta=0.1)
         self.assertAlmostEqual(target_xyz[2], calc_xyz[2], delta=0.1)
+
+unittest.main()

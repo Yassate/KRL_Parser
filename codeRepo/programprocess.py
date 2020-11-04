@@ -9,6 +9,7 @@ from krlParser import krlParser
 from semanalyzer import SemanticAnalyzer
 from krlinterpreter import KrlInterpreter
 from iksolver import KukaIKSolver, DummyReq, Position, Orientation, rtod, dtor
+import unittest
 
 
 import pprint as pp
@@ -56,13 +57,11 @@ class ModuleProcessor:
         self._krlinterpreter.visit(self._dat_tree)
         self._krlinterpreter.visit(self._src_tree)
 
-
 src_file_path = r"testFiles\exampleKukaPath.src"
 
 current_module = ModuleProcessor(src_file_path)
 current_module.analyze_semantics()
 current_module.process_module()
-
 
 
 #print(pp.pprint(myVisitor.variables))

@@ -236,7 +236,7 @@ class KukaIKSolver:
         # # Correction Needed to account for orientation difference between definition
         # # of gripper_link in URDF versus DH Convention
         #self.R_corr = Matrix(simplify(rot_z(pi) * rot_y(-pi / 2)))
-        self.R_corr = Matrix(rot_z(pi) * rot_y(-pi / 2))
+        self.R_corr = Matrix(rot_z(pi))# * rot_y(-pi / 2))
         # self.R_corr = self.R_corr[0:3, 0:3] # Extract rotation matrix from homogeneous transform
 
         # Compute complete transform for End effector
