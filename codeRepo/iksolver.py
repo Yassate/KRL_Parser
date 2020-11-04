@@ -4,8 +4,7 @@ from sympy import *
 import numpy as np
 import time
 
-printLogs = True
-
+printLogs = False
 
 # Rotation Matrix about X
 def rot_x(q):
@@ -14,14 +13,12 @@ def rot_x(q):
                   [0, sin(q),  cos(q)]])
     return R_x
 
-
 # Rotation Matrix about Y
 def rot_y(q):
     R_y = Matrix([[cos(q),  0, sin(q)],
                   [0, 1, 0],
                   [-sin(q), 0, cos(q)]])
     return R_y
-
 
 # Rotation Matrix about Z
 def rot_z(q):
@@ -30,14 +27,11 @@ def rot_z(q):
                   [0, 0, 1]])
     return R_z
 
-
-
 # Predicate to check closeness of two numbers
 def closeEnough(a, b, tol=0.0001):
     if (a - b) <= tol:
         return True
     return False
-
 
 # Create transformation matrix between two links
 # according to Modified DH convention with given parameters
@@ -49,20 +43,16 @@ def createMatrix(alpha, a, q, d):
 
     return mat
 
-
 def generateRandomInRange(low, high):
     return low + np.random.rand() * (high - low)
-
 
 # Radians to Degree
 def rtod(q):
     return q * 180.0 / np.pi
 
-
 # Degree to Radians
 def dtor(q):
     return q * np.pi / 180.0
-
 
 def checkInRange(val, low, high, name):
     if ((val >= low) & (val <= high)):
@@ -71,13 +61,11 @@ def checkInRange(val, low, high, name):
         print("******Out of range {}[{}], ({}, {})******".format(name, val, low, high))
         return False;
 
-
 def debugLog(log):
     # print (PrintLogs)
     if (printLogs):
         print(log)
     pass
-
 
 def createPlot(errors):
     plt.close()
@@ -88,7 +76,6 @@ def createPlot(errors):
     ax.set_ylabel("errors")
     ax.set_ylim(0, 10)
     fig.savefig("plots/{} errors.png".format(time.ctime()))
-
 
 def saveErrors(errors):
     np.savetxt("plots/errors {}".format(time.ctime()), errors)
@@ -101,7 +88,7 @@ class Position:
         self.z = z
 
     def to_list(self):
-        return [self.x, self,y, self.z]
+        return [self.x, self.y, self.z]
 
 
 class Orientation:
@@ -110,14 +97,24 @@ class Orientation:
         self.y = y
         self.z = z
         self.w = w
-    def to_list(self):
-        return [self.x, self.y, self.z, self.z]
 
+    def to_list(self):
+        return [self.x, self.y, self.z, self.w]
+
+class Euler:
+    def __init__(self, a=0, b=0, c=0):
+        self.a = a
+        self.b = b
+        self.c = c
+
+    def getABC_deg(self):
+        return [rtod(self.a), rtod(self.b), rtod(self.c)]
 
 class Pose:
     def __init__(self):
         self.position = Position()
         self.orientation = Orientation()
+        self.euler = Euler()
 
 
 class JointTrajectoryPoint:
@@ -148,20 +145,32 @@ s = {alpha0: 0, a0: 0, d1: 0.75,
 
 # ### Kuka KR360_R2830 ###
 # # DH Parameters
-s = {alpha0: 0, a0: 0, d1: 1.045,
-     alpha1: -pi / 2, a1: 0.50, d2: 0, q2: q2 - pi / 2,
-     alpha2: 0, a2: 1.3, d3: 0,
-     alpha3: -pi / 2, a3: -0.055, d4: 1.025,
-     alpha4: pi / 2, a4: 0, d5: 0,
-     alpha5: -pi / 2, a5: 0, d6: 0,
-     alpha6: 0, a6: 0, d7: 0.29, q7: 0}
+s = {alpha0: 0,     a0: 0,      d1: 1.045,
+     alpha1: -pi/2, a1: 0.50,   d2: 0,     q2: q2-pi/2,
+     alpha2: 0,     a2: 1.3,    d3: 0,
+     alpha3: -pi/2, a3: -0.055, d4: 1.025,
+     alpha4: pi/2,  a4: 0,      d5: 0,
+     alpha5: -pi/2, a5: 0,      d6: 0,
+     alpha6: 0,     a6: 0,      d7: 0.29,  q7: 0}
+
+# ### Kuka KR360_R2830 ###
+# # DH Parameters
+##NEW< FOR TESTS
+# s = {alpha0: 0, a0: 0, d1: 1.045,
+#      alpha1: -pi / 2, a1: 0.50, d2: 0, q2: q2 - pi / 2,
+#      alpha2: 0, a2: 1.3, d3: 0,
+#      alpha3: -pi / 2, a3: -0.055, d4: 1.025,
+#      alpha4: pi / 2, a4: 0, d5: 0, q5: q5 + pi/2,
+#      alpha5: -pi / 2, a5: 0, d6: 0,
+#      alpha6: 0, a6: 0, d7: 0.29, q7: 0}
+
 
 ########################################################################################
 ########################################################################################
 
 class DummyReq:
     # poses = [Pose()]
-    def __init__(self, pos, orient):
+    def __init__(self, pos, orient, euler):
         self.poses = [Pose()]
         self.poses[0].position.x = pos[0]
         self.poses[0].position.y = pos[1]
@@ -170,6 +179,9 @@ class DummyReq:
         self.poses[0].orientation.y = orient[1]
         self.poses[0].orientation.z = orient[2]
         self.poses[0].orientation.w = orient[3]
+        self.poses[0].euler.a = euler[0]
+        self.poses[0].euler.b = euler[1]
+        self.poses[0].euler.c = euler[2]
 
     def printReq(self):
         print("Pos : ", self.poses[0].position)
@@ -185,6 +197,11 @@ class DummyReq:
     def get_euler(self):
         tf.transformations.euler_from_quaternion(self.orientation)
 
+    def get_xyz_mm_list(self):
+        return [self.poses[0].position.x*1000, self.poses[0].position.y*1000, self.poses[0].position.z*1000]
+
+    def get_abc_deg_list(self):
+        return self.poses[0].euler.getABC_deg()
 
 # Class to solve IK problem for the Kuka KR210
 # This class creates the symbolic transforms only once during initialization
@@ -227,17 +244,17 @@ class KukaIKSolver:
         # INFO temporary deleted "simplify" because is terribly slow
         self.T0_2 = self.T0_1 * self.T1_2  # base_link to link 2
         self.T0_3 = self.T0_2 * self.T2_3  # base_link to link 3
-        self.T0_4 = self.T0_3 * self.T3_4  # base_link to link 3
-        self.T0_5 = self.T0_4 * self.T4_5  # base_link to link 3
-        self.T0_6 = self.T0_5 * self.T5_6  # base_link to link 3
-        self.T0_G = self.T0_6 * self.T6_G  # base_link to link 3
-
+        self.T0_4 = self.T0_3 * self.T3_4  # base_link to link 4
+        self.T0_5 = self.T0_4 * self.T4_5  # base_link to link 5
+        self.T0_6 = self.T0_5 * self.T5_6  # base_link to link 6
+        self.T0_G = self.T0_6 * self.T6_G  # base_link to link G
 
         # # Correction Needed to account for orientation difference between definition
         # # of gripper_link in URDF versus DH Convention
         #self.R_corr = Matrix(simplify(rot_z(pi) * rot_y(-pi / 2)))
-        self.R_corr = Matrix(rot_z(pi))# * rot_y(-pi / 2))
-        # self.R_corr = self.R_corr[0:3, 0:3] # Extract rotation matrix from homogeneous transform
+        self.R_corr = Matrix(rot_z(np.pi) * rot_y(-np.pi / 2))
+
+        #self.R_corr = self.R_corr[0:3, 0:3] # Extract rotation matrix from homogeneous transform
 
         # Compute complete transform for End effector
         R_corr2 = self.R_corr.row_insert(3, Matrix([[0, 0, 0]]))
@@ -268,7 +285,7 @@ class KukaIKSolver:
         theta_t[1] = theta_t[1] + dtor(90)
         theta_t[2] = theta_t[2] - dtor(90)
         theta_t[3] = -theta_t[3]
-        theta_t[5] = -theta_t[5]
+        theta_t[5] = theta_t[5]
 
         theta_s = {q1: theta_t[0], q2: theta_t[1], q3: theta_t[2], q4: theta_t[3], q5: theta_t[4], q6: theta_t[5]}
         # theta_s = {q1: theta_t[0], q}
@@ -293,13 +310,20 @@ class KukaIKSolver:
         quat5 = tf.transformations.quaternion_from_matrix(T0_5_prime.tolist())
         debugLog("Link 5/Wrist Center position : {}".format(p5.tolist()))
 
+        T0_6_prime = self.T0_6.evalf(subs=theta_s)
+        p6 = T0_6_prime * origin
+        rpy6 = tf.transformations.euler_from_matrix(T0_6_prime.tolist())
+        quat6 = tf.transformations.quaternion_from_matrix(T0_6_prime.tolist())
+
         T0_G_prime = self.T0_G.evalf(subs=theta_s)
         pG = T0_G_prime * origin
         rpyG = tf.transformations.euler_from_matrix(T0_G_prime.tolist())
         quatG = tf.transformations.quaternion_from_matrix(T0_G_prime.tolist())
         debugLog("Gripper/End Effector position : {}".format(pG.tolist()))
 
-        # T_total = simplify(self.T0_G * R_corr)
+        self.T0_6.evalf(subs=theta_s)
+
+        #self.T_total = self.T0_G * self.R_corr
         T_total_prime = self.T_total.evalf(subs=theta_s)
         pFinal = T_total_prime * origin
         rpyFinal = tf.transformations.euler_from_matrix(T_total_prime.tolist())
@@ -307,7 +331,8 @@ class KukaIKSolver:
         debugLog("EE URDF position : {}".format(pFinal.tolist()))
         debugLog("EE URDF quat : {}".format(quatFinal))
 
-        return DummyReq(pFinal, quatFinal)
+        return DummyReq(pFinal, quatFinal, rpyFinal)
+
 
     def generateRandomReq(self):
         # Generate random theta values in the given ranges,..

@@ -39,7 +39,7 @@ class ScopedSymbolTable:
     __repr__ = __str__
 
     def insert(self, symbol):
-        print(f"Insert: {symbol.name}")
+        #print(f"Insert: {symbol.name}")
         self._symbols[symbol.name] = symbol
 
     def lookup(self, name):
