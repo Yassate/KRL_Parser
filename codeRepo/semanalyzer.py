@@ -33,8 +33,11 @@ class SemanticAnalyzer(krlVisitor):
                 return True
             elif value.lower() == "false":
                 return False
-        elif literal_type == krlLexer.CHARLITERAL or literal_type == krlLexer.STRINGLITERAL:
-            return value
+        elif literal_type == krlLexer.CHARLITERAL:
+            return value.strip("'")
+        elif literal_type == krlLexer.STRINGLITERAL:
+            return value.strip('"')
+
 
     def visitChildren(self, node):
         result = self.defaultResult()

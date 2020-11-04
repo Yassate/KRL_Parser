@@ -43,4 +43,17 @@ class VisitLiteralTest(VisitorTester):
         self.assertIsInstance(result, bool)
         self.assertEqual(result, True)
 
+    def test_visit_string_returns_string(self):
+        test_string = '"test_string"'
+        result = self._result_from_string(test_string)
 
+
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, "test_string")
+
+    def test_visit_char_returns_string_of_length_1(self):
+        test_string = "'t'"
+        result = self._result_from_string(test_string)
+
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, "t")
