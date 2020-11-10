@@ -237,9 +237,15 @@ class CustomKukaIKSolver:
         p_0F = transf_T0F_evaluated * origin
         deg_0F = tf.transformations.euler_from_matrix(transf_T0F_evaluated.tolist(), 'sxyz')
 
-        abc = (-114.9896598979589, 28.604830501539254, -93.71709054789805)
-        matrix_abc = tf.transformations.euler_matrix(abc[0], abc[1], abc[2])
+
+        #abc from point data
+        abc = (dtor(-114.9896598979589), dtor(28.604830501539254), dtor(-93.71709054789805))
+        matrix_xyzabc = tf.transformations.euler_matrix(abc[0], abc[1], abc[2])
+        matrix_xyzabc[2][3] = -0.29
+        matrix_pos = Matrix([[1.41967669899836], [-1.11208524918221], [0.852371412169755], [1.0]])
         matrix_to_list = transf_T0F_evaluated.tolist()
+
+        p_wc = matrix_xyzabc * matrix_pos
 
         R0_g = transf_T0F_evaluated[0:3, 0:3]  # Extract the rotation matrix from the transformation
 
