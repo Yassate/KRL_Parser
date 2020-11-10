@@ -39,6 +39,9 @@ def createMatrix(alpha, a, q, d):
 
     return mat
 
+def rtod_tuple(rad_tuple):
+    return(rtod(rad_tuple[0]), rtod(rad_tuple[1]), rtod(rad_tuple[2]))
+
 # Radians to Degree
 def rtod(q):
     return q * 180.0 / np.pi
@@ -82,17 +85,29 @@ class Pose:
         self.euler = Euler()
 
 # # Define DH param symbols
-d1, d2, d3, d4, d5, d6 = symbols('d1:7')  # link_offset_i
-a1, a2, a3, a4, a5, a6 = symbols('a1:7')  # link_length_i
-alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha1:7')  # link_twist_i
+d0, d1, d2, d3, d4, d5, d6 = symbols('d0:7')  # link_offset_i
+a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7')  # link_length_i
+alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7')  # link_twist_i
 
-# # Joint angle symbols
-q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')  # theta_i
+# # Joint angle symbols (q0 is additional because of Z direction (to the ground) of first joint rotation axis)
+q0, q1, q2, q3, q4, q5, q6, q7 = symbols('q0:8')  # theta_i
+qi0, qi1, qi2, qi3, qi4, qi5, qi6, qi7 = symbols('qi0:8')
 
 # ### Kuka KR360_R2830 ###
-# # DH Parameters
-dh_params = {alpha1: -pi/2, a1: 0.50,  d1: 1.045,  q1: q1,
-             alpha2: 0,     a2: 1.30,  d2: 0,      q2: q2-pi/2}
+# # DH Parameters;
+dh_params = {alpha1: -pi/2, a1: 0.50,  d1: 1.045,  q1: qi1,
+             alpha2: 0,     a2: 1.30,  d2: 0,      q2: qi2-pi/2}
+
+# ### Kuka KR360_R2830 ###
+# # DH Parameters;
+dh_params = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
+             alpha1: pi/2,  a1: 0.50,   d1: -1.045,  q1: qi1,
+             alpha2: 0,     a2: 1.30,   d2: 0,       q2: qi2-pi/2,
+             alpha3: -pi/2, a3: 0.055,  d3: 0,       q3: qi3+pi,
+             alpha4: pi/2,  a4: 0,      d4: -1.025,  q4: qi4,
+             alpha5: -pi/2, a5: 0,      d5: 0,       q5: qi5,
+             alpha6: pi,    a6: 0,      d6: -0.29,   q6: qi6}
+
 
 class DummyReq:
     # poses = [Pose()]
@@ -139,34 +154,126 @@ class CustomKukaIKSolver:
 
         origin = Matrix([[0], [0], [0], [1]])
 
-
-        self.A1 = createMatrix(alpha1, a1, q1, d1)
-        print(self.A1)
-        self.A1 = self.A1.subs(dh_params)
-        print(self.A1)
+        print("A0_1")
+        self.A0_1 = createMatrix(alpha0, a0, q0, d0)
+        print(self.A0_1)
+        self.A0_1 = self.A0_1.subs(dh_params)
+        print(self.A0_1)
         print("\n")
 
-        self.A2 = createMatrix(alpha2, a2, q2, d2)
-        print(self.A2)
-        self.A2 = self.A2.subs(dh_params)
-        print(self.A2)
+        print("A1_2")
+        self.A1_2 = createMatrix(alpha1, a1, q1, d1)
+        print(self.A1_2)
+        self.A1_2 = self.A1_2.subs(dh_params)
+        print(self.A1_2)
         print("\n")
 
-        self.T0_1 = self.A1
+        print("A2_3")
+        self.A2_3 = createMatrix(alpha2, a2, q2, d2)
+        print(self.A2_3)
+        self.A2_3 = self.A2_3.subs(dh_params)
+        print(self.A2_3)
+        print("\n")
+
+        print("A3_4")
+        self.A3_4 = createMatrix(alpha3, a3, q3, d3)
+        print(self.A3_4)
+        self.A3_4 = self.A3_4.subs(dh_params)
+        print(self.A3_4)
+        print("\n")
+
+        print("A4_5")
+        self.A4_5 = createMatrix(alpha4, a4, q4, d4)
+        print(self.A4_5)
+        self.A4_5 = self.A4_5.subs(dh_params)
+        print(self.A4_5)
+        print("\n")
+
+        print("A5_6")
+        self.A5_6 = createMatrix(alpha5, a5, q5, d5)
+        print(self.A5_6)
+        self.A5_6 = self.A5_6.subs(dh_params)
+        print(self.A5_6)
+        print("\n")
+
+        print("A6_F")
+        self.A6_F = createMatrix(alpha6, a6, q6, d6)
+        print(self.A6_F)
+        self.A6_F = self.A6_F.subs(dh_params)
+        print(self.A6_F)
+        print("\n")
 
 
-        self.T0_2 = self.A1 * self.A2
-        print(self.T0_2)
+        self.T0_1 = self.A0_1
+        self.T0_2 = self.T0_1 * self.A1_2
+        self.T0_3 = self.T0_2 * self.A2_3
+        self.T0_4 = self.T0_3 * self.A3_4
+        self.T0_5 = self.T0_4 * self.A4_5
+        self.T0_6 = self.T0_5 * self.A5_6
+        self.T0_F = self.T0_6 * self.A6_F
 
-        self.T0_2 = simplify(self.A1 * self.A2)
-        print(self.T0_2)
+        theta_s = {qi1: pi/4, qi2: pi/4, qi3: pi/6, qi4: pi/3, qi5: -pi/3, qi6: pi/4}
 
-        theta_s = {q1: 0, q2: 0}
+        transf_T01_evaluated = self.T0_1.evalf(subs=theta_s)
+        p_01 = transf_T01_evaluated * origin
+        deg_01 = tf.transformations.euler_from_matrix(transf_T01_evaluated.tolist(), 'sxyz')
 
-        transf_evaluated = self.T0_2.evalf(subs=theta_s)
-        pFinal = transf_evaluated * origin
+        transf_T02_evaluated = self.T0_2.evalf(subs=theta_s)
+        p_02 = transf_T02_evaluated * origin
+        deg_02 = tf.transformations.euler_from_matrix(transf_T02_evaluated.tolist(), 'sxyz')
 
-        print(pFinal)
+        transf_T03_evaluated = self.T0_3.evalf(subs=theta_s)
+        p_03 = transf_T03_evaluated * origin
+        deg_03 = tf.transformations.euler_from_matrix(transf_T03_evaluated.tolist(), 'sxyz')
+
+        transf_T04_evaluated = self.T0_4.evalf(subs=theta_s)
+        p_04 = transf_T04_evaluated * origin
+        deg_04 = tf.transformations.euler_from_matrix(transf_T04_evaluated.tolist(), 'sxyz')
+
+        transf_T05_evaluated = self.T0_5.evalf(subs=theta_s)
+        p_05 = transf_T05_evaluated * origin
+        deg_05 = tf.transformations.euler_from_matrix(transf_T05_evaluated.tolist(), 'sxyz')
+
+        transf_T06_evaluated = self.T0_6.evalf(subs=theta_s)
+        p_06 = transf_T06_evaluated * origin
+        deg_06 = tf.transformations.euler_from_matrix(transf_T06_evaluated.tolist(), 'sxyz')
+
+        transf_T0F_evaluated = self.T0_F.evalf(subs=theta_s)
+        p_0F = transf_T0F_evaluated * origin
+        deg_0F = tf.transformations.euler_from_matrix(transf_T0F_evaluated.tolist(), 'sxyz')
+
+        abc = (-114.9896598979589, 28.604830501539254, -93.71709054789805)
+        matrix_abc = tf.transformations.euler_matrix(abc[0], abc[1], abc[2])
+        matrix_to_list = transf_T0F_evaluated.tolist()
+
+        R0_g = transf_T0F_evaluated[0:3, 0:3]  # Extract the rotation matrix from the transformation
+
+        d_g = dh_params[d6]  # 0.29
+
+        d_g_matrix = Matrix([[0], [0], [d_g], [1]])
+
+
+        print("P01")
+        print(p_01)
+        print(rtod_tuple(deg_01))
+        print("P02")
+        print(p_02)
+        print(rtod_tuple(deg_02))
+        print("P03")
+        print(p_03)
+        print(rtod_tuple(deg_03))
+        print("P04")
+        print(p_04)
+        print(rtod_tuple(deg_04))
+        print("P05")
+        print(p_05)
+        print(rtod_tuple(deg_05))
+        print("P06")
+        print(p_06)
+        print(rtod_tuple(deg_06))
+        print("P0F")
+        print(p_0F)
+        print(rtod_tuple(deg_0F))
 
         # #self.T0_1 = createMatrix(alpha0, a0, q1, d1)
         # self.T0_1 = self.T0_1.subs(s)
