@@ -165,8 +165,10 @@ class CustomKukaIKSolver:
 
         transf_evaluated = self.T0_2.evalf(subs=theta_s)
         pFinal = transf_evaluated * origin
+        rpyFinal = tf.transformations.euler_from_matrix(transf_evaluated.tolist())
 
         print(pFinal)
+        print(rpyFinal)
 
         # #self.T0_1 = createMatrix(alpha0, a0, q1, d1)
         # self.T0_1 = self.T0_1.subs(s)
