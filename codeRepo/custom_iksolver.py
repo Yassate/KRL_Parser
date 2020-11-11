@@ -239,10 +239,10 @@ class CustomKukaIKSolver:
 
 
         #abc from point data
+        matrix_pos = Matrix([[1.41967669899836], [-1.11208524918221], [0.852371412169755], [1.0]])
         abc = (dtor(-114.9896598979589), dtor(28.604830501539254), dtor(-93.71709054789805))
         matrix_xyzabc = tf.transformations.euler_matrix(abc[0], abc[1], abc[2])
-        matrix_xyzabc[2][3] = -0.29
-        matrix_pos = Matrix([[1.41967669899836], [-1.11208524918221], [0.852371412169755], [1.0]])
+        #matrix_xyzabc[2][3] = -0.29
         matrix_to_list = transf_T0F_evaluated.tolist()
 
         p_wc = matrix_xyzabc * matrix_pos
@@ -252,6 +252,10 @@ class CustomKukaIKSolver:
         d_g = dh_params[d6]  # 0.29
 
         d_g_matrix = Matrix([[0], [0], [d_g], [1]])
+
+        d = matrix_xyzabc * d_g_matrix
+        inv = transf_T0F_evaluated.inv()
+
 
 
         print("P01")

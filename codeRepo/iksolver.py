@@ -175,9 +175,9 @@ s = {alpha0: 0,     a0: 0,      d1: 1.045,
 s = {alpha0: 0,     a0: 0,      d1: 1.045,
      alpha1: -pi/2, a1: 0.50,   d2: 0,     q2: q2-pi/2,
      alpha2: 0,     a2: 1.3,    d3: 0,     q3: q3+pi,
-     alpha3: pi/2, a3: 0.055, d4: 1.025,
-     alpha4: -pi/2,  a4: 0,      d5: 0,
-     alpha5: pi/2, a5: 0,      d6: 0,
+     alpha3: pi/2,  a3: 0.055,  d4: 1.025,
+     alpha4: -pi/2, a4: 0,      d5: 0,
+     alpha5: pi/2,  a5: 0,      d6: 0,
      alpha6: 0,     a6: 0,      d7: 0.29,  q7: 0}
 
 class DummyReq:
