@@ -249,7 +249,8 @@ class CustomKukaIKSolver:
         dist_a3_a4 = abs(dh_params[a3])
 
         #TODO >> Overhead calculation need to be implemented
-        axis1 = rtod(mp.atan(-pos_wcp[1]/pos_wcp[0]))
+        axis1 = mp.atan(-pos_wcp[1]/pos_wcp[0])
+        axis1_deg = rtod(axis1)
 
 
         dist_hor_bf_wcp = mp.sqrt(pos_wcp[0]**2 + pos_wcp[1]**2)
@@ -259,21 +260,29 @@ class CustomKukaIKSolver:
         dist_a2_wcp = mp.sqrt(dist_hor_a2_wcp**2 + dist_vert_a2_wcp**2)
         dist_a3_wcp = mp.sqrt(len_link3**2 + dist_a3_a4**2)
 
-
         beta1 = mp.atan(dist_vert_a2_wcp/dist_hor_a2_wcp)
         beta2 = mp.acos((dist_a2_wcp**2 + len_link2**2 - dist_a3_wcp**2)/(2*dist_a2_wcp*len_link2))
 
         #TODO >> Overhead calculation need to be implemented
-        axis2 = rtod(beta1 + beta2)
+        axis2 = beta1 + beta2
+        axis2_deg = rtod(axis2)
         #second value of axis2 (no overhead included)
-        axis2_2 = rtod(beta1 - beta2)
+        axis2_2 = beta1 - beta2
+        axis2_2_deg = rtod(axis2_2)
 
 
         gamma1 = mp.atan(dist_a3_a4/len_link3)
         gamma2 = mp.acos((dist_a3_wcp**2 + len_link2**2 - dist_a2_wcp**2)/(2*dist_a3_wcp*len_link2))
 
-        axis3 = 90-rtod(gamma1 + gamma2)
-        axis3_2 = 90-rtod(gamma1 - gamma2)
+        axis3 = np.pi/2 - (gamma1 + gamma2)
+        axis3_deg = rtod(axis3)
+        axis3_2 = np.pi/2 - (gamma1 - gamma2)
+        axis3_2_deg = rtod(axis3_2)
+
+        #ORIENTATION
+
+        #A1_to_A3 = {q1: }
+        #transf_T04_evaluated = self.T0_4.evalf(subs=theta_s)
 
 
         print("P01")
