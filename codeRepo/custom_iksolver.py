@@ -281,8 +281,15 @@ class CustomKukaIKSolver:
 
         #ORIENTATION
 
-        #A1_to_A3 = {q1: }
-        #transf_T04_evaluated = self.T0_4.evalf(subs=theta_s)
+        A1_to_A3 = {qi1: axis1, qi2: axis2, qi3: axis3}
+        R_0_3 = self.T0_4.evalf(subs=A1_to_A3)[0:3, 0:3]
+        R_0_3_inv = R_0_3.inv()
+        R_0_6 = matrix_abc[0:3, 0:3]
+        R_3_6 = R_0_3_inv * R_0_6
+
+        axis5 = mp.acos(R_3_6[2, 2])
+        axis5_deg = rtod(axis5)
+
 
 
         print("P01")
