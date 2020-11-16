@@ -95,11 +95,6 @@ qi0, qi1, qi2, qi3, qi4, qi5, qi6, qi7 = symbols('qi0:8')
 
 # ### Kuka KR360_R2830 ###
 # # DH Parameters;
-dh_params = {alpha1: -pi/2, a1: 0.50,  d1: 1.045,  q1: qi1,
-             alpha2: 0,     a2: 1.30,  d2: 0,      q2: qi2-pi/2}
-
-# ### Kuka KR360_R2830 ###
-# # DH Parameters;
 dh_params = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
              alpha1: pi/2,  a1: 0.50,   d1: -1.045,  q1: qi1,
              alpha2: 0,     a2: 1.30,   d2: 0,       q2: qi2-pi/2,
@@ -246,10 +241,39 @@ class CustomKukaIKSolver:
         dist_to_wc = Matrix([[0], [0], [dh_params[d6]], [1]])
         dif = matrix_abc * dist_to_wc
 
-        p_wc = matrix_pos + dif
+        pos_wcp = matrix_pos + dif
+        len_link2 = abs(dh_params[a2])
+        len_link3 = abs(dh_params[d4])
+        dist_hor_a1_a2 = abs(dh_params[a1])
+        dist_vert_a1_a2 = abs(dh_params[d1])
+        dist_a3_a4 = abs(dh_params[a3])
 
-        axis1 = rtod(mp.atan(-p_wc[1]/p_wc[0]))
+        #TODO >> Overhead calculation need to be implemented
+        axis1 = rtod(mp.atan(-pos_wcp[1]/pos_wcp[0]))
 
+
+        dist_hor_bf_wcp = mp.sqrt(pos_wcp[0]**2 + pos_wcp[1]**2)
+        dist_hor_a2_wcp = dist_hor_bf_wcp - dist_hor_a1_a2
+        dist_vert_a2_wcp = pos_wcp[2] - dist_vert_a1_a2
+
+        dist_a2_wcp = mp.sqrt(dist_hor_a2_wcp**2 + dist_vert_a2_wcp**2)
+        dist_a3_wcp = mp.sqrt(len_link3**2 + dist_a3_a4**2)
+
+
+        beta1 = mp.atan(dist_vert_a2_wcp/dist_hor_a2_wcp)
+        beta2 = mp.acos((dist_a2_wcp**2 + len_link2**2 - dist_a3_wcp**2)/(2*dist_a2_wcp*len_link2))
+
+        #TODO >> Overhead calculation need to be implemented
+        axis2 = rtod(beta1 + beta2)
+        #second value of axis2 (no overhead included)
+        axis2_2 = rtod(beta1 - beta2)
+
+
+        gamma1 = mp.atan(dist_a3_a4/len_link3)
+        gamma2 = mp.acos((dist_a3_wcp**2 + len_link2**2 - dist_a2_wcp**2)/(2*dist_a3_wcp*len_link2))
+
+        axis3 = 90-rtod(gamma1 + gamma2)
+        axis3_2 = 90-rtod(gamma1 - gamma2)
 
 
         print("P01")
