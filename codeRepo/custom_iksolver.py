@@ -1,6 +1,6 @@
 import transformations as tf
-from mpmath import *
-from sympy import *
+from mpmath import mp, sqrt
+from sympy import symbols, pi, cos, sin, Matrix
 import numpy as np
 
 def createMatrix(alpha, a, q, d):
@@ -31,12 +31,24 @@ class Frame:
 
     @property
     def abc(self):
-        return self.abc
+        return self._abc
 
     @abc.setter
     def abc(self, value):
         self.orientation = tf.transformations.quaternion_from_euler(value[0], value[1], value[2])
         self._abc = value
+
+    @property
+    def x(self):
+        return self.position[0]
+
+    @property
+    def y(self):
+        return self.position[1]
+
+    @property
+    def z(self):
+        return self.position[2]
 
 
 class E6Axis:
@@ -172,7 +184,7 @@ class CustomKukaIKSolver:
 
         axes_radian = {qi1: e6_axis_radians[0],
                        qi2: dtor(90) + e6_axis_radians[1],
-                       qi3: dtor(90) - e6_axis_radians[2],
+                       qi3: -dtor(90) + e6_axis_radians[2],
                        qi4: e6_axis_radians[3],
                        qi5: e6_axis_radians[4],
                        qi6: e6_axis_radians[5]}
@@ -234,14 +246,14 @@ class CustomKukaIKSolver:
         return Frame(p_0F, quat_0F)
 
 
-test_e6axis = E6Axis([45, 45, 30, 60, -60, 45])
+#test_e6axis = E6Axis([45, 45, 30, 60, -60, 45])
 
-kuka_solver = CustomKukaIKSolver(dh_KR360_R2830)
-calc_frame = kuka_solver.performFK(test_e6axis, debug_print=True)
+#kuka_solver = CustomKukaIKSolver(dh_KR360_R2830)
+#calc_frame = kuka_solver.performFK(test_e6axis, debug_print=True)
 
-print('\n')
-print(calc_frame.orientation)
-calc_frame.abc = [90, 90, 90]
-print(calc_frame.orientation)
+#print('\n')
+#print(calc_frame.orientation)
+#calc_frame.abc = [90, 90, 90]
+#print(calc_frame.orientation)
 
 print("FINISHED")
