@@ -4,6 +4,7 @@ from mpmath import radians as dtor
 from mpmath import degrees as rtod
 from sympy import symbols, pi, cos, sin, Matrix
 import numpy as np
+from accessify import private
 
 
 def createMatrix(alpha, a, q, d):
@@ -231,6 +232,9 @@ class CustomKukaIKSolver:
 
         return Frame(p_0F, quat_0F)
 
+    @private
+    def fortestonly(self):
+        pass
 
 #test_e6axis = E6Axis([45, 45, 30, 60, -60, 45])
 

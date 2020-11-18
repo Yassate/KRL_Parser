@@ -16,48 +16,10 @@ class InputDataFK:
 class TestFK(TestCase):
     def setUp(self):
         self.ik_solver = CustomKukaIKSolver(dh_KR360_R2830)
-        self.test_data = []
-        self.set_up_test_data()
 
     #TODO >> load test data from external source (?) and find the way to indicate which set failed (without separate names for each case it seems impossible)
     def set_up_test_data(self):
         pass
-        #
-        # self.test_data.append(
-        #     input_data_FK(
-        #         robot_axes=[0, -90, 45, 0, 0, 0],
-        #         target_xyz=[1468.736, 0.000, 3235.954],
-        #         target_abc=[0.0, 45.0, 0.0]))
-        #
-        # self.test_data.append(
-        #     input_data_FK(
-        #         robot_axes=[45, -90, 45, 0, 0, 0],
-        #         target_xyz=[1038.553, -1038.553, 3235.954],
-        #         target_abc=[0.0, 45.0, -45.0]))
-        #
-        # self.test_data.append(
-        #     input_data_FK(
-        #         robot_axes=[45, -90, 90, 0, 0, 0],
-        #         target_xyz=[1283.399, -1283.399, 2290.000],
-        #         target_abc=[45.0, 90.0, 0.0]))
-        #
-        # self.test_data.append(
-        #     input_data_FK(
-        #         robot_axes=[45, -90, 90, 0, 30, 0],
-        #         target_xyz=[1255.926, -1255.926, 2145.000],
-        #         target_abc=[0.0, 120.0, -45.0]))
-        #
-        # self.test_data.append(
-        #     input_data_FK(
-        #         robot_axes=[45, -90, 90, 0, 30, 30],
-        #         target_xyz=[1255.926, -1255.926, 2145.000],
-        #         target_abc=[40.893, 131.410, 4.107]))
-        #
-        # self.test_data.append(
-        #     input_data_FK(
-        #         robot_axes=[45, -90, 90, 30, 30, 30],
-        #         target_xyz=[1204.661, -1307.191, 2164.426],
-        #         target_abc=[61.813, 156.453, 16.813]))
 
     def assert_pos(self, target_xyz_m, calc_frame, accuracy):
         self.assertAlmostEqual(target_xyz_m[0], calc_frame.x, delta=accuracy)
