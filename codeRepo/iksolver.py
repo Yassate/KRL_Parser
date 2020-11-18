@@ -245,15 +245,6 @@ class KukaIKSolver:
         self.T6_G = createMatrix(alpha6, a6, q7, d7)
         self.T6_G = self.T6_G.subs(s)
 
-        # # Composition of Homogenous Transforms
-        #self.T0_2 = simplify(self.T0_1 * self.T1_2)  # base_link to link 2
-        #self.T0_3 = simplify(self.T0_2 * self.T2_3)  # base_link to link 3
-        #self.T0_4 = simplify(self.T0_3 * self.T3_4)  # base_link to link 3
-        #self.T0_5 = simplify(self.T0_4 * self.T4_5)  # base_link to link 3
-        #self.T0_6 = simplify(self.T0_5 * self.T5_6)  # base_link to link 3
-        #self.T0_G = simplify(self.T0_6 * self.T6_G)  # base_link to link 3
-
-        # INFO temporary deleted "simplify" because is terribly slow
         self.T0_2 = self.T0_1 * self.T1_2  # base_link to link 2
         self.T0_3 = self.T0_2 * self.T2_3  # base_link to link 3
         self.T0_4 = self.T0_3 * self.T3_4  # base_link to link 4
@@ -606,7 +597,6 @@ class KukaIKSolver2:
         print(self.T0_3)
         print(self.T0_4)
 
-        # INFO temporary deleted "simplify" because is terribly slow
         self.T0_2 = self.T0_1 * self.T1_2  # base_link to link 2
         self.T0_3 = self.T0_2 * self.T2_3  # base_link to link 3
         self.T0_4 = self.T0_3 * self.T3_4  # base_link to link 4
@@ -645,7 +635,6 @@ class KukaIKSolver2:
         self.old_theta6 = 0
         pass
 
-    # INFO >> My modifications of input angles according to KUKA robot rotation signs
     def performFK(self, theta_t):
         #theta_t[0] = -theta_t[0]
         #theta_t[1] = theta_t[1] + dtor(90)

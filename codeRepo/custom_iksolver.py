@@ -1,7 +1,10 @@
-import transformations as tf
+import transformations.transformations as tf
 from mpmath import mp, sqrt
+from mpmath import radians as dtor
+from mpmath import degrees as rtod
 from sympy import symbols, pi, cos, sin, Matrix
 import numpy as np
+
 
 def createMatrix(alpha, a, q, d):
     mat = Matrix([[cos(q), -sin(q) * cos(alpha),    sin(q) * sin(alpha), a * cos(q)],
@@ -11,23 +14,16 @@ def createMatrix(alpha, a, q, d):
 
     return mat
 
+
 def rtod_tuple(rad_tuple):
     return(rtod(rad_tuple[0]), rtod(rad_tuple[1]), rtod(rad_tuple[2]))
-
-# Radians to Degree
-def rtod(q):
-    return q * 180.0 / np.pi
-
-# Degree to Radians
-def dtor(q):
-    return q * np.pi / 180.0
 
 
 class Frame:
     def __init__(self, position=None, orientation=None):
         self.position = position
         self.orientation = orientation
-        self._abc = [rtod(angle) for angle in tf.transformations.euler_from_quaternion(orientation)]
+        self._abc = [rtod(angle) for angle in tf.euler_from_quaternion(orientation)]
 
     @property
     def abc(self):
@@ -35,7 +31,7 @@ class Frame:
 
     @abc.setter
     def abc(self, value):
-        self.orientation = tf.transformations.quaternion_from_euler(value[0], value[1], value[2])
+        self.orientation = tf.quaternion_from_euler(value[0], value[1], value[2])
         self._abc = value
 
     @property
@@ -59,17 +55,6 @@ class E6Axis:
     def get_in_radians(self):
         axes_radians = [dtor(axis) for axis in self.axis_values]
         return axes_radians
-
-
-class Euler:
-    def __init__(self, a=0, b=0, c=0):
-        self.a = a
-        self.b = b
-        self.c = c
-
-    def getABC_deg(self):
-        return [rtod(self.a), rtod(self.b), rtod(self.c)]
-
 
 # # Define DH param symbols
 d0, d1, d2, d3, d4, d5, d6 = symbols('d0:7')  # link_offset_i
@@ -117,7 +102,7 @@ class CustomKukaIKSolver:
         #abc and pos from point data
         matrix_pos = Matrix([[1.41967669899836], [-1.11208524918221], [0.852371412169755], [1.0]])
         abc = (dtor(-114.9896598979589), dtor(28.604830501539254), dtor(-93.71709054789805))
-        matrix_abc = tf.transformations.euler_matrix(abc[0], abc[1], abc[2])
+        matrix_abc = tf.euler_matrix(abc[0], abc[1], abc[2], axes='sxyz')
 
         dist_to_wc = Matrix([[0], [0], [self.dh_params[d6]], [1]])
         dif = matrix_abc * dist_to_wc
@@ -191,34 +176,35 @@ class CustomKukaIKSolver:
 
         transf_T01_evaluated = self.T0_1.evalf(subs=axes_radian)
         p_01 = transf_T01_evaluated * self.origin
-        deg_01 = tf.transformations.euler_from_matrix(transf_T01_evaluated.tolist(), 'sxyz')
+        deg_01 = tf.euler_from_matrix(transf_T01_evaluated.tolist(), 'sxyz')
 
         transf_T02_evaluated = self.T0_2.evalf(subs=axes_radian)
         p_02 = transf_T02_evaluated * self.origin
-        deg_02 = tf.transformations.euler_from_matrix(transf_T02_evaluated.tolist(), 'sxyz')
+        deg_02 = tf.euler_from_matrix(transf_T02_evaluated.tolist(), 'sxyz')
 
         transf_T03_evaluated = self.T0_3.evalf(subs=axes_radian)
         p_03 = transf_T03_evaluated * self.origin
-        deg_03 = tf.transformations.euler_from_matrix(transf_T03_evaluated.tolist(), 'sxyz')
+        deg_03 = tf.euler_from_matrix(transf_T03_evaluated.tolist(), 'sxyz')
 
         transf_T04_evaluated = self.T0_4.evalf(subs=axes_radian)
         p_04 = transf_T04_evaluated * self.origin
-        deg_04 = tf.transformations.euler_from_matrix(transf_T04_evaluated.tolist(), 'sxyz')
-        quat_04 = tf.transformations.quaternion_from_matrix(transf_T04_evaluated.tolist())
+        deg_04 = tf.euler_from_matrix(transf_T04_evaluated.tolist(), 'sxyz')
+        quat_04 = tf.quaternion_from_matrix(transf_T04_evaluated.tolist())
 
         transf_T05_evaluated = self.T0_5.evalf(subs=axes_radian)
         p_05 = transf_T05_evaluated * self.origin
-        deg_05 = tf.transformations.euler_from_matrix(transf_T05_evaluated.tolist(), 'sxyz')
+        deg_05 = tf.euler_from_matrix(transf_T05_evaluated.tolist(), 'sxyz')
 
         transf_T06_evaluated = self.T0_6.evalf(subs=axes_radian)
         p_06 = transf_T06_evaluated * self.origin
-        deg_06 = tf.transformations.euler_from_matrix(transf_T06_evaluated.tolist(), 'sxyz')
+        deg_06 = tf.euler_from_matrix(transf_T06_evaluated.tolist(), 'sxyz')
 
         transf_T0F_evaluated = self.T0_F.evalf(subs=axes_radian)
         p_0F = transf_T0F_evaluated * self.origin
 
-        deg_0F = tf.transformations.euler_from_matrix(transf_T0F_evaluated.tolist(), 'sxyz')
-        quat_0F = tf.transformations.quaternion_from_matrix(transf_T0F_evaluated.tolist())
+        #TODO >> CHECK IF DEGREES ARE IN CORRECT ORDER (rzyx/sxyz?)
+        deg_0F = tf.euler_from_matrix(transf_T0F_evaluated.tolist(), 'sxyz')
+        quat_0F = tf.quaternion_from_matrix(transf_T0F_evaluated.tolist())
 
         if debug_print:
             print("P01")
@@ -256,4 +242,4 @@ class CustomKukaIKSolver:
 #calc_frame.abc = [90, 90, 90]
 #print(calc_frame.orientation)
 
-print("FINISHED")
+
