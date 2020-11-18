@@ -19,7 +19,7 @@ class TestFK(TestCase):
         self.test_data = []
         self.set_up_test_data()
 
-    #TODO >> load test data from external source and find the way to indicate which set failed (without separate names for each case it seems impossible)
+    #TODO >> load test data from external source (?) and find the way to indicate which set failed (without separate names for each case it seems impossible)
     def set_up_test_data(self):
         pass
         #

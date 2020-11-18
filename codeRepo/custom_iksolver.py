@@ -66,7 +66,7 @@ q0, q1, q2, q3, q4, q5, q6, q7 = symbols('q0:8')  # theta_i
 qi0, qi1, qi2, qi3, qi4, qi5, qi6, qi7 = symbols('qi0:8')
 
 #INFO >> PROBABLY INVERSE KINEMATICS FOR ANGLES WILL NOT WORK 100% PROPERLY; rotation point of axis4 and axis5 is different; should lie on WCP
-#TODO >> Create tests for Forward Kinematics; then change DH parameters to move rotation point of axis 4 and axis 5 to WCP
+#TODO >> Change DH parameters to move rotation point of axis 4 and axis 5 to WCP
 dh_KR360_R2830 = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
                   alpha1: pi/2,  a1: 0.50,   d1: -1.045,  q1: qi1,
                   alpha2: 0,     a2: 1.30,   d2: 0,       q2: qi2-pi/2,
