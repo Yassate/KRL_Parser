@@ -58,9 +58,13 @@ class E6Axis:
         return axes_radians
 
 # # Define DH param symbols
-d0, d1, d2, d3, d4, d5, d6 = symbols('d0:7')  # link_offset_i
-a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7')  # link_length_i
-alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7')  # link_twist_i
+d0, d1, d2, d3, d4, d5, d6, d7 = symbols('d0:8')  # link_offset_i
+a0, a1, a2, a3, a4, a5, a6, a7 = symbols('a0:8')  # link_length_i
+alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6, alpha7 = symbols('alpha0:8')  # link_twist_i
+alphaX = symbols('alphaX')
+aX = symbols('aX')
+dX = symbols('dX')
+qX = symbols('qX')
 
 # # Joint angle symbols (q0 is additional because of Z direction (to the ground) of first joint rotation axis)
 q0, q1, q2, q3, q4, q5, q6, q7 = symbols('q0:8')  # theta_i
@@ -76,6 +80,25 @@ dh_KR360_R2830 = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
                   alpha5: -pi/2, a5: 0,      d5: 0,       q5: qi5,
                   alpha6: pi,    a6: 0,      d6: -0.29,   q6: qi6}
 
+dh_KR360_R2830 = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
+                  alpha1: pi/2,  a1: 0.50,   d1: -1.045,  q1: qi1,
+                  alpha2: 0,     a2: 1.30,   d2: 0,       q2: qi2-pi/2,
+                  alpha3: -pi/2, a3: 0.055,  d3: 0,       q3: qi3+pi,
+                  alphaX: 0,     aX: 0,      dX: -1.025,  qX: 0,
+                  alpha4: pi/2,  a4: 0,      d4: 0,       q4: qi4,
+                  alpha5: -pi/2, a5: 0,      d5: 0,       q5: qi5,
+                  alpha6: pi,    a6: 0,      d6: -0.29,   q6: qi6}
+
+dh_KR360_R2830 = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
+                  alpha1: pi/2,  a1: 0.50,   d1: -1.045,  q1: qi1,
+                  alpha2: 0,     a2: 1.30,   d2: 0,       q2: qi2-pi/2,
+                  alpha3: -pi/2, a3: 0.055,  d3: 0,       q3: qi3+pi,
+                  alphaX: 0,     aX: 0,      dX: -1.025,  qX: 0,
+                  alpha4: pi/2,  a4: 0,      d4: 0,       q4: qi4,
+                  alpha5: -pi/2, a5: 0,      d5: 0,       q5: qi5,
+                  alpha6: pi,    a6: 0,      d6: 0,       q6: qi6,
+                  alpha7: 0,     a7: 0,      d7: 0.29,    q7: 0}
+
 class CustomKukaIKSolver:
 
     def __init__(self, dh_params):
@@ -86,18 +109,22 @@ class CustomKukaIKSolver:
         self.A0_1 = createMatrix(alpha0, a0, q0, d0).subs(self.dh_params)
         self.A1_2 = createMatrix(alpha1, a1, q1, d1).subs(self.dh_params)
         self.A2_3 = createMatrix(alpha2, a2, q2, d2).subs(self.dh_params)
-        self.A3_4 = createMatrix(alpha3, a3, q3, d3).subs(self.dh_params)
+        self.A3_X = createMatrix(alpha3, a3, q3, d3).subs(self.dh_params)
+        self.AX_4 = createMatrix(alphaX, aX, qX, dX).subs(self.dh_params)
         self.A4_5 = createMatrix(alpha4, a4, q4, d4).subs(self.dh_params)
         self.A5_6 = createMatrix(alpha5, a5, q5, d5).subs(self.dh_params)
         self.A6_F = createMatrix(alpha6, a6, q6, d6).subs(self.dh_params)
+        self.F_FF = createMatrix(alpha7, a7, q7, d7).subs(self.dh_params)
 
         self.T0_1 = self.A0_1
         self.T0_2 = self.T0_1 * self.A1_2
         self.T0_3 = self.T0_2 * self.A2_3
-        self.T0_4 = self.T0_3 * self.A3_4
+        self.T0_X = self.T0_3 * self.A3_X
+        self.T0_4 = self.T0_X * self.AX_4
         self.T0_5 = self.T0_4 * self.A4_5
         self.T0_6 = self.T0_5 * self.A5_6
         self.T0_F = self.T0_6 * self.A6_F
+        self.T0_FF = self.T0_F * self.F_FF
 
         #INVERSE KINEMATICS PART
         #abc and pos from point data
@@ -110,10 +137,11 @@ class CustomKukaIKSolver:
 
         pos_wcp = matrix_pos + dif
         len_link2 = abs(self.dh_params[a2])
-        len_link3 = abs(self.dh_params[d4])
+        len_link3 = abs(self.dh_params[dX])
         dist_hor_a1_a2 = abs(self.dh_params[a1])
         dist_vert_a1_a2 = abs(self.dh_params[d1])
         dist_a3_a4 = abs(self.dh_params[a3])
+
 
         #TODO >> Overhead calculation need to be implemented
         axis1 = mp.atan(-pos_wcp[1]/pos_wcp[0])
@@ -144,6 +172,7 @@ class CustomKukaIKSolver:
         axis3_2 = np.pi/2 - (gamma1 - gamma2)
         axis3_2_deg = rtod(axis3_2)
 
+        #TODO >> ORIENTATION TO REVIEW - DH PARAMETERS CHANGED
         #ORIENTATION
 
         A1_to_A3 = {qi1: axis1, qi2: axis2, qi3: axis3}
@@ -187,10 +216,13 @@ class CustomKukaIKSolver:
         p_03 = transf_T03_evaluated * self.origin
         deg_03 = tf.euler_from_matrix(transf_T03_evaluated.tolist(), 'sxyz')
 
+        transf_T0X_evaluated = self.T0_X.evalf(subs=axes_radian)
+        p_0X = transf_T0X_evaluated * self.origin
+        deg_0X = tf.euler_from_matrix(transf_T0X_evaluated.tolist(), 'sxyz')
+
         transf_T04_evaluated = self.T0_4.evalf(subs=axes_radian)
         p_04 = transf_T04_evaluated * self.origin
         deg_04 = tf.euler_from_matrix(transf_T04_evaluated.tolist(), 'sxyz')
-        quat_04 = tf.quaternion_from_matrix(transf_T04_evaluated.tolist())
 
         transf_T05_evaluated = self.T0_5.evalf(subs=axes_radian)
         p_05 = transf_T05_evaluated * self.origin
@@ -202,10 +234,15 @@ class CustomKukaIKSolver:
 
         transf_T0F_evaluated = self.T0_F.evalf(subs=axes_radian)
         p_0F = transf_T0F_evaluated * self.origin
+        deg_0F = tf.euler_from_matrix(transf_T0F_evaluated.tolist(), 'sxyz')
 
         #TODO >> CHECK IF DEGREES ARE IN CORRECT ORDER (rzyx/sxyz?)
-        deg_0F = tf.euler_from_matrix(transf_T0F_evaluated.tolist(), 'sxyz')
-        quat_0F = tf.quaternion_from_matrix(transf_T0F_evaluated.tolist())
+        transf_T0FF_evaluated = self.T0_FF.evalf(subs=axes_radian)
+        p_0FF = transf_T0FF_evaluated * self.origin
+        deg_0FF = tf.euler_from_matrix(transf_T0FF_evaluated.tolist(), 'sxyz')
+        quat_0FF = tf.quaternion_from_matrix(transf_T0F_evaluated.tolist())
+
+
 
         if debug_print:
             print("P01")
@@ -217,6 +254,9 @@ class CustomKukaIKSolver:
             print("P03")
             print(p_03)
             print(rtod_tuple(deg_03))
+            print("P0X")
+            print(p_0X)
+            print(rtod_tuple(deg_0X))
             print("P04")
             print(p_04)
             print(rtod_tuple(deg_04))
@@ -229,8 +269,11 @@ class CustomKukaIKSolver:
             print("P0F")
             print(p_0F)
             print(rtod_tuple(deg_0F))
+            print("P0FF")
+            print(p_0FF)
+            print(rtod_tuple(deg_0FF))
 
-        return Frame(p_0F, quat_0F)
+        return Frame(p_0FF, quat_0FF)
 
     @private
     def fortestonly(self):
