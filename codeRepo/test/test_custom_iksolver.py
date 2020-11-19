@@ -83,3 +83,10 @@ class TestFK(TestCase):
             target_xyz=[1204.661, -1307.191, 2164.426],
             target_abc=[61.813, 156.453, 16.813])
         self.solve_FK(input_data)
+
+    def test_case7(self):
+        input_data = InputDataFK(
+            robot_axes=[45, -45, 120, 60, -60, 45],
+            target_xyz=[1419.677, -1112.085, 852.371],
+            target_abc=[-114.990, 28.605, -93.717])
+        self.solve_FK(input_data)

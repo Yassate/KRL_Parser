@@ -5,6 +5,7 @@ from mpmath import degrees as rtod
 from sympy import symbols, pi, cos, sin, Matrix
 import numpy as np
 from accessify import private
+from iksolver import rot_y, rot_z
 
 
 def createMatrix(alpha, a, q, d):
@@ -132,7 +133,7 @@ class CustomKukaIKSolver:
         abc = (dtor(-114.9896598979589), dtor(28.604830501539254), dtor(-93.71709054789805))
         matrix_abc = tf.euler_matrix(abc[0], abc[1], abc[2], axes='sxyz')
 
-        dist_to_wc = Matrix([[0], [0], [self.dh_params[d6]], [1]])
+        dist_to_wc = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
         dif = matrix_abc * dist_to_wc
 
         pos_wcp = matrix_pos + dif
@@ -158,40 +159,43 @@ class CustomKukaIKSolver:
         beta2 = mp.acos((dist_a2_wcp**2 + len_link2**2 - dist_a3_wcp**2)/(2*dist_a2_wcp*len_link2))
 
         #TODO >> Overhead calculation need to be implemented
-        axis2 = beta1 + beta2
+        axis2 = -(beta1 + beta2)
         axis2_deg = rtod(axis2)
         #second value of axis2 (no overhead included)
-        axis2_2 = beta1 - beta2
+        axis2_2 = -(beta1 - beta2)
         axis2_2_deg = rtod(axis2_2)
 
         gamma1 = mp.atan(dist_a3_a4/len_link3)
         gamma2 = mp.acos((dist_a3_wcp**2 + len_link2**2 - dist_a2_wcp**2)/(2*dist_a3_wcp*len_link2))
 
-        axis3 = np.pi/2 - (gamma1 + gamma2)
+        axis3 = np.pi - (gamma1 + gamma2)
         axis3_deg = rtod(axis3)
-        axis3_2 = np.pi/2 - (gamma1 - gamma2)
+        axis3_2 = np.pi - (gamma1 - gamma2)
         axis3_2_deg = rtod(axis3_2)
 
         #TODO >> ORIENTATION TO REVIEW - DH PARAMETERS CHANGED
         #ORIENTATION
 
-        A1_to_A3 = {qi1: axis1, qi2: axis2, qi3: axis3}
-        R_0_3 = self.T0_4.evalf(subs=A1_to_A3)[0:3, 0:3]
+        A1_to_A3 = {qi1: axis1, qi2: dtor(90) + axis2, qi3: -dtor(90) + axis3}
+        R_0_3 = self.T0_4.evalf(subs=A1_to_A3)[0:3, 0:3] * Matrix(rot_y(-np.pi/2))
+
         R_0_3_inv = R_0_3.inv()
         R_0_6 = matrix_abc[0:3, 0:3]
 
         R_3_6 = R_0_3_inv * R_0_6
 
-        theta_p = {qi4: pi/3, qi5: pi/3, qi6: pi/4}
+        #theta_p = {qi4: pi/3, qi5: pi/3, qi6: pi/4}
 
-        t_c = (self.A4_5 * self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
-        t_c = (self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
-        R_3_6 = t_c
+        #t_c = (self.A4_5 * self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
+        #t_c = (self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
+        #R_3_6 = t_c
 
         axis5_1 = mp.atan2(R_3_6[2, 2], sqrt(1-R_3_6[2, 2] ** 2))
         axis5_2 = mp.atan2(R_3_6[2, 2], -sqrt(1-R_3_6[2, 2] ** 2))
-        axis5_1_deg = 90 + rtod(axis5_2)
-        axis5_2_deg = 90 + rtod(axis5_2)
+        axis5_1_deg = rtod(axis5_1)
+        axis5_2_deg = rtod(axis5_2)
+
+        print(1)
 
     def performFK(self, input_e6_axis, debug_print=False):
 
@@ -241,7 +245,6 @@ class CustomKukaIKSolver:
         p_0FF = transf_T0FF_evaluated * self.origin
         deg_0FF = tf.euler_from_matrix(transf_T0FF_evaluated.tolist(), 'sxyz')
         quat_0FF = tf.quaternion_from_matrix(transf_T0F_evaluated.tolist())
-
 
 
         if debug_print:
