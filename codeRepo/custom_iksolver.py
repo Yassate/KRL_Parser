@@ -132,6 +132,7 @@ class CustomKukaIKSolver:
         matrix_pos = Matrix([[1.41967669899836], [-1.11208524918221], [0.852371412169755], [1.0]])
         abc = (dtor(-114.9896598979589), dtor(28.604830501539254), dtor(-93.71709054789805))
         matrix_abc = tf.euler_matrix(abc[0], abc[1], abc[2], axes='sxyz')
+        robot_axes = [45, -45, 120, 60, -60, 45]
 
         dist_to_wc = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
         dif = matrix_abc * dist_to_wc
@@ -177,12 +178,23 @@ class CustomKukaIKSolver:
         #ORIENTATION
 
         A1_to_A3 = {qi1: axis1, qi2: dtor(90) + axis2, qi3: -dtor(90) + axis3}
-        R_0_3 = self.T0_4.evalf(subs=A1_to_A3)[0:3, 0:3] * Matrix(rot_y(-np.pi/2))
+        R_0_3 = self.T0_4.evalf(subs=A1_to_A3)[0:3, 0:3]
+
+        temp_1 = createMatrix(alpha=-np.pi/2, a=0, q=np.pi/2, d=0)[0:3, 0:3]
+        temp_2 = createMatrix(alpha=0, a=0, q=np.pi/2, d=0)[0:3, 0:3]
+
+        R_temp = R_0_3 * rot_y(-np.pi/2) * rot_z(np.pi)
+
+        # R_0_3 = R_0_3 * temp_1
+        # R_0_3 = R_0_3 * temp_2
+        # R_0_3 = R_temp
 
         R_0_3_inv = R_0_3.inv()
         R_0_6 = matrix_abc[0:3, 0:3]
 
+
         R_3_6 = R_0_3_inv * R_0_6
+        print(R_3_6)
 
         #theta_p = {qi4: pi/3, qi5: pi/3, qi6: pi/4}
 
@@ -192,8 +204,27 @@ class CustomKukaIKSolver:
 
         axis5_1 = mp.atan2(R_3_6[2, 2], sqrt(1-R_3_6[2, 2] ** 2))
         axis5_2 = mp.atan2(R_3_6[2, 2], -sqrt(1-R_3_6[2, 2] ** 2))
+        axis5_3 = mp.atan2(sqrt(R_3_6[0,2]**2+R_3_6[1,2]**2), R_3_6[2,2])
+        axis5_4 = mp.acos(R_3_6[2, 2])
         axis5_1_deg = rtod(axis5_1)
         axis5_2_deg = rtod(axis5_2)
+        axis5_3_deg = rtod(axis5_3)
+        axis5_4_deg = rtod(axis5_4)
+
+        axis4_1 = mp.atan2(R_3_6[0, 2], R_3_6[1, 2])
+        axis4_2 = mp.atan2(-R_3_6[0, 2], -R_3_6[1, 2])
+        axis4_3 = mp.atan2(R_3_6[1,2], R_3_6[0,2])
+        axis4_1_deg = rtod(axis4_1)
+        axis4_2_deg = rtod(axis4_2)
+        axis4_3_deg = rtod(axis4_3)
+
+
+        axis6_1 = mp.atan2(-R_3_6[2, 0], R_3_6[2, 1])
+        axis6_2 = mp.atan2(R_3_6[2, 0], -R_3_6[2, 1])
+        axis6_3 = mp.atan2(R_3_6[2, 1], -R_3_6[2, 0])
+        axis6_1_deg = rtod(axis6_1)
+        axis6_2_deg = rtod(axis6_2)
+        axis6_3_deg = rtod(axis6_3)
 
         print(1)
 
