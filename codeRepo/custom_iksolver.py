@@ -7,6 +7,9 @@ import numpy as np
 from accessify import private
 from iksolver import rot_y, rot_z
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import pytransform3d.rotations as py3drot
 
 def createMatrix(alpha, a, q, d):
     mat = Matrix([[cos(q), -sin(q) * cos(alpha),    sin(q) * sin(alpha), a * cos(q)],
@@ -127,105 +130,100 @@ class CustomKukaIKSolver:
         self.T0_F = self.T0_6 * self.A6_F
         self.T0_FF = self.T0_F * self.F_FF
 
-        #INVERSE KINEMATICS PART
-        #abc and pos from point data
+        self.axis3d = py3drot.plot_basis(R=np.eye(3), ax_s=4)
+
+        self.test_plot()
+        self.performIK()
+
+    def test_plot(self):
+
+        pos = np.array([1.0, 1.0, 1.0])
+        pos2 = np.array([1.0, 1.0, 3.0])
+        rot = py3drot.matrix_from_euler_xyz([np.pi/2, 0, 0])
+        self.add_frame(rot, pos)
+        self.add_frame(rot, pos2)
+
+        plt.show()
+
+    def add_frame(self, rot, pos):
+        py3drot.plot_basis(self.axis3d, R=rot, p=pos)
+
+    def performIK(self):
+
+        # INVERSE KINEMATICS PART
+        # abc and pos from point data
         matrix_pos = Matrix([[1.41967669899836], [-1.11208524918221], [0.852371412169755], [1.0]])
         abc = (dtor(-114.9896598979589), dtor(28.604830501539254), dtor(-93.71709054789805))
         matrix_abc = tf.euler_matrix(abc[0], abc[1], abc[2], axes='sxyz')
         robot_axes = [45, -45, 120, 60, -60, 45]
-
         dist_to_wc = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
         dif = matrix_abc * dist_to_wc
-
         pos_wcp = matrix_pos + dif
         len_link2 = abs(self.dh_params[a2])
         len_link3 = abs(self.dh_params[dX])
         dist_hor_a1_a2 = abs(self.dh_params[a1])
         dist_vert_a1_a2 = abs(self.dh_params[d1])
         dist_a3_a4 = abs(self.dh_params[a3])
-
-
-        #TODO >> Overhead calculation need to be implemented
-        axis1 = mp.atan(-pos_wcp[1]/pos_wcp[0])
+        # TODO >> Overhead calculation need to be implemented
+        axis1 = mp.atan(-pos_wcp[1] / pos_wcp[0])
         axis1_deg = rtod(axis1)
-
-        dist_hor_bf_wcp = mp.sqrt(pos_wcp[0]**2 + pos_wcp[1]**2)
+        dist_hor_bf_wcp = mp.sqrt(pos_wcp[0] ** 2 + pos_wcp[1] ** 2)
         dist_hor_a2_wcp = dist_hor_bf_wcp - dist_hor_a1_a2
         dist_vert_a2_wcp = pos_wcp[2] - dist_vert_a1_a2
-
-        dist_a2_wcp = mp.sqrt(dist_hor_a2_wcp**2 + dist_vert_a2_wcp**2)
-        dist_a3_wcp = mp.sqrt(len_link3**2 + dist_a3_a4**2)
-
-        beta1 = mp.atan(dist_vert_a2_wcp/dist_hor_a2_wcp)
-        beta2 = mp.acos((dist_a2_wcp**2 + len_link2**2 - dist_a3_wcp**2)/(2*dist_a2_wcp*len_link2))
-
-        #TODO >> Overhead calculation need to be implemented
+        dist_a2_wcp = mp.sqrt(dist_hor_a2_wcp ** 2 + dist_vert_a2_wcp ** 2)
+        dist_a3_wcp = mp.sqrt(len_link3 ** 2 + dist_a3_a4 ** 2)
+        beta1 = mp.atan(dist_vert_a2_wcp / dist_hor_a2_wcp)
+        beta2 = mp.acos((dist_a2_wcp ** 2 + len_link2 ** 2 - dist_a3_wcp ** 2) / (2 * dist_a2_wcp * len_link2))
+        # TODO >> Overhead calculation need to be implemented
         axis2 = -(beta1 + beta2)
         axis2_deg = rtod(axis2)
-        #second value of axis2 (no overhead included)
+        # second value of axis2 (no overhead included)
         axis2_2 = -(beta1 - beta2)
         axis2_2_deg = rtod(axis2_2)
-
-        gamma1 = mp.atan(dist_a3_a4/len_link3)
-        gamma2 = mp.acos((dist_a3_wcp**2 + len_link2**2 - dist_a2_wcp**2)/(2*dist_a3_wcp*len_link2))
-
+        gamma1 = mp.atan(dist_a3_a4 / len_link3)
+        gamma2 = mp.acos((dist_a3_wcp ** 2 + len_link2 ** 2 - dist_a2_wcp ** 2) / (2 * dist_a3_wcp * len_link2))
         axis3 = np.pi - (gamma1 + gamma2)
         axis3_deg = rtod(axis3)
         axis3_2 = np.pi - (gamma1 - gamma2)
         axis3_2_deg = rtod(axis3_2)
-
-        #TODO >> ORIENTATION TO REVIEW - DH PARAMETERS CHANGED
-        #ORIENTATION
-
+        # TODO >> ORIENTATION TO REVIEW - DH PARAMETERS CHANGED
+        # ORIENTATION
         A1_to_A3 = {qi1: axis1, qi2: dtor(90) + axis2, qi3: -dtor(90) + axis3}
         R_0_3 = self.T0_4.evalf(subs=A1_to_A3)[0:3, 0:3]
-
-        temp_1 = createMatrix(alpha=-np.pi/2, a=0, q=np.pi/2, d=0)[0:3, 0:3]
-        temp_2 = createMatrix(alpha=0, a=0, q=np.pi/2, d=0)[0:3, 0:3]
-
-        R_temp = R_0_3 * rot_y(-np.pi/2) * rot_z(np.pi)
-
+        temp_1 = createMatrix(alpha=-np.pi / 2, a=0, q=np.pi / 2, d=0)[0:3, 0:3]
+        temp_2 = createMatrix(alpha=0, a=0, q=np.pi / 2, d=0)[0:3, 0:3]
+        R_temp = R_0_3 * rot_y(-np.pi / 2) * rot_z(np.pi)
         # R_0_3 = R_0_3 * temp_1
         # R_0_3 = R_0_3 * temp_2
         # R_0_3 = R_temp
-
         R_0_3_inv = R_0_3.inv()
         R_0_6 = matrix_abc[0:3, 0:3]
-
-
         R_3_6 = R_0_3_inv * R_0_6
         print(R_3_6)
-
-        #theta_p = {qi4: pi/3, qi5: pi/3, qi6: pi/4}
-
-        #t_c = (self.A4_5 * self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
-        #t_c = (self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
-        #R_3_6 = t_c
-
-        axis5_1 = mp.atan2(R_3_6[2, 2], sqrt(1-R_3_6[2, 2] ** 2))
-        axis5_2 = mp.atan2(R_3_6[2, 2], -sqrt(1-R_3_6[2, 2] ** 2))
-        axis5_3 = mp.atan2(sqrt(R_3_6[0,2]**2+R_3_6[1,2]**2), R_3_6[2,2])
+        # theta_p = {qi4: pi/3, qi5: pi/3, qi6: pi/4}
+        # t_c = (self.A4_5 * self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
+        # t_c = (self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
+        # R_3_6 = t_c
+        axis5_1 = mp.atan2(R_3_6[2, 2], sqrt(1 - R_3_6[2, 2] ** 2))
+        axis5_2 = mp.atan2(R_3_6[2, 2], -sqrt(1 - R_3_6[2, 2] ** 2))
+        axis5_3 = mp.atan2(sqrt(R_3_6[0, 2] ** 2 + R_3_6[1, 2] ** 2), R_3_6[2, 2])
         axis5_4 = mp.acos(R_3_6[2, 2])
         axis5_1_deg = rtod(axis5_1)
         axis5_2_deg = rtod(axis5_2)
         axis5_3_deg = rtod(axis5_3)
         axis5_4_deg = rtod(axis5_4)
-
         axis4_1 = mp.atan2(R_3_6[0, 2], R_3_6[1, 2])
         axis4_2 = mp.atan2(-R_3_6[0, 2], -R_3_6[1, 2])
-        axis4_3 = mp.atan2(R_3_6[1,2], R_3_6[0,2])
+        axis4_3 = mp.atan2(R_3_6[1, 2], R_3_6[0, 2])
         axis4_1_deg = rtod(axis4_1)
         axis4_2_deg = rtod(axis4_2)
         axis4_3_deg = rtod(axis4_3)
-
-
         axis6_1 = mp.atan2(-R_3_6[2, 0], R_3_6[2, 1])
         axis6_2 = mp.atan2(R_3_6[2, 0], -R_3_6[2, 1])
         axis6_3 = mp.atan2(R_3_6[2, 1], -R_3_6[2, 0])
         axis6_1_deg = rtod(axis6_1)
         axis6_2_deg = rtod(axis6_2)
         axis6_3_deg = rtod(axis6_3)
-
         print(1)
 
     def performFK(self, input_e6_axis, debug_print=False):
@@ -315,7 +313,7 @@ class CustomKukaIKSolver:
 
 #test_e6axis = E6Axis([45, 45, 30, 60, -60, 45])
 
-#kuka_solver = CustomKukaIKSolver(dh_KR360_R2830)
+kuka_solver = CustomKukaIKSolver(dh_KR360_R2830)
 #calc_frame = kuka_solver.performFK(test_e6axis, debug_print=True)
 
 #print('\n')
