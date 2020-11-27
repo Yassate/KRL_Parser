@@ -53,13 +53,22 @@ class Frame:
 
 
 class E6Axis:
-    def __init__(self, axis_values = None):
+    def __init__(self, axis_values=None):
         self.axis_values = axis_values
         self.A1, self.A2, self.A3, self.A4, self.A5, self.A6 = axis_values
 
     def get_in_radians(self):
         axes_radians = [dtor(axis) for axis in self.axis_values]
         return axes_radians
+
+
+class E6Pos:
+    def __init__(self, xyz, abc):
+        self.x, self.y, self.z = xyz
+        self.a, self.b, self.c = abc
+        self.quat = tf.quaternion_from_euler(self.a, self.b, self.c)
+
+    
 
 # # Define DH param symbols
 d0, d1, d2, d3, d4, d5, d6, d7 = symbols('d0:8')  # link_offset_i
@@ -132,8 +141,8 @@ class CustomKukaIKSolver:
 
         self.axis3d = py3drot.plot_basis(R=np.eye(3), ax_s=4)
 
-        self.test_plot()
-        self.performIK()
+        #self.test_plot()
+        #self.performIK()
 
     def test_plot(self):
 
@@ -148,17 +157,15 @@ class CustomKukaIKSolver:
     def add_frame(self, rot, pos):
         py3drot.plot_basis(self.axis3d, R=rot, p=pos)
 
-    def performIK(self):
+    def performIK(self, input_xyz, input_abc):
 
         # INVERSE KINEMATICS PART
         # abc and pos from point data
-        matrix_pos = Matrix([[1.41967669899836], [-1.11208524918221], [0.852371412169755], [1.0]])
-        abc = (dtor(-114.9896598979589), dtor(28.604830501539254), dtor(-93.71709054789805))
-        matrix_abc = tf.euler_matrix(abc[0], abc[1], abc[2], axes='sxyz')
-        robot_axes = [45, -45, 120, 60, -60, 45]
+        matrix_xyz = Matrix([[input_xyz[0]], [input_xyz[1]], [input_xyz[2]], [1.0]])
+        matrix_abc = tf.euler_matrix(dtor(input_abc[0]), dtor(input_abc[1]), dtor(input_abc[2]), axes='sxyz')
         dist_to_wc = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
         dif = matrix_abc * dist_to_wc
-        pos_wcp = matrix_pos + dif
+        pos_wcp = matrix_xyz + dif
         len_link2 = abs(self.dh_params[a2])
         len_link3 = abs(self.dh_params[dX])
         dist_hor_a1_a2 = abs(self.dh_params[a1])
@@ -224,7 +231,7 @@ class CustomKukaIKSolver:
         axis6_1_deg = rtod(axis6_1)
         axis6_2_deg = rtod(axis6_2)
         axis6_3_deg = rtod(axis6_3)
-        print(1)
+        return[axis1, axis2, axis3, axis4_1, axis5_1, axis6_1]
 
     def performFK(self, input_e6_axis, debug_print=False):
 
@@ -307,11 +314,7 @@ class CustomKukaIKSolver:
 
         return Frame(p_0FF, quat_0FF)
 
-    @private
-    def fortestonly(self):
-        pass
 
-#test_e6axis = E6Axis([45, 45, 30, 60, -60, 45])
 
 kuka_solver = CustomKukaIKSolver(dh_KR360_R2830)
 #calc_frame = kuka_solver.performFK(test_e6axis, debug_print=True)
