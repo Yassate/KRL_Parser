@@ -8,8 +8,8 @@ from krlLexer import krlLexer
 from krlParser import krlParser
 from semanalyzer import SemanticAnalyzer
 from krlinterpreter import KrlInterpreter
-from iksolver import KukaIKSolver, DummyReq, Position, Orientation, rtod, dtor
-from iksolver import KukaIKSolver2
+from old_iksolver import KukaIKSolver, DummyReq, Position, Orientation, rtod, dtor
+from old_iksolver import KukaIKSolver2
 
 import transformations as tf
 
