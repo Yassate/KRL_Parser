@@ -207,7 +207,7 @@ class CustomKukaIKSolver:
         axis5_1 = mp.atan2(R_3_6[2, 2], sqrt(1 - R_3_6[2, 2] ** 2))
         axis5_2 = mp.atan2(R_3_6[2, 2], -sqrt(1 - R_3_6[2, 2] ** 2))
         axis5_3 = mp.atan2(sqrt(R_3_6[0, 2] ** 2 + R_3_6[1, 2] ** 2), R_3_6[2, 2])
-        axis5_4 = mp.acos(R_3_6[2, 2])
+        axis5_4 = mp.acos(-R_3_6[2, 2])
         axis5_1_deg = rtod(axis5_1)
         axis5_2_deg = rtod(axis5_2)
         axis5_3_deg = rtod(axis5_3)
@@ -238,6 +238,9 @@ class CustomKukaIKSolver:
                        qi4: e6_axis_radians[3],
                        qi5: e6_axis_radians[4],
                        qi6: e6_axis_radians[5]}
+
+        test = self.A4_5 * self.A5_6 * self.A6_F
+
 
         transf_T01_evaluated = self.T0_1.evalf(subs=axes_radian)
         p_01 = transf_T01_evaluated * self.origin
