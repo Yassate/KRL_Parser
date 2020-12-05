@@ -150,6 +150,8 @@ class CustomKukaIKSolver:
         input_xyz = [input_e6pos.x / 1000, input_e6pos.y / 1000, input_e6pos.z / 1000]
         input_abc = [dtor(input_e6pos.a), dtor(input_e6pos.b), dtor(input_e6pos.c)]
 
+        test = self.A4_5 * self.A5_6 * self.A6_F
+
 
         # INVERSE KINEMATICS PART
         # abc and pos from point data
@@ -225,7 +227,27 @@ class CustomKukaIKSolver:
         axis6_2_deg = rtod(axis6_2)
         axis6_3_deg = rtod(axis6_3)
 
-        axes = [rtod(rad) for rad in [axis1, axis2, axis3, axis4_1, axis5_1, axis6_1]]
+        my_calc_axis4_1 = 0
+        my_calc_axis4_2 = 0
+        my_calc_axis6_1 = 0
+        my_calc_axis6_2 = 0
+
+        my_calc_axis5_1 =  mp.acos(-R_3_6[2, 2])
+        my_calc_axis5_2 = -mp.acos(-R_3_6[2, 2])
+        if my_calc_axis5_1 != 0:
+            my_calc_axis4_1 = mp.asin(R_3_6[1, 2]/mp.sin(my_calc_axis5_1))
+            my_calc_axis4_2 = mp.asin(R_3_6[1, 2]/mp.sin(my_calc_axis5_2))
+            my_calc_axis6_1 = mp.acos(R_3_6[2, 0]/mp.sin(my_calc_axis5_1))
+            my_calc_axis6_2 = mp.acos(R_3_6[2, 0]/mp.sin(my_calc_axis5_2))
+
+        axis4 = my_calc_axis4_2
+        axis5 = my_calc_axis5_2
+        axis6 = my_calc_axis6_2
+
+
+
+
+        axes = [rtod(rad) for rad in [axis1, axis2, axis3, axis4, axis5, axis6]]
         return E6Axis(axes)
 
     def perform_fk(self, input_e6_axis, debug_print=False):
