@@ -158,17 +158,21 @@ class CustomKukaIKSolver:
         matrix_xyz = Matrix([[input_xyz[0]], [input_xyz[1]], [input_xyz[2]], [1.0]])
         matrix_abc = tf.euler_matrix(input_abc[0], input_abc[1], input_abc[2], axes='sxyz')
 
-        dist_to_wc = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
-        dif = matrix_abc * dist_to_wc
-        pos_wcp = matrix_xyz + dif
         len_link2 = abs(self.dh_params[a2])
         len_link3 = abs(self.dh_params[dX])
         dist_hor_a1_a2 = abs(self.dh_params[a1])
         dist_vert_a1_a2 = abs(self.dh_params[d1])
         dist_a3_a4 = abs(self.dh_params[a3])
-        # TODO >> Overhead calculation need to be implemented
-        axis1 = mp.atan(-pos_wcp[1] / pos_wcp[0])
+
+        dist_to_wc = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
+        dif = matrix_abc * dist_to_wc
+        pos_wcp = matrix_xyz + dif
+
+        # TODO >> Overhead calculation need to be implemented + special situation (0-5deg)
+        axis1 = mp.atan2(-pos_wcp[1], pos_wcp[0])
         axis1_deg = rtod(axis1)
+
+
         dist_hor_bf_wcp = mp.sqrt(pos_wcp[0] ** 2 + pos_wcp[1] ** 2)
         dist_hor_a2_wcp = dist_hor_bf_wcp - dist_hor_a1_a2
         dist_vert_a2_wcp = pos_wcp[2] - dist_vert_a1_a2
@@ -232,7 +236,7 @@ class CustomKukaIKSolver:
         my_calc_axis6_1 = 0
         my_calc_axis6_2 = 0
 
-        my_calc_axis5_1 =  mp.acos(-R_3_6[2, 2])
+        my_calc_axis5_1 = mp.acos(-R_3_6[2, 2])
         my_calc_axis5_2 = -mp.acos(-R_3_6[2, 2])
         if my_calc_axis5_1 != 0:
             my_calc_axis4_1 = mp.asin(R_3_6[1, 2]/mp.sin(my_calc_axis5_1))
