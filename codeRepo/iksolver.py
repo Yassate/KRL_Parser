@@ -145,13 +145,18 @@ class CustomKukaIKSolver:
     def add_frame(self, rot, pos):
         py3drot.plot_basis(self.axis3d, R=rot, p=pos)
 
+    def calc_hor_dist(self, pos_1, pos_2):
+        pass
+
+    def calc_A1(self, pos_wcp, S, T):
+        # TODO >> Overhead calculation need to be implemented + special situation (0-5deg)
+        return mp.atan2(-pos_wcp[1], pos_wcp[0])
+
+
     def perform_ik(self, input_e6pos):
 
         input_xyz = [input_e6pos.x / 1000, input_e6pos.y / 1000, input_e6pos.z / 1000]
         input_abc = [dtor(input_e6pos.a), dtor(input_e6pos.b), dtor(input_e6pos.c)]
-
-        test = self.A4_5 * self.A5_6 * self.A6_F
-
 
         # INVERSE KINEMATICS PART
         # abc and pos from point data
@@ -168,30 +173,27 @@ class CustomKukaIKSolver:
         dif = matrix_abc * dist_to_wc
         pos_wcp = matrix_xyz + dif
 
-        # TODO >> Overhead calculation need to be implemented + special situation (0-5deg)
-        axis1 = mp.atan2(-pos_wcp[1], pos_wcp[0])
-        axis1_deg = rtod(axis1)
+        axis1 = self.calc_A1(pos_wcp, S=0, T=0)
+
+        A2_rot_axis_pos = self.T0_2.evalf(subs={qi1: axis1})[0:4, 3:4]
 
 
+        # TODO >> Those distances should be calculated on coordinates, because of value of A1 affects those distances and for now it's not taken into account in calculations
         dist_hor_bf_wcp = mp.sqrt(pos_wcp[0] ** 2 + pos_wcp[1] ** 2)
+
         dist_hor_a2_wcp = dist_hor_bf_wcp - dist_hor_a1_a2
         dist_vert_a2_wcp = pos_wcp[2] - dist_vert_a1_a2
         dist_a2_wcp = mp.sqrt(dist_hor_a2_wcp ** 2 + dist_vert_a2_wcp ** 2)
         dist_a3_wcp = mp.sqrt(len_link3 ** 2 + dist_a3_a4 ** 2)
         beta1 = mp.atan(dist_vert_a2_wcp / dist_hor_a2_wcp)
         beta2 = mp.acos((dist_a2_wcp ** 2 + len_link2 ** 2 - dist_a3_wcp ** 2) / (2 * dist_a2_wcp * len_link2))
-        # TODO >> Overhead calculation need to be implemented
         axis2 = -(beta1 + beta2)
-        axis2_deg = rtod(axis2)
         # second value of axis2 (no overhead included)
         axis2_2 = -(beta1 - beta2)
-        axis2_2_deg = rtod(axis2_2)
         gamma1 = mp.atan(dist_a3_a4 / len_link3)
         gamma2 = mp.acos((dist_a3_wcp ** 2 + len_link2 ** 2 - dist_a2_wcp ** 2) / (2 * dist_a3_wcp * len_link2))
         axis3 = np.pi - (gamma1 + gamma2)
-        axis3_deg = rtod(axis3)
         axis3_2 = np.pi - (gamma1 - gamma2)
-        axis3_2_deg = rtod(axis3_2)
         # TODO >> ORIENTATION TO REVIEW - DH PARAMETERS CHANGED
         # ORIENTATION
         A1_to_A3 = {qi1: axis1, qi2: dtor(90) + axis2, qi3: -dtor(90) + axis3}
@@ -214,23 +216,16 @@ class CustomKukaIKSolver:
         axis5_2 = mp.atan2(R_3_6[2, 2], -sqrt(1 - R_3_6[2, 2] ** 2))
         axis5_3 = mp.atan2(sqrt(R_3_6[0, 2] ** 2 + R_3_6[1, 2] ** 2), R_3_6[2, 2])
         axis5_4 = mp.acos(-R_3_6[2, 2])
-        axis5_1_deg = rtod(axis5_1)
-        axis5_2_deg = rtod(axis5_2)
-        axis5_3_deg = rtod(axis5_3)
-        axis5_4_deg = rtod(axis5_4)
+
         axis4_1 = mp.atan2(R_3_6[0, 2], R_3_6[1, 2])
         axis4_2 = mp.atan2(-R_3_6[0, 2], -R_3_6[1, 2])
         axis4_3 = mp.atan2(R_3_6[1, 2], R_3_6[0, 2])
-        axis4_1_deg = rtod(axis4_1)
-        axis4_2_deg = rtod(axis4_2)
-        axis4_3_deg = rtod(axis4_3)
+
         axis6_1 = mp.atan2(-R_3_6[2, 0], R_3_6[2, 1])
         axis6_2 = mp.atan2(R_3_6[2, 0], -R_3_6[2, 1])
         axis6_3 = mp.atan2(R_3_6[2, 1], -R_3_6[2, 0])
-        axis6_1_deg = rtod(axis6_1)
-        axis6_2_deg = rtod(axis6_2)
-        axis6_3_deg = rtod(axis6_3)
 
+        #Self-developed solution which works
         my_calc_axis4_1 = 0
         my_calc_axis4_2 = 0
         my_calc_axis6_1 = 0
@@ -249,6 +244,21 @@ class CustomKukaIKSolver:
         axis6 = my_calc_axis6_2
 
 
+        axis1_deg = rtod(axis1)
+        axis2_deg = rtod(axis2)
+        axis2_2_deg = rtod(axis2_2)
+        axis3_deg = rtod(axis3)
+        axis3_2_deg = rtod(axis3_2)
+        axis5_1_deg = rtod(axis5_1)
+        axis5_2_deg = rtod(axis5_2)
+        axis5_3_deg = rtod(axis5_3)
+        axis5_4_deg = rtod(axis5_4)
+        axis4_1_deg = rtod(axis4_1)
+        axis4_2_deg = rtod(axis4_2)
+        axis4_3_deg = rtod(axis4_3)
+        axis6_1_deg = rtod(axis6_1)
+        axis6_2_deg = rtod(axis6_2)
+        axis6_3_deg = rtod(axis6_3)
 
 
         axes = [rtod(rad) for rad in [axis1, axis2, axis3, axis4, axis5, axis6]]
