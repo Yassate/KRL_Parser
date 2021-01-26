@@ -1,5 +1,5 @@
 from unittest import TestCase
-from status_turn import Status, Turn
+from kuka_datatypes import Status, Turn
 
 
 class TestStatus(TestCase):

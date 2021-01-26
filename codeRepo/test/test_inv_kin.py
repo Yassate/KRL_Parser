@@ -1,10 +1,6 @@
 from unittest import TestCase
 from iksolver import CustomKukaIKSolver, dh_KR360_R2830
 from test.test_fwd_kin import InputKinematicData
-import mpmath as mp
-import transformations.transformations as tf
-
-dtor = mp.radians
 
 
 class TestIK(TestCase):

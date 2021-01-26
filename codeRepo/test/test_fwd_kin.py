@@ -1,15 +1,13 @@
 from unittest import TestCase
-from iksolver import CustomKukaIKSolver, E6Axis, E6Pos, dh_KR360_R2830
-import mpmath as mp
-import transformations.transformations as tf
-
-dtor = mp.radians
+from iksolver import CustomKukaIKSolver, dh_KR360_R2830
+from kuka_datatypes import E6Axis, E6Pos, Status, Turn
 
 
 class InputKinematicData:
     def __init__(self, robot_axes, target_xyz, target_abc):
         self.e6axis = E6Axis(robot_axes)
-        self.e6pos = E6Pos(target_xyz, target_abc)
+        #TODO >> Implement Status and Turn; for now S=0, T=0
+        self.e6pos = E6Pos(target_xyz, target_abc, S=Status(0), T=Turn(0))
 
 
 class TestFK(TestCase):

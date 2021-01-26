@@ -1,14 +1,16 @@
+from enum import IntEnum
+
+import numpy as np
 import transformations.transformations as tf
+import matplotlib.pyplot as plt
+import pytransform3d.rotations as py3drot
+
 from mpmath import mp, sqrt
 from mpmath import radians as dtor
 from mpmath import degrees as rtod
 from sympy import symbols, pi, cos, sin, Matrix
-import numpy as np
-from old.old_iksolver import rot_y, rot_z
-from status_turn import Status, Turn
+from kuka_datatypes import E6Axis, E6Pos
 
-import matplotlib.pyplot as plt
-import pytransform3d.rotations as py3drot
 
 def createMatrix(alpha, a, q, d):
     mat = Matrix([[cos(q), -sin(q) * cos(alpha),    sin(q) * sin(alpha), a * cos(q)],
@@ -17,39 +19,6 @@ def createMatrix(alpha, a, q, d):
                   [0, 0, 0, 1]])
 
     return mat
-
-class E6Axis:
-    def __init__(self, axis_values=None):
-        self.axis_values = axis_values
-        self.A1, self.A2, self.A3, self.A4, self.A5, self.A6 = axis_values
-
-    def get_in_radians(self):
-        axes_radians = [dtor(axis) for axis in self.axis_values]
-        return axes_radians
-
-
-class E6Pos:
-    def __init__(self, xyz, abc):
-        self.x, self.y, self.z = xyz[:3]
-        self.a, self.b, self.c = abc
-        self.quat = tf.quaternion_from_euler(dtor(self.a), dtor(self.b), dtor(self.c), axes='sxyz')
-    #TODO SETTERS FOR ABC TO UPDATE QUAT AND VICEVERSA
-
-    @property
-    def ix(self):
-        return self.quat[0]
-
-    @property
-    def iy(self):
-        return self.quat[1]
-
-    @property
-    def iz(self):
-        return self.quat[2]
-
-    @property
-    def w(self):
-        return self.quat[3]
 
 
 # # Define DH param symbols
@@ -65,8 +34,6 @@ qX = symbols('qX')
 q0, q1, q2, q3, q4, q5, q6, q7 = symbols('q0:8')  # theta_i
 qi0, qi1, qi2, qi3, qi4, qi5, qi6, qi7 = symbols('qi0:8')
 
-#INFO >> PROBABLY INVERSE KINEMATICS FOR ANGLES WILL NOT WORK 100% PROPERLY; rotation point of axis4 and axis5 is different; should lie on WCP
-#TODO >> Change DH parameters to move rotation point of axis 4 and axis 5 to WCP
 dh_KR360_R2830 = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
                   alpha1: pi/2,  a1: 0.50,   d1: -1.045,  q1: qi1,
                   alpha2: 0,     a2: 1.30,   d2: 0,       q2: qi2-pi/2,
@@ -93,6 +60,13 @@ dh_KR360_R2830 = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
                   alpha5: -pi/2, a5: 0,      d5: 0,       q5: qi5,
                   alpha6: pi,    a6: 0,      d6: 0,       q6: qi6,
                   alpha7: 0,     a7: 0,      d7: 0.29,    q7: 0}
+
+
+class Coord(IntEnum):
+    X = 0
+    Y = 1
+    Z = 2
+
 
 class CustomKukaIKSolver:
 
@@ -127,7 +101,6 @@ class CustomKukaIKSolver:
         #self.performIK()
 
     def test_plot(self):
-
         pos = np.array([1.0, 1.0, 1.0])
         pos2 = np.array([1.0, 1.0, 3.0])
         rot = py3drot.matrix_from_euler_xyz([np.pi/2, 0, 0])
@@ -142,9 +115,24 @@ class CustomKukaIKSolver:
     def calc_hor_dist(self, pos_1, pos_2):
         pass
 
-    def calc_A1(self, pos_wcp, S, T):
-        # TODO >> Overhead calculation need to be implemented + special situation (0-5deg)
-        return mp.atan2(-pos_wcp[1], pos_wcp[0])
+    def calc_A1(self, pos_wcp, S, T, l_limit, h_limit):
+        A1 = mp.atan2(-pos_wcp[Coord.Y], pos_wcp[Coord.X])
+
+        if S.in_OH_area:
+            A1 = A1 + pi
+
+        if (A1 >= 0 != T.a1_on_plus_or_zero):
+            if A1 < 0:
+                A1 = A1 + 2*pi
+            else:
+                A1 = A1 - 2*pi
+
+        if dtor(l_limit) <= A1 <= dtor(h_limit):
+            return A1
+        else:
+            #TODO >> In this case error should be raised or return value should be intepreted in main calculation
+            #raiseError
+            return None
 
 
     def perform_ik(self, input_e6pos):
@@ -166,7 +154,8 @@ class CustomKukaIKSolver:
         dif = matrix_abc * dist_to_wc
         pos_wcp = matrix_xyz + dif
 
-        axis1 = self.calc_A1(pos_wcp, S=0, T=0)
+        # TODO >> limits should be taken from robot geometry configuration
+        axis1 = self.calc_A1(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-185, h_limit=185)
 
         A2_rot_axis_pos = self.T0_2.evalf(subs={qi1: axis1})[0:4, 3:4]
 
@@ -189,16 +178,8 @@ class CustomKukaIKSolver:
         gamma2 = mp.acos((dist_a3_wcp ** 2 + len_link2 ** 2 - dist_a2_wcp ** 2) / (2 * dist_a3_wcp * len_link2))
         axis3 = np.pi - (gamma1 + gamma2)
         axis3_2 = np.pi - (gamma1 - gamma2)
-        # TODO >> ORIENTATION TO REVIEW - DH PARAMETERS CHANGED
-        # ORIENTATION
         A1_to_A3 = {qi1: axis1, qi2: dtor(90) + axis2, qi3: -dtor(90) + axis3}
         R_0_3 = self.T0_4.evalf(subs=A1_to_A3)[0:3, 0:3]
-        temp_1 = createMatrix(alpha=-np.pi / 2, a=0, q=np.pi / 2, d=0)[0:3, 0:3]
-        temp_2 = createMatrix(alpha=0, a=0, q=np.pi / 2, d=0)[0:3, 0:3]
-        R_temp = R_0_3 * rot_y(-np.pi / 2) * rot_z(np.pi)
-        # R_0_3 = R_0_3 * temp_1
-        # R_0_3 = R_0_3 * temp_2
-        # R_0_3 = R_temp
         R_0_3_inv = R_0_3.inv()
         R_0_6 = matrix_abc[0:3, 0:3]
         R_3_6 = R_0_3_inv * R_0_6
@@ -260,7 +241,7 @@ class CustomKukaIKSolver:
         return E6Axis(axes)
 
     def perform_fk(self, input_e6_axis, debug_print=False):
-
+        #TODO >> Implement Status and Turn; for now S=0, T=0
         e6_axis_radians = input_e6_axis.get_in_radians()
 
         axes_radian = {qi1: e6_axis_radians[0],
@@ -314,7 +295,7 @@ class CustomKukaIKSolver:
         p_mm_0FF = [m*1000 for m in p_0FF]
         deg_0FF = [rtod(rad) for rad in rad_0FF]
 
-        return E6Pos(p_mm_0FF, deg_0FF)
+        return E6Pos(p_mm_0FF, deg_0FF, S=0, T=0)
 
 
 
