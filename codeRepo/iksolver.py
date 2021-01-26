@@ -4,11 +4,10 @@ from mpmath import radians as dtor
 from mpmath import degrees as rtod
 from sympy import symbols, pi, cos, sin, Matrix
 import numpy as np
-from accessify import private
-from old_iksolver import rot_y, rot_z
+from old.old_iksolver import rot_y, rot_z
+from status_turn import Status, Turn
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import pytransform3d.rotations as py3drot
 
 def createMatrix(alpha, a, q, d):
@@ -18,11 +17,6 @@ def createMatrix(alpha, a, q, d):
                   [0, 0, 0, 1]])
 
     return mat
-
-
-def rtod_tuple(rad_tuple):
-    return(rtod(rad_tuple[0]), rtod(rad_tuple[1]), rtod(rad_tuple[2]))
-
 
 class E6Axis:
     def __init__(self, axis_values=None):
@@ -158,7 +152,6 @@ class CustomKukaIKSolver:
         input_xyz = [input_e6pos.x / 1000, input_e6pos.y / 1000, input_e6pos.z / 1000]
         input_abc = [dtor(input_e6pos.a), dtor(input_e6pos.b), dtor(input_e6pos.c)]
 
-        # INVERSE KINEMATICS PART
         # abc and pos from point data
         matrix_xyz = Matrix([[input_xyz[0]], [input_xyz[1]], [input_xyz[2]], [1.0]])
         matrix_abc = tf.euler_matrix(input_abc[0], input_abc[1], input_abc[2], axes='sxyz')
@@ -182,6 +175,8 @@ class CustomKukaIKSolver:
         dist_hor_bf_wcp = mp.sqrt(pos_wcp[0] ** 2 + pos_wcp[1] ** 2)
 
         dist_hor_a2_wcp = dist_hor_bf_wcp - dist_hor_a1_a2
+        #dist_hor_a2_wcp = A2_rot_axis_pos
+
         dist_vert_a2_wcp = pos_wcp[2] - dist_vert_a1_a2
         dist_a2_wcp = mp.sqrt(dist_hor_a2_wcp ** 2 + dist_vert_a2_wcp ** 2)
         dist_a3_wcp = mp.sqrt(len_link3 ** 2 + dist_a3_a4 ** 2)
@@ -207,7 +202,7 @@ class CustomKukaIKSolver:
         R_0_3_inv = R_0_3.inv()
         R_0_6 = matrix_abc[0:3, 0:3]
         R_3_6 = R_0_3_inv * R_0_6
-        print(R_3_6)
+        #print(R_3_6)
         # theta_p = {qi4: pi/3, qi5: pi/3, qi6: pi/4}
         # t_c = (self.A4_5 * self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
         # t_c = (self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
@@ -318,36 +313,6 @@ class CustomKukaIKSolver:
 
         p_mm_0FF = [m*1000 for m in p_0FF]
         deg_0FF = [rtod(rad) for rad in rad_0FF]
-
-
-        if debug_print:
-            print("P01")
-            print(p_01)
-            print(rtod_tuple(rad_01))
-            print("P02")
-            print(p_02)
-            print(rtod_tuple(rad_02))
-            print("P03")
-            print(p_03)
-            print(rtod_tuple(rad_03))
-            print("P0X")
-            print(p_0X)
-            print(rtod_tuple(rad_0X))
-            print("P04")
-            print(p_04)
-            print(rtod_tuple(rad_04))
-            print("P05")
-            print(p_05)
-            print(rtod_tuple(rad_05))
-            print("P06")
-            print(p_06)
-            print(rtod_tuple(rad_06))
-            print("P0F")
-            print(p_0F)
-            print(rtod_tuple(rad_0F))
-            print("P0FF")
-            print(p_0FF)
-            print(rtod_tuple(rad_0FF))
 
         return E6Pos(p_mm_0FF, deg_0FF)
 

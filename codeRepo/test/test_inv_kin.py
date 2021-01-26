@@ -18,9 +18,9 @@ class TestIK(TestCase):
         self.assertAlmostEqual(test_data.e6axis.A1, calc_axes.A1, delta=0.01)
         self.assertAlmostEqual(test_data.e6axis.A2, calc_axes.A2, delta=0.01)
         self.assertAlmostEqual(test_data.e6axis.A3, calc_axes.A3, delta=0.01)
-        # self.assertAlmostEqual(test_data.e6axis.A4, calc_axes.A4, delta=0.01)
+        #self.assertAlmostEqual(test_data.e6axis.A4, calc_axes.A4, delta=0.01)
         #self.assertAlmostEqual(test_data.e6axis.A5, calc_axes.A5, delta=0.01)
-        # self.assertAlmostEqual(test_data.e6axis.A6, calc_axes.A6, delta=0.01)
+        #self.assertAlmostEqual(test_data.e6axis.A6, calc_axes.A6, delta=0.01)
 
 
     def test_case1(self):

@@ -8,13 +8,8 @@ from krlLexer import krlLexer
 from krlParser import krlParser
 from semanalyzer import SemanticAnalyzer
 from krlinterpreter import KrlInterpreter
-from old_iksolver import KukaIKSolver, DummyReq, Position, Orientation, rtod, dtor
-from old_iksolver import KukaIKSolver2
+from old.old_iksolver import KukaIKSolver, Position, Orientation, dtor
 
-import transformations as tf
-
-import pprint as pp
-from symtables import ScopedSymbolTable
 
 def axes_deg_to_radian(axis_pos):
     new_axes = []
