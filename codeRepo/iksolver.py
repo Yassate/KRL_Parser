@@ -1,15 +1,15 @@
-from enum import IntEnum
-
 import numpy as np
 import transformations.transformations as tf
 import matplotlib.pyplot as plt
 import pytransform3d.rotations as py3drot
 
+from enum import IntEnum
 from mpmath import mp, sqrt
 from mpmath import radians as dtor
 from mpmath import degrees as rtod
 from sympy import symbols, pi, cos, sin, Matrix
 from kuka_datatypes import E6Axis, E6Pos
+from math import copysign
 
 
 def createMatrix(alpha, a, q, d):
@@ -117,15 +117,16 @@ class CustomKukaIKSolver:
 
     def calc_A1(self, pos_wcp, S, T, l_limit, h_limit):
         A1 = mp.atan2(-pos_wcp[Coord.Y], pos_wcp[Coord.X])
+        A1 = round(A1, 5)
+        const_pi = round(mp.pi, 5)
 
         if S.in_OH_area:
-            A1 = A1 + pi
+            A1 = A1 + copysign(const_pi, -A1)
 
-        if (A1 >= 0 != T.a1_on_plus_or_zero):
-            if A1 < 0:
-                A1 = A1 + 2*pi
-            else:
-                A1 = A1 - 2*pi
+        sign_nok = (A1 < 0) != T.a1_on_minus
+
+        if sign_nok:
+            A1 = A1 + copysign(2*const_pi, -A1)
 
         if dtor(l_limit) <= A1 <= dtor(h_limit):
             return A1
@@ -158,7 +159,7 @@ class CustomKukaIKSolver:
 
         # TODO >> limits should be taken from robot geometry configuration
         axis1 = self.calc_A1(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-185, h_limit=185)
-        axis1 = mp.atan2(-pos_wcp[Coord.Y], pos_wcp[Coord.X])
+        #axis1 = mp.atan2(-pos_wcp[Coord.Y], pos_wcp[Coord.X])
 
         A2_rot_axis_pos = self.T0_2.evalf(subs={qi1: axis1})[0:4, 3:4]
 
@@ -259,40 +260,39 @@ class CustomKukaIKSolver:
 
         transf_T01_evaluated = self.T0_1.evalf(subs=axes_radian)
         p_01 = transf_T01_evaluated * self.origin
-        rad_01 = tf.euler_from_matrix(transf_T01_evaluated.tolist(), 'sxyz')
+        rad_01 = tf.euler_from_matrix(transf_T01_evaluated.tolist(), 'rzyx')
 
         transf_T02_evaluated = self.T0_2.evalf(subs=axes_radian)
         p_02 = transf_T02_evaluated * self.origin
-        rad_02 = tf.euler_from_matrix(transf_T02_evaluated.tolist(), 'sxyz')
+        rad_02 = tf.euler_from_matrix(transf_T02_evaluated.tolist(), 'rzyx')
 
         transf_T03_evaluated = self.T0_3.evalf(subs=axes_radian)
         p_03 = transf_T03_evaluated * self.origin
-        rad_03 = tf.euler_from_matrix(transf_T03_evaluated.tolist(), 'sxyz')
+        rad_03 = tf.euler_from_matrix(transf_T03_evaluated.tolist(), 'rzyx')
 
         transf_T0X_evaluated = self.T0_X.evalf(subs=axes_radian)
         p_0X = transf_T0X_evaluated * self.origin
-        rad_0X = tf.euler_from_matrix(transf_T0X_evaluated.tolist(), 'sxyz')
+        rad_0X = tf.euler_from_matrix(transf_T0X_evaluated.tolist(), 'rzyx')
 
         transf_T04_evaluated = self.T0_4.evalf(subs=axes_radian)
         p_04 = transf_T04_evaluated * self.origin
-        rad_04 = tf.euler_from_matrix(transf_T04_evaluated.tolist(), 'sxyz')
+        rad_04 = tf.euler_from_matrix(transf_T04_evaluated.tolist(), 'rzyx')
 
         transf_T05_evaluated = self.T0_5.evalf(subs=axes_radian)
         p_05 = transf_T05_evaluated * self.origin
-        rad_05 = tf.euler_from_matrix(transf_T05_evaluated.tolist(), 'sxyz')
+        rad_05 = tf.euler_from_matrix(transf_T05_evaluated.tolist(), 'rzyx')
 
         transf_T06_evaluated = self.T0_6.evalf(subs=axes_radian)
         p_06 = transf_T06_evaluated * self.origin
-        rad_06 = tf.euler_from_matrix(transf_T06_evaluated.tolist(), 'sxyz')
+        rad_06 = tf.euler_from_matrix(transf_T06_evaluated.tolist(), 'rzyx')
 
         transf_T0F_evaluated = self.T0_F.evalf(subs=axes_radian)
         p_0F = transf_T0F_evaluated * self.origin
-        rad_0F = tf.euler_from_matrix(transf_T0F_evaluated.tolist(), 'sxyz')
+        rad_0F = tf.euler_from_matrix(transf_T0F_evaluated.tolist(), 'rzyx')
 
-        #TODO >> CHECK IF DEGREES ARE IN CORRECT ORDER (rzyx/sxyz?)
         transf_T0FF_evaluated = self.T0_FF.evalf(subs=axes_radian)
         p_0FF = transf_T0FF_evaluated * self.origin
-        rad_0FF = tf.euler_from_matrix(transf_T0FF_evaluated.tolist(), 'sxyz')
+        rad_0FF = tf.euler_from_matrix(transf_T0FF_evaluated.tolist(), 'rzyx')
         quat_0FF = tf.quaternion_from_matrix(transf_T0F_evaluated.tolist())
 
         p_mm_0FF = [m*1000 for m in p_0FF]

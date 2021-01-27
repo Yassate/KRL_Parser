@@ -73,6 +73,7 @@ class Status:
         shifted = self.val >> StatusBit.A3_POSITIVE_AREA
         return Status.lsb(shifted)
 
+    #TODO >> KUKA docu from resources is probably wrong (in old meaning is opposite), need to be check with real robot
     @property
     def a5_on_plus(self):
         shifted = self.val >> StatusBit.A5_ON_PLUS
@@ -88,31 +89,31 @@ class Turn:
         return val & 1
 
     @property
-    def a1_on_plus_or_zero(self):
+    def a1_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_1
         return Status.lsb(shifted)
 
     @property
-    def a2_on_plus_or_zero(self):
+    def a2_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_2
         return Status.lsb(shifted)
 
     @property
-    def a3_on_plus_or_zero(self):
+    def a3_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_3
         return Status.lsb(shifted)
 
     @property
-    def a4_on_plus_or_zero(self):
+    def a4_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_4
         return Status.lsb(shifted)
 
     @property
-    def a5_on_plus_or_zero(self):
+    def a5_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_5
         return Status.lsb(shifted)
 
     @property
-    def a6_on_plus_or_zero(self):
+    def a6_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_6
         return Status.lsb(shifted)

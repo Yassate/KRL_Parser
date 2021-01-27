@@ -4,10 +4,10 @@ from kuka_datatypes import E6Axis, E6Pos, Status, Turn
 
 
 class InputKinematicData:
-    def __init__(self, robot_axes, target_xyz, target_abc):
+    #TODO >> Status and Turn should be not optional! Temporary solution
+    def __init__(self, robot_axes, target_xyz, target_abc, S, T):
         self.e6axis = E6Axis(robot_axes)
-        #TODO >> Implement Status and Turn; for now S=0, T=0
-        self.e6pos = E6Pos(target_xyz, target_abc, S=Status(0), T=Turn(0))
+        self.e6pos = E6Pos(target_xyz, target_abc, Status(S), Turn(T))
 
 
 class TestFK(TestCase):
@@ -38,47 +38,54 @@ class TestFK(TestCase):
         input_data = InputKinematicData(
             robot_axes=[0, -90, 45, 0, 0, 0],
             target_xyz=[1468.736, 0.000, 3235.954],
-            target_abc=[0, 45.0, 0.0])
+            target_abc=[0, 45.0, 0.0],
+            S=18, T=2)
         self.solve_fk(input_data)
 
     def test_case2(self):
         input_data = InputKinematicData(
             robot_axes=[45, -90, 45, 0, 0, 0],
             target_xyz=[1038.553, -1038.553, 3235.954],
-            target_abc=[0.0, 45.0, -45.0])
+            target_abc=[-45, 45.0, 0],
+            S=18, T=2)
         self.solve_fk(input_data)
 
     def test_case3(self):
         input_data = InputKinematicData(
             robot_axes=[45, -90, 90, 0, 0, 0],
             target_xyz=[1283.399, -1283.399, 2290.000],
-            target_abc=[45.0, 90.0, 0.0])
+            target_abc=[0, 90.0, 45.0],
+            S=18, T=2)
         self.solve_fk(input_data)
 
     def test_case4(self):
         input_data = InputKinematicData(
             robot_axes=[45, -90, 90, 0, 30, 0],
             target_xyz=[1255.926, -1255.926, 2145.000],
-            target_abc=[0.0, 120.0, -45.0])
+            target_abc=[-45.0, 120.0, 0],
+            S=18, T=2)
         self.solve_fk(input_data)
 
     def test_case5(self):
         input_data = InputKinematicData(
             robot_axes=[45, -90, 90, 0, 30, 30],
             target_xyz=[1255.926, -1255.926, 2145.000],
-            target_abc=[40.893, 131.410, 4.107])
+            target_abc=[4.107, 131.410, 40.893],
+            S=18, T=2)
         self.solve_fk(input_data)
 
     def test_case6(self):
         input_data = InputKinematicData(
             robot_axes=[45, -90, 90, 30, 30, 30],
             target_xyz=[1204.661, -1307.191, 2164.426],
-            target_abc=[61.813, 156.453, 16.813])
+            target_abc=[16.813, 156.453, 61.813],
+            S=18, T=2)
         self.solve_fk(input_data)
 
     def test_case7(self):
         input_data = InputKinematicData(
             robot_axes=[45, -45, 120, 60, -60, 45],
             target_xyz=[1419.677, -1112.085, 852.371],
-            target_abc=[-114.990, 28.605, -93.717])
+            target_abc=[-93.717, 28.605, -114.990],
+            S=22, T=18)
         self.solve_fk(input_data)

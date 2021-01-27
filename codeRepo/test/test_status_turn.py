@@ -38,49 +38,49 @@ class TestTurn(TestCase):
         self.turn_all_false = Turn(0b000000)
 
     def test_a1_on_plus_or_zero(self):
-        result = self.turn_all_true.a1_on_plus_or_zero
+        result = self.turn_all_true.a1_on_minus
         self.assertEqual(result, 1)
 
     def test_a2_on_plus_or_zero(self):
-        result = self.turn_all_true.a1_on_plus_or_zero
+        result = self.turn_all_true.a2_on_minus
         self.assertEqual(result, 1)
 
     def test_a3_on_plus_or_zero(self):
-        result = self.turn_all_true.a1_on_plus_or_zero
+        result = self.turn_all_true.a3_on_minus
         self.assertEqual(result, 1)
 
     def test_a4_on_plus_or_zero(self):
-        result = self.turn_all_true.a1_on_plus_or_zero
+        result = self.turn_all_true.a4_on_minus
         self.assertEqual(result, 1)
 
     def test_a5_on_plus_or_zero(self):
-        result = self.turn_all_true.a1_on_plus_or_zero
+        result = self.turn_all_true.a5_on_minus
         self.assertEqual(result, 1)
 
     def test_a6_on_plus_or_zero(self):
-        result = self.turn_all_true.a1_on_plus_or_zero
+        result = self.turn_all_true.a6_on_minus
         self.assertEqual(result, 1)
 
     def test_a1_not_on_plus_or_zero(self):
-        result = self.turn_all_false.a1_on_plus_or_zero
+        result = self.turn_all_false.a1_on_minus
         self.assertEqual(result, 0)
 
     def test_a2_not_on_plus_or_zero(self):
-        result = self.turn_all_false.a2_on_plus_or_zero
+        result = self.turn_all_false.a2_on_minus
         self.assertEqual(result, 0)
 
     def test_a3_not_on_plus_or_zero(self):
-        result = self.turn_all_false.a3_on_plus_or_zero
+        result = self.turn_all_false.a3_on_minus
         self.assertEqual(result, 0)
 
     def test_a4_not_on_plus_or_zero(self):
-        result = self.turn_all_false.a4_on_plus_or_zero
+        result = self.turn_all_false.a4_on_minus
         self.assertEqual(result, 0)
 
     def test_a5_not_on_plus_or_zero(self):
-        result = self.turn_all_false.a5_on_plus_or_zero
+        result = self.turn_all_false.a5_on_minus
         self.assertEqual(result, 0)
 
     def test_a6_not_on_plus_or_zero(self):
-        result = self.turn_all_false.a6_on_plus_or_zero
+        result = self.turn_all_false.a6_on_minus
         self.assertEqual(result, 0)
