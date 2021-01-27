@@ -30,40 +30,54 @@ class TestIK(TestCase):
         input_data = InputKinematicData(
             robot_axes=[45, -90, 45, 0, 0, 0],
             target_xyz=[1038.553, -1038.553, 3235.954],
-            target_abc=[0.0, 45.0, -45.0])
+            target_abc=[-45.0, 45.0, 0.0])
         self.solve_ik(input_data)
 
     def test_case3(self):
         input_data = InputKinematicData(
             robot_axes=[45, -90, 90, 0, 0, 0],
             target_xyz=[1283.399, -1283.399, 2290.000],
-            target_abc=[45.0, 90.0, 0.0])
+            target_abc=[0, 90.0, 45.0])
         self.solve_ik(input_data)
 
     def test_case4(self):
         input_data = InputKinematicData(
             robot_axes=[45, -90, 90, 0, 30, 0],
             target_xyz=[1255.926, -1255.926, 2145.000],
-            target_abc=[0.0, 120.0, -45.0])
+            target_abc=[-45, 120.0, 0])
         self.solve_ik(input_data)
 
     def test_case5(self):
         input_data = InputKinematicData(
             robot_axes=[45, -90, 90, 0, 30, 30],
             target_xyz=[1255.926, -1255.926, 2145.000],
-            target_abc=[40.893, 131.410, 4.107])
+            target_abc=[4.107, 131.410, 40.893])
         self.solve_ik(input_data)
 
     def test_case6(self):
         input_data = InputKinematicData(
             robot_axes=[45, -90, 90, 30, 30, 30],
             target_xyz=[1204.661, -1307.191, 2164.426],
-            target_abc=[61.813, 156.453, 16.813])
+            target_abc=[16.813, 156.453, 61.813])
         self.solve_ik(input_data)
 
     def test_case7(self):
         input_data = InputKinematicData(
             robot_axes=[45, -45, 120, 60, -60, 45],
             target_xyz=[1419.677, -1112.085, 852.371],
-            target_abc=[-114.990, 28.605, -93.717])
+            target_abc=[-93.717, 28.605, -114.990])
+        self.solve_ik(input_data)
+
+    def test_A1_0deg(self):
+        input_data = InputKinematicData(
+            robot_axes=[0, -117, 71, 2.5, 90, 30],
+            target_xyz=[869.8150261, -12.6490703, 2701.174038],
+            target_abc=[38.980989, 142.5682496, 29.0770778])
+        self.solve_ik(input_data)
+
+    def test_A1_min35deg(self):
+        input_data = InputKinematicData(
+            robot_axes=[-35.0, -117.0, 71.0, 2.5, 90.0, 30.0],
+            target_xyz=[719.7725193, 488.5480227, 2701.168885],
+            target_abc=[73.9807575, 142.5685834, 29.0767376])
         self.solve_ik(input_data)

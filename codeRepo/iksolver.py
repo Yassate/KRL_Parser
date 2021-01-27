@@ -141,8 +141,11 @@ class CustomKukaIKSolver:
         input_abc = [dtor(input_e6pos.a), dtor(input_e6pos.b), dtor(input_e6pos.c)]
 
         # abc and pos from point data
-        matrix_xyz = Matrix([[input_xyz[0]], [input_xyz[1]], [input_xyz[2]], [1.0]])
-        matrix_abc = tf.euler_matrix(input_abc[0], input_abc[1], input_abc[2], axes='sxyz')
+        matrix_xyz_abc = tf.euler_matrix(input_abc[0], input_abc[1], input_abc[2], axes='rzyx')
+        matrix_xyz_abc[0, 3] = input_xyz[0]
+        matrix_xyz_abc[1, 3] = input_xyz[1]
+        matrix_xyz_abc[2, 3] = input_xyz[2]
+
 
         len_link2 = abs(self.dh_params[a2])
         len_link3 = abs(self.dh_params[dX])
@@ -151,11 +154,11 @@ class CustomKukaIKSolver:
         dist_a3_a4 = abs(self.dh_params[a3])
 
         dist_to_wc = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
-        dif = matrix_abc * dist_to_wc
-        pos_wcp = matrix_xyz + dif
+        pos_wcp = matrix_xyz_abc * dist_to_wc
 
         # TODO >> limits should be taken from robot geometry configuration
         axis1 = self.calc_A1(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-185, h_limit=185)
+        axis1 = mp.atan2(-pos_wcp[Coord.Y], pos_wcp[Coord.X])
 
         A2_rot_axis_pos = self.T0_2.evalf(subs={qi1: axis1})[0:4, 3:4]
 
@@ -181,7 +184,7 @@ class CustomKukaIKSolver:
         A1_to_A3 = {qi1: axis1, qi2: dtor(90) + axis2, qi3: -dtor(90) + axis3}
         R_0_3 = self.T0_4.evalf(subs=A1_to_A3)[0:3, 0:3]
         R_0_3_inv = R_0_3.inv()
-        R_0_6 = matrix_abc[0:3, 0:3]
+        R_0_6 = matrix_xyz_abc[0:3, 0:3]
         R_3_6 = R_0_3_inv * R_0_6
         #print(R_3_6)
         # theta_p = {qi4: pi/3, qi5: pi/3, qi6: pi/4}

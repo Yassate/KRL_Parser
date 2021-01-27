@@ -17,3 +17,4 @@ codeRepo/venv
 *codeRepo/venv/
 .codeRepo/venv/
 .codeRepo/__pycache__/
+.codeRepo/resources
