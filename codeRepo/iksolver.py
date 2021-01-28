@@ -112,10 +112,8 @@ class CustomKukaIKSolver:
     def add_frame(self, rot, pos):
         py3drot.plot_basis(self.axis3d, R=rot, p=pos)
 
-    def calc_hor_dist(self, pos_1, pos_2):
-        pass
-
-    def calc_A1(self, pos_wcp, S, T, l_limit, h_limit):
+    @staticmethod
+    def calc_A1(pos_wcp, S, T, l_limit, h_limit):
         A1 = mp.atan2(-pos_wcp[Coord.Y], pos_wcp[Coord.X])
         A1 = round(A1, 5)
         const_pi = round(mp.pi, 5)
@@ -135,6 +133,18 @@ class CustomKukaIKSolver:
             #raiseError
             return None
 
+    @staticmethod
+    def calc_hor_dist(pos1, pos2):
+        return mp.sqrt((pos2[Coord.X] - pos1[Coord.X])**2 + (pos2[Coord.Y] - pos1[Coord.Y])**2)
+
+    @staticmethod
+    def calc_vert_dist(pos1, pos2):
+        return abs(pos2[Coord.Z] - pos1[Coord.Z])
+
+    def calc_dist(self, pos1, pos2):
+        hor_dist = self.calc_hor_dist(pos1, pos2)
+        vert_dist = self.calc_vert_dist(pos1, pos2)
+        return mp.sqrt(hor_dist ** 2 + vert_dist ** 2)
 
     def perform_ik(self, input_e6pos):
 
@@ -147,7 +157,6 @@ class CustomKukaIKSolver:
         matrix_xyz_abc[1, 3] = input_xyz[1]
         matrix_xyz_abc[2, 3] = input_xyz[2]
 
-
         len_link2 = abs(self.dh_params[a2])
         len_link3 = abs(self.dh_params[dX])
         dist_hor_a1_a2 = abs(self.dh_params[a1])
@@ -159,22 +168,21 @@ class CustomKukaIKSolver:
 
         # TODO >> limits should be taken from robot geometry configuration
         axis1 = self.calc_A1(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-185, h_limit=185)
-        #axis1 = mp.atan2(-pos_wcp[Coord.Y], pos_wcp[Coord.X])
 
-        A2_rot_axis_pos = self.T0_2.evalf(subs={qi1: axis1})[0:4, 3:4]
+        pos_A2_rot_axis = self.T0_2.evalf(subs={qi1: axis1})[0:4, 3:4]
 
 
         # TODO >> Those distances should be calculated on coordinates, because of value of A1 affects those distances and for now it's not taken into account in calculations
-        dist_hor_bf_wcp = mp.sqrt(pos_wcp[0] ** 2 + pos_wcp[1] ** 2)
 
-        dist_hor_a2_wcp = dist_hor_bf_wcp - dist_hor_a1_a2
-        #dist_hor_a2_wcp = A2_rot_axis_pos
+        dist_hor_a2_wcp = self.calc_hor_dist(pos_A2_rot_axis, pos_wcp)
+        dist_vert_a2_wcp = self.calc_vert_dist(pos_A2_rot_axis, pos_wcp)
+        dist_a2_wcp = self.calc_dist(pos_A2_rot_axis, pos_wcp)
 
-        dist_vert_a2_wcp = pos_wcp[2] - dist_vert_a1_a2
-        dist_a2_wcp = mp.sqrt(dist_hor_a2_wcp ** 2 + dist_vert_a2_wcp ** 2)
         dist_a3_wcp = mp.sqrt(len_link3 ** 2 + dist_a3_a4 ** 2)
+
         beta1 = mp.atan(dist_vert_a2_wcp / dist_hor_a2_wcp)
         beta2 = mp.acos((dist_a2_wcp ** 2 + len_link2 ** 2 - dist_a3_wcp ** 2) / (2 * dist_a2_wcp * len_link2))
+
         axis2 = -(beta1 + beta2)
         # second value of axis2 (no overhead included)
         axis2_2 = -(beta1 - beta2)
