@@ -11,8 +11,8 @@ class TestStatus(TestCase):
         result = self.status_all_true.in_OH_area
         self.assertEqual(result, 1)
 
-    def test_a3_in_pos_area(self):
-        result = self.status_all_true.a3_in_pos_area
+    def test_a3_elbow_up(self):
+        result = self.status_all_true.elbow_up
         self.assertEqual(result, 1)
 
     def test_a5_on_plus(self):
@@ -23,8 +23,8 @@ class TestStatus(TestCase):
         result = self.status_all_false.in_OH_area
         self.assertEqual(result, 0)
 
-    def test_not_a3_in_pos_area(self):
-        result = self.status_all_false.a3_in_pos_area
+    def test_not_elbow_up(self):
+        result = self.status_all_false.elbow_up
         self.assertEqual(result, 0)
 
     def test_not_a5_on_plus(self):

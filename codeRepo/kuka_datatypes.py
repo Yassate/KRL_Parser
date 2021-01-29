@@ -69,7 +69,7 @@ class Status:
         return Status.lsb(shifted)
 
     @property
-    def a3_in_pos_area(self):
+    def elbow_up(self):
         shifted = self.val >> StatusBit.A3_POSITIVE_AREA
         return Status.lsb(shifted)
 

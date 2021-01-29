@@ -113,6 +113,19 @@ class CustomKukaIKSolver:
         py3drot.plot_basis(self.axis3d, R=rot, p=pos)
 
     @staticmethod
+    def calc_hor_dist(pos1, pos2=Matrix([0, 0, 0, 0])):
+        return mp.sqrt((pos2[Coord.X] - pos1[Coord.X])**2 + (pos2[Coord.Y] - pos1[Coord.Y])**2)
+
+    @staticmethod
+    def calc_vert_dist(pos1, pos2=Matrix([0, 0, 0, 0])):
+        return abs(pos2[Coord.Z] - pos1[Coord.Z])
+
+    def calc_dist(self, pos1, pos2=Matrix([0, 0, 0, 0])):
+        hor_dist = self.calc_hor_dist(pos1, pos2)
+        vert_dist = self.calc_vert_dist(pos1, pos2)
+        return mp.sqrt(hor_dist ** 2 + vert_dist ** 2)
+
+    @staticmethod
     def calc_A1(pos_wcp, S, T, l_limit, h_limit):
         A1 = mp.atan2(-pos_wcp[Coord.Y], pos_wcp[Coord.X])
         A1 = round(A1, 5)
@@ -133,18 +146,39 @@ class CustomKukaIKSolver:
             #raiseError
             return None
 
-    @staticmethod
-    def calc_hor_dist(pos1, pos2):
-        return mp.sqrt((pos2[Coord.X] - pos1[Coord.X])**2 + (pos2[Coord.Y] - pos1[Coord.Y])**2)
+    def calc_A2(self, pos_wcp, S, T, l_limit, h_limit, axis1):
+        #TODO >> Limits not taken into consideration, tests don't cover all possibilities
+        pos_wcp_rot_back = Matrix([0, 0, 0, 1])
+        pos_wcp_rot_back[Coord.X] = pos_wcp[Coord.X] * mp.cos(axis1) - pos_wcp[Coord.Y] * mp.sin(axis1)
+        pos_wcp_rot_back[Coord.Y] = pos_wcp[Coord.X] * mp.sin(axis1) + pos_wcp[Coord.Y] * mp.cos(axis1)
+        pos_wcp_rot_back[Coord.Z] = pos_wcp[Coord.Z]
 
-    @staticmethod
-    def calc_vert_dist(pos1, pos2):
-        return abs(pos2[Coord.Z] - pos1[Coord.Z])
+        pos_a2_rot_back = Matrix([abs(dh_KR360_R2830[a1]), 0, abs(dh_KR360_R2830[d1]), 0])
+        pos_a2_ref_wcp_rot_back = pos_wcp_rot_back - pos_a2_rot_back
 
-    def calc_dist(self, pos1, pos2):
-        hor_dist = self.calc_hor_dist(pos1, pos2)
-        vert_dist = self.calc_vert_dist(pos1, pos2)
-        return mp.sqrt(hor_dist ** 2 + vert_dist ** 2)
+        len_link2 = abs(self.dh_params[a2])
+        len_link3 = abs(self.dh_params[dX])
+        dist_a3_a4 = abs(self.dh_params[a3])
+        dist_a3_wcp = mp.sqrt(len_link3 ** 2 + dist_a3_a4 ** 2)
+        dist_a2_wcp = self.calc_dist(pos_a2_rot_back, pos_wcp_rot_back)
+
+        beta1 = mp.atan2(pos_a2_ref_wcp_rot_back[Coord.Z], pos_a2_ref_wcp_rot_back[Coord.X])
+        beta2 = mp.acos((dist_a2_wcp ** 2 + len_link2 ** 2 - dist_a3_wcp ** 2) / (2 * dist_a2_wcp * len_link2))
+
+        if not S.elbow_up:
+            beta2 = -beta2
+
+        A2 = beta1 + beta2
+
+        sign_nok = (A2 < 0) != T.a2_on_minus
+        if sign_nok:
+            A2 = -A2
+
+        return A2
+
+
+
+
 
     def perform_ik(self, input_e6pos):
 
@@ -159,12 +193,13 @@ class CustomKukaIKSolver:
 
         len_link2 = abs(self.dh_params[a2])
         len_link3 = abs(self.dh_params[dX])
+        dist_a3_a4 = abs(self.dh_params[a3])
         dist_hor_a1_a2 = abs(self.dh_params[a1])
         dist_vert_a1_a2 = abs(self.dh_params[d1])
-        dist_a3_a4 = abs(self.dh_params[a3])
 
-        dist_to_wc = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
-        pos_wcp = matrix_xyz_abc * dist_to_wc
+
+        dist_to_wcp = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
+        pos_wcp = matrix_xyz_abc * dist_to_wcp
 
         # TODO >> limits should be taken from robot geometry configuration
         axis1 = self.calc_A1(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-185, h_limit=185)
@@ -183,9 +218,12 @@ class CustomKukaIKSolver:
         beta1 = mp.atan(dist_vert_a2_wcp / dist_hor_a2_wcp)
         beta2 = mp.acos((dist_a2_wcp ** 2 + len_link2 ** 2 - dist_a3_wcp ** 2) / (2 * dist_a2_wcp * len_link2))
 
-        axis2 = -(beta1 + beta2)
+        axis2_1 = -(beta1 + beta2)
         # second value of axis2 (no overhead included)
         axis2_2 = -(beta1 - beta2)
+
+        axis2 = self.calc_A2(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-120, h_limit=20, axis1=axis1)
+
         gamma1 = mp.atan(dist_a3_a4 / len_link3)
         gamma2 = mp.acos((dist_a3_wcp ** 2 + len_link2 ** 2 - dist_a2_wcp ** 2) / (2 * dist_a3_wcp * len_link2))
         axis3 = np.pi - (gamma1 + gamma2)
