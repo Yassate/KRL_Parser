@@ -176,7 +176,27 @@ class CustomKukaIKSolver:
 
         return A2
 
+    def calc_A3(self, pos_wcp, S, T, l_limit, h_limit, axis1):
+        dist_a3_a4 = abs(self.dh_params[a3])
+        len_link2 = abs(self.dh_params[a2])
+        len_link3 = abs(self.dh_params[dX])
+        dist_a3_wcp = mp.sqrt(len_link3 ** 2 + dist_a3_a4 ** 2)
+        pos_A2_rot_axis = self.T0_2.evalf(subs={qi1: axis1})[0:4, 3:4]
+        dist_a2_wcp = self.calc_dist(pos_A2_rot_axis, pos_wcp)
 
+        gamma1 = mp.atan(dist_a3_a4 / len_link3)
+        gamma2 = mp.acos((dist_a3_wcp ** 2 + len_link2 ** 2 - dist_a2_wcp ** 2) / (2 * dist_a3_wcp * len_link2))
+
+        if not S.elbow_up:
+            gamma1 = -gamma1
+
+        A3 = np.pi - (gamma1 + gamma2)
+
+        sign_nok = (A3 < 0) != T.a3_on_minus
+        if sign_nok:
+            A3 = -A3
+
+        return A3
 
 
 
@@ -194,40 +214,35 @@ class CustomKukaIKSolver:
         len_link2 = abs(self.dh_params[a2])
         len_link3 = abs(self.dh_params[dX])
         dist_a3_a4 = abs(self.dh_params[a3])
-        dist_hor_a1_a2 = abs(self.dh_params[a1])
-        dist_vert_a1_a2 = abs(self.dh_params[d1])
-
 
         dist_to_wcp = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
         pos_wcp = matrix_xyz_abc * dist_to_wcp
 
         # TODO >> limits should be taken from robot geometry configuration
+        # TODO >> Those distances should be calculated on coordinates, because of value of A1 affects those distances and for now it's not taken into account in calculations
         axis1 = self.calc_A1(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-185, h_limit=185)
 
         pos_A2_rot_axis = self.T0_2.evalf(subs={qi1: axis1})[0:4, 3:4]
 
+        axis2 = self.calc_A2(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-120, h_limit=20, axis1=axis1)
 
-        # TODO >> Those distances should be calculated on coordinates, because of value of A1 affects those distances and for now it's not taken into account in calculations
-
-        dist_hor_a2_wcp = self.calc_hor_dist(pos_A2_rot_axis, pos_wcp)
-        dist_vert_a2_wcp = self.calc_vert_dist(pos_A2_rot_axis, pos_wcp)
         dist_a2_wcp = self.calc_dist(pos_A2_rot_axis, pos_wcp)
-
         dist_a3_wcp = mp.sqrt(len_link3 ** 2 + dist_a3_a4 ** 2)
 
-        beta1 = mp.atan(dist_vert_a2_wcp / dist_hor_a2_wcp)
-        beta2 = mp.acos((dist_a2_wcp ** 2 + len_link2 ** 2 - dist_a3_wcp ** 2) / (2 * dist_a2_wcp * len_link2))
-
-        axis2_1 = -(beta1 + beta2)
-        # second value of axis2 (no overhead included)
-        axis2_2 = -(beta1 - beta2)
-
-        axis2 = self.calc_A2(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-120, h_limit=20, axis1=axis1)
 
         gamma1 = mp.atan(dist_a3_a4 / len_link3)
         gamma2 = mp.acos((dist_a3_wcp ** 2 + len_link2 ** 2 - dist_a2_wcp ** 2) / (2 * dist_a3_wcp * len_link2))
+
+        if not input_e6pos.S.elbow_up:
+            gamma1 = -gamma1
+
+
+
         axis3 = np.pi - (gamma1 + gamma2)
         axis3_2 = np.pi - (gamma1 - gamma2)
+
+        axis3 = self.calc_A3(pos_wcp,S=input_e6pos.S, T=input_e6pos.T, l_limit=-100, h_limit=144, axis1=axis1)
+
         A1_to_A3 = {qi1: axis1, qi2: dtor(90) + axis2, qi3: -dtor(90) + axis3}
         R_0_3 = self.T0_4.evalf(subs=A1_to_A3)[0:3, 0:3]
         R_0_3_inv = R_0_3.inv()
@@ -272,7 +287,6 @@ class CustomKukaIKSolver:
 
         axis1_deg = rtod(axis1)
         axis2_deg = rtod(axis2)
-        axis2_2_deg = rtod(axis2_2)
         axis3_deg = rtod(axis3)
         axis3_2_deg = rtod(axis3_2)
         axis5_1_deg = rtod(axis5_1)
