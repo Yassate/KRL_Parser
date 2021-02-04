@@ -198,6 +198,30 @@ class CustomKukaIKSolver:
 
         return A3
 
+    @staticmethod
+    def calc_A5(R_3_6, T, l_limit, h_limit):
+        A5 = mp.acos(-R_3_6[2, 2])
+        sign_nok = (A5 < 0) != T.a5_on_minus
+
+        if sign_nok:
+            A5 = -A5
+
+        return A5
+
+    @staticmethod
+    def calc_A4(R_3_6, T, l_limit, h_limit, axis5):
+        cos_A4 = R_3_6[0, 2] / mp.sin(axis5)
+        sin_A4 = R_3_6[1, 2] / mp.sin(axis5)
+        A4 = mp.atan2(sin_A4, cos_A4) % (2*mp.pi)
+        sign_nok = (A4 < 0) != T.a4_on_minus
+
+        if sign_nok or A4 < dtor(l_limit) or A4 > dtor(h_limit):
+            if A4 < 0:
+                A4 = A4 + 2*mp.pi
+            else:
+                A4 = A4 - 2*mp.pi
+
+        return A4
 
 
     def perform_ik(self, input_e6pos):
@@ -211,60 +235,24 @@ class CustomKukaIKSolver:
         matrix_xyz_abc[1, 3] = input_xyz[1]
         matrix_xyz_abc[2, 3] = input_xyz[2]
 
-        len_link2 = abs(self.dh_params[a2])
-        len_link3 = abs(self.dh_params[dX])
-        dist_a3_a4 = abs(self.dh_params[a3])
-
         dist_to_wcp = Matrix([[0], [0], [-abs(self.dh_params[d7])], [1]])
         pos_wcp = matrix_xyz_abc * dist_to_wcp
 
         # TODO >> limits should be taken from robot geometry configuration
-        # TODO >> Those distances should be calculated on coordinates, because of value of A1 affects those distances and for now it's not taken into account in calculations
         axis1 = self.calc_A1(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-185, h_limit=185)
-
-        pos_A2_rot_axis = self.T0_2.evalf(subs={qi1: axis1})[0:4, 3:4]
-
         axis2 = self.calc_A2(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-120, h_limit=20, axis1=axis1)
-
-        dist_a2_wcp = self.calc_dist(pos_A2_rot_axis, pos_wcp)
-        dist_a3_wcp = mp.sqrt(len_link3 ** 2 + dist_a3_a4 ** 2)
-
-
-        gamma1 = mp.atan(dist_a3_a4 / len_link3)
-        gamma2 = mp.acos((dist_a3_wcp ** 2 + len_link2 ** 2 - dist_a2_wcp ** 2) / (2 * dist_a3_wcp * len_link2))
-
-        if not input_e6pos.S.elbow_up:
-            gamma1 = -gamma1
-
-
-
-        axis3 = np.pi - (gamma1 + gamma2)
-        axis3_2 = np.pi - (gamma1 - gamma2)
-
-        axis3 = self.calc_A3(pos_wcp,S=input_e6pos.S, T=input_e6pos.T, l_limit=-100, h_limit=144, axis1=axis1)
+        axis3 = self.calc_A3(pos_wcp, S=input_e6pos.S, T=input_e6pos.T, l_limit=-100, h_limit=144, axis1=axis1)
 
         A1_to_A3 = {qi1: axis1, qi2: dtor(90) + axis2, qi3: -dtor(90) + axis3}
+
         R_0_3 = self.T0_4.evalf(subs=A1_to_A3)[0:3, 0:3]
-        R_0_3_inv = R_0_3.inv()
         R_0_6 = matrix_xyz_abc[0:3, 0:3]
-        R_3_6 = R_0_3_inv * R_0_6
-        #print(R_3_6)
-        # theta_p = {qi4: pi/3, qi5: pi/3, qi6: pi/4}
-        # t_c = (self.A4_5 * self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
-        # t_c = (self.A5_6 * self.A6_F).evalf(subs=theta_p)[0:3, 0:3]
-        # R_3_6 = t_c
-        axis5_1 = mp.atan2(R_3_6[2, 2], sqrt(1 - R_3_6[2, 2] ** 2))
-        axis5_2 = mp.atan2(R_3_6[2, 2], -sqrt(1 - R_3_6[2, 2] ** 2))
-        axis5_3 = mp.atan2(sqrt(R_3_6[0, 2] ** 2 + R_3_6[1, 2] ** 2), R_3_6[2, 2])
-        axis5_4 = mp.acos(-R_3_6[2, 2])
+        R_3_6 = R_0_3.inv() * R_0_6
 
-        axis4_1 = mp.atan2(R_3_6[0, 2], R_3_6[1, 2])
-        axis4_2 = mp.atan2(-R_3_6[0, 2], -R_3_6[1, 2])
-        axis4_3 = mp.atan2(R_3_6[1, 2], R_3_6[0, 2])
+        axis5 = self.calc_A5(R_3_6=R_3_6, T=input_e6pos.T, l_limit=-120, h_limit=120)
 
-        axis6_1 = mp.atan2(-R_3_6[2, 0], R_3_6[2, 1])
-        axis6_2 = mp.atan2(R_3_6[2, 0], -R_3_6[2, 1])
-        axis6_3 = mp.atan2(R_3_6[2, 1], -R_3_6[2, 0])
+
+        R_3_6_symbols = self.A4_5 * self.A5_6 * self.A6_F * self.F_FF
 
         #Self-developed solution which works
         my_calc_axis4_1 = 0
@@ -272,33 +260,22 @@ class CustomKukaIKSolver:
         my_calc_axis6_1 = 0
         my_calc_axis6_2 = 0
 
-        my_calc_axis5_1 = mp.acos(-R_3_6[2, 2])
-        my_calc_axis5_2 = -mp.acos(-R_3_6[2, 2])
-        if my_calc_axis5_1 != 0:
-            my_calc_axis4_1 = mp.asin(R_3_6[1, 2]/mp.sin(my_calc_axis5_1))
-            my_calc_axis4_2 = mp.asin(R_3_6[1, 2]/mp.sin(my_calc_axis5_2))
-            my_calc_axis6_1 = mp.acos(R_3_6[2, 0]/mp.sin(my_calc_axis5_1))
-            my_calc_axis6_2 = mp.acos(R_3_6[2, 0]/mp.sin(my_calc_axis5_2))
 
-        axis4 = my_calc_axis4_2
-        axis5 = my_calc_axis5_2
+        if axis5 != 0:
+            my_calc_axis4_1 = mp.asin(R_3_6[1, 2]/mp.sin(axis5))
+            my_calc_axis4_2 = mp.asin(R_3_6[1, 2]/mp.sin(axis5))
+            my_calc_axis6_1 = mp.acos(R_3_6[2, 0]/mp.sin(axis5))
+            my_calc_axis6_2 = mp.acos(R_3_6[2, 0]/mp.sin(axis5))
+
+        axis4 = self.calc_A4(R_3_6, input_e6pos.T, l_limit=-350, h_limit=350, axis5=axis5)
         axis6 = my_calc_axis6_2
-
 
         axis1_deg = rtod(axis1)
         axis2_deg = rtod(axis2)
         axis3_deg = rtod(axis3)
-        axis3_2_deg = rtod(axis3_2)
-        axis5_1_deg = rtod(axis5_1)
-        axis5_2_deg = rtod(axis5_2)
-        axis5_3_deg = rtod(axis5_3)
-        axis5_4_deg = rtod(axis5_4)
-        axis4_1_deg = rtod(axis4_1)
-        axis4_2_deg = rtod(axis4_2)
-        axis4_3_deg = rtod(axis4_3)
-        axis6_1_deg = rtod(axis6_1)
-        axis6_2_deg = rtod(axis6_2)
-        axis6_3_deg = rtod(axis6_3)
+        axis4_deg = rtod(axis4)
+        axis5_deg = rtod(axis5)
+        axis6_deg = rtod(axis6)
 
 
         axes = [rtod(rad) for rad in [axis1, axis2, axis3, axis4, axis5, axis6]]
@@ -359,6 +336,7 @@ class CustomKukaIKSolver:
         deg_0FF = [rtod(rad) for rad in rad_0FF]
 
         return E6Pos(p_mm_0FF, deg_0FF, S=0, T=0)
+
 
 
 
