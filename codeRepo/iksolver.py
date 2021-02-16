@@ -171,10 +171,8 @@ class CustomKukaIKSolver:
         A2 = beta1 + beta2
 
         sign_nok = (A2 < 0) != T.a2_on_minus
-        if sign_nok:
-            A2 = -A2
 
-        return A2
+        return -A2 if sign_nok else A2
 
     def calc_A3(self, pos_wcp, S, T, l_limit, h_limit, axis1):
         dist_a3_a4 = abs(self.dh_params[a3])
@@ -193,38 +191,48 @@ class CustomKukaIKSolver:
         A3 = np.pi - (gamma1 + gamma2)
 
         sign_nok = (A3 < 0) != T.a3_on_minus
-        if sign_nok:
-            A3 = -A3
-
-        return A3
+        return -A3 if sign_nok else A3
 
     @staticmethod
     def calc_A5(R_3_6, T, l_limit, h_limit):
         A5 = mp.acos(-R_3_6[2, 2])
         sign_nok = (A5 < 0) != T.a5_on_minus
 
-        if sign_nok:
-            A5 = -A5
+        return -A5 if sign_nok else A5
 
-        return A5
 
     @staticmethod
-    def calc_A4(R_3_6, T, l_limit, h_limit, axis5):
+    def calc_A4(R_3_6, T, l_limit, h_limit, axis5, prev_axis4=0):
+        if round(axis5, 5) == 0:
+            return dtor(prev_axis4)
+
         cos_A4 = R_3_6[0, 2] / mp.sin(axis5)
         sin_A4 = R_3_6[1, 2] / mp.sin(axis5)
         A4 = mp.atan2(sin_A4, cos_A4) % (2*mp.pi)
         sign_nok = (A4 < 0) != T.a4_on_minus
 
         if sign_nok or A4 < dtor(l_limit) or A4 > dtor(h_limit):
-            if A4 < 0:
-                A4 = A4 + 2*mp.pi
-            else:
-                A4 = A4 - 2*mp.pi
+            A4 = A4 + copysign(2*mp.pi, -A4)
 
         return A4
 
+    @staticmethod
+    def calc_A6(R_3_6, T, l_limit, h_limit, axis5, prev_axis6):
+        if round(axis5, 5) == 0:
+            return dtor(prev_axis6)
 
-    def perform_ik(self, input_e6pos):
+        cos_A6 = R_3_6[2, 0] / mp.sin(axis5)
+        sin_A6 = R_3_6[2, 1] / mp.sin(axis5)
+        A6 = mp.atan2(sin_A6, cos_A6) % (2*mp.pi)
+        sign_nok = (A6 < 0) != T.a6_on_minus
+
+        if sign_nok or A6 < dtor(l_limit) or A6 > dtor(h_limit):
+            A6 = A6 + copysign(2*mp.pi, -A6)
+
+        return A6
+
+
+    def perform_ik(self, input_e6pos, prev_e6_axis):
 
         input_xyz = [input_e6pos.x / 1000, input_e6pos.y / 1000, input_e6pos.z / 1000]
         input_abc = [dtor(input_e6pos.a), dtor(input_e6pos.b), dtor(input_e6pos.c)]
@@ -251,24 +259,8 @@ class CustomKukaIKSolver:
 
         axis5 = self.calc_A5(R_3_6=R_3_6, T=input_e6pos.T, l_limit=-120, h_limit=120)
 
-
-        R_3_6_symbols = self.A4_5 * self.A5_6 * self.A6_F * self.F_FF
-
-        #Self-developed solution which works
-        my_calc_axis4_1 = 0
-        my_calc_axis4_2 = 0
-        my_calc_axis6_1 = 0
-        my_calc_axis6_2 = 0
-
-
-        if axis5 != 0:
-            my_calc_axis4_1 = mp.asin(R_3_6[1, 2]/mp.sin(axis5))
-            my_calc_axis4_2 = mp.asin(R_3_6[1, 2]/mp.sin(axis5))
-            my_calc_axis6_1 = mp.acos(R_3_6[2, 0]/mp.sin(axis5))
-            my_calc_axis6_2 = mp.acos(R_3_6[2, 0]/mp.sin(axis5))
-
-        axis4 = self.calc_A4(R_3_6, input_e6pos.T, l_limit=-350, h_limit=350, axis5=axis5)
-        axis6 = my_calc_axis6_2
+        axis4 = self.calc_A4(R_3_6, input_e6pos.T, l_limit=-350, h_limit=350, axis5=axis5, prev_axis4=prev_e6_axis.A4)
+        axis6 = self.calc_A6(R_3_6, input_e6pos.T, l_limit=-350, h_limit=350, axis5=axis5, prev_axis6=prev_e6_axis.A6)
 
         axis1_deg = rtod(axis1)
         axis2_deg = rtod(axis2)

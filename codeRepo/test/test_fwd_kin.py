@@ -4,7 +4,6 @@ from kuka_datatypes import E6Axis, E6Pos, Status, Turn
 
 
 class InputKinematicData:
-    #TODO >> Status and Turn should be not optional! Temporary solution
     def __init__(self, robot_axes, target_xyz, target_abc, S, T):
         self.e6axis = E6Axis(robot_axes)
         self.e6pos = E6Pos(target_xyz, target_abc, Status(S), Turn(T))
@@ -14,7 +13,7 @@ class TestFK(TestCase):
     def setUp(self):
         self.ik_solver = CustomKukaIKSolver(dh_KR360_R2830)
 
-    #TODO >> load test data from external source (?) and find the way to indicate which set failed (without separate names for each case it seems impossible)
+    #TODO >> load test data from external source (?)
     def set_up_test_data(self):
         pass
 

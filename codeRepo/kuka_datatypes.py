@@ -73,7 +73,7 @@ class Status:
         shifted = self.val >> StatusBit.A3_POSITIVE_AREA
         return Status.lsb(shifted)
 
-    #TODO >> KUKA docu from resources is probably wrong (in old meaning is opposite), need to be check with real robot
+    #TODO >> KUKA docu from resources is probably wrong (in old docu is opposite), need to be check with real robot
     @property
     def a5_on_plus(self):
         shifted = self.val >> StatusBit.A5_ON_PLUS
@@ -88,32 +88,42 @@ class Turn:
     def lsb(val):
         return val & 1
 
+    def get_turn_bit(self, axis_no):
+        bit_no = TurnBit(axis_no)
+        shifted = self.val >> bit_no
+        return Turn.lsb(shifted)
+
+    @property
+    def get_axis_sign(self, axis_no):
+        sign = 1 if self.get_turn_bit(axis_no) == 0 else -1
+        return sign
+
     @property
     def a1_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_1
-        return Status.lsb(shifted)
+        return Turn.lsb(shifted)
 
     @property
     def a2_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_2
-        return Status.lsb(shifted)
+        return Turn.lsb(shifted)
 
     @property
     def a3_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_3
-        return Status.lsb(shifted)
+        return Turn.lsb(shifted)
 
     @property
     def a4_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_4
-        return Status.lsb(shifted)
+        return Turn.lsb(shifted)
 
     @property
     def a5_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_5
-        return Status.lsb(shifted)
+        return Turn.lsb(shifted)
 
     @property
     def a6_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_6
-        return Status.lsb(shifted)
+        return Turn.lsb(shifted)
