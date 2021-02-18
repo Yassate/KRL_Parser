@@ -1,5 +1,6 @@
 import enum
 
+
 class ARType(enum.Enum):
     MODULE = 'MODULE'
     ROUTINE = 'ROUTINE'

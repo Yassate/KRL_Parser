@@ -6,7 +6,8 @@ from kuka_datatypes import E6Axis, E6Pos, Status, Turn
 class InputKinematicData:
     def __init__(self, robot_axes, target_xyz, target_abc, S, T):
         self.e6axis = E6Axis(robot_axes)
-        self.e6pos = E6Pos(target_xyz, target_abc, Status(S), Turn(T))
+        self.a = E6Pos.from_krl_struct({'X': 2, 'Y': 3, 'B': 5, 'Z': 11})
+        self.e6pos = E6Pos.from_tuples(target_xyz, target_abc, Status(S), Turn(T))
 
 
 class TestFK(TestCase):
@@ -17,16 +18,15 @@ class TestFK(TestCase):
     def set_up_test_data(self):
         pass
 
-
     def solve_fk(self, test_data):
         pos_accuracy = 0.01
         rot_accuracy = 0.00001
 
         calc_e6pos = self.ik_solver.perform_fk(test_data.e6axis, debug_print=False)
 
-        self.assertAlmostEqual(test_data.e6pos.x, calc_e6pos.x, delta=pos_accuracy)
-        self.assertAlmostEqual(test_data.e6pos.y, calc_e6pos.y, delta=pos_accuracy)
-        self.assertAlmostEqual(test_data.e6pos.z, calc_e6pos.z, delta=pos_accuracy)
+        self.assertAlmostEqual(test_data.e6pos.X, calc_e6pos.X, delta=pos_accuracy)
+        self.assertAlmostEqual(test_data.e6pos.Y, calc_e6pos.Y, delta=pos_accuracy)
+        self.assertAlmostEqual(test_data.e6pos.Z, calc_e6pos.Z, delta=pos_accuracy)
 
         self.assertAlmostEqual(test_data.e6pos.ix, calc_e6pos.ix, delta=rot_accuracy)
         self.assertAlmostEqual(test_data.e6pos.iy, calc_e6pos.iy, delta=rot_accuracy)

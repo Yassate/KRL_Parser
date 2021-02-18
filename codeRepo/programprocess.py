@@ -1,14 +1,16 @@
 import sys
-import os
-dir_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(dir_path + r"\generated")
-print(sys.path)
 from antlr4 import *
 from krlLexer import krlLexer
 from krlParser import krlParser
 from semanalyzer import SemanticAnalyzer
 from krlinterpreter import KrlInterpreter
-from old.old_iksolver import KukaIKSolver, Position, Orientation, dtor
+from iksolver import CustomKukaIKSolver, dh_KR360_R2830
+from mpmath import radians as dtor
+import os
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(dir_path + r"\generated")
+print(sys.path)
 
 
 def axes_deg_to_radian(axis_pos):
@@ -16,6 +18,7 @@ def axes_deg_to_radian(axis_pos):
     for axis in axis_pos:
         new_axes.append(dtor(axis))
     return new_axes
+
 
 class ModuleProcessor:
     def __init__(self, src_file_path):
@@ -53,49 +56,20 @@ class ModuleProcessor:
         self._krlinterpreter.visit(self._dat_tree)
         self._krlinterpreter.visit(self._src_tree)
 
-def main():
 
+def main():
     src_file_path = r"testFiles\exampleKukaPath.src"
 
     current_module = ModuleProcessor(src_file_path)
     current_module.analyze_semantics()
     current_module.process_module()
 
-    #print(pp.pprint(myVisitor.variables))
-    solver = KukaIKSolver()
-    #req = solver.performFK([0, 0, 0, 0, 0, 0])
-    #IK = solver.handle_calculate_IK2(req)
+    # print(pp.pprint(myVisitor.variables))
+    solver = CustomKukaIKSolver(dh_KR360_R2830)
+    # req = solver.performFK([0, 0, 0, 0, 0, 0])
+    # IK = solver.handle_calculate_IK2(req)
 
-    Positions = []
-    Positions.append([0, -90, 90, 0, 0, 0])
-    Positions.append([0, -90, 45, 0, 0, 0])
-    Positions.append([45, -90, 45, 0, 0, 0])
-    Positions.append([45, -90, 90, 0, 0, 0])
-    Positions.append([45, -90, 90, 0, 30, 0])
-    Positions.append([45, -90, 90, 0, 30, 30])
-    Positions.append([45, -90, 90, 30, 30, 30])
-
-    solved = []
-    solved_ang = []
-
-    for position in Positions:
-        req = solver.performFK(axes_deg_to_radian(position))
-        solved.append(req.poses[0].position)
-        orient_quat = req.poses[0].orientation
-        eul = req.poses[0].euler.getABC_deg()
-        solved_ang.append(orient_quat)
-        print("AXIS ANGLES:")
-        print(position)
-        print("XYZ")
-        print(f"x: {req.poses[0].position.x}, y: {req.poses[0].position.y}, z: {req.poses[0].position.z}")
-        print("EULERS:")
-        print(eul)
-        print("\r\n")
-
-    Pos = Position()
-    Orient = Orientation()
-    #req = DummyReq(Pos.to_list(), Orient.to_list())
-    #req.set_euler()
     print("A")
+
 
 main()

@@ -20,7 +20,6 @@ class SemanticAnalyzer(krlVisitor):
     def get_module_name(self):
         return self._module_symtable.scope_name
 
-
     def _parse_literal(self, ctx):
         literal_type = ctx.getChild(0).symbol.type
         value = ctx.getText()
@@ -37,7 +36,6 @@ class SemanticAnalyzer(krlVisitor):
             return value.strip("'")
         elif literal_type == krlLexer.STRINGLITERAL:
             return value.strip('"')
-
 
     def visitChildren(self, node):
         result = self.defaultResult()

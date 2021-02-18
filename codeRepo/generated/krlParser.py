@@ -651,8 +651,6 @@ class krlParser ( Parser ):
         self._predicates = None
 
 
-
-
     class ModuleContext(ParserRuleContext):
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
@@ -995,9 +993,6 @@ class krlParser ( Parser ):
                 return visitor.visitProcedureName(self)
             else:
                 return visitor.visitChildren(self)
-
-
-
 
     def procedureName(self):
 
@@ -2043,8 +2038,6 @@ class krlParser ( Parser ):
                 return visitor.visitVariableInitialisation(self)
             else:
                 return visitor.visitChildren(self)
-
-
 
 
     def variableInitialisation(self):

@@ -1,8 +1,23 @@
 from krlVisitor import krlVisitor
 from krlLexer import krlLexer
 from krlParser import krlParser
-from symtables import *
 from callstack import Callstack, ActivationRecord, ARType
+from kuka_datatypes import E6Pos, E6Axis
+
+
+class variableFactory():
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def get_variable(var_value, var_type):
+        if var_type.upper() == "INT":
+            return int(var_value)
+        elif var_type.upper() == "E6POS":
+            return E6Pos.from_krl_struct(var_value)
+        else:
+            return var_value
+
 
 class KrlInterpreter(krlVisitor):
     def __init__(self, module_symtable):
@@ -10,6 +25,7 @@ class KrlInterpreter(krlVisitor):
         self._callstack = Callstack()
         self._module_symtable = module_symtable
         self._current_symtable = module_symtable
+        self._var_factory = variableFactory()
 
     def visitChildren(self, node):
         result = self.defaultResult()
@@ -57,14 +73,23 @@ class KrlInterpreter(krlVisitor):
             if ctx.variableInitialisation() is not None:
                 value = ctx.variableInitialisation().accept(self)
                 # TODO >> Value validation need to be added - checking type in symbol table?
-                ar[var_name] = value
+                ar[var_name] = self._var_factory.get_variable(value, var_type)
             if var_list_rest is not None:
                 for name in var_list_rest.accept(self):
                     pass
-                    # TODO >> Implement multiple variable declaration (np. DECL INT I,X,V = 0)
+                    # TODO >> Implement multiple variable declaration (eg. DECL INT I,X,V = 0)
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
         return ctx.getChild(1).accept(self)
+
+    def visitLiteral(self, ctx: krlParser.LiteralContext):
+        if ctx.structLiteral() is not None or ctx.enumElement() is not None:
+            return self.visitChildren(ctx)
+        else:
+            return self._parse_literal(ctx)
+
+    def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
+        return ctx.structElementList().accept(self)
 
     def visitStructElementList(self, ctx: krlParser.StructElementListContext):
         struct_elements = {}
@@ -77,15 +102,6 @@ class KrlInterpreter(krlVisitor):
         key = ctx.getChild(0).getText()
         val = ctx.getChild(1).accept(self)
         return {key: val}
-
-    def visitLiteral(self, ctx: krlParser.LiteralContext):
-        if ctx.structLiteral() is not None or ctx.enumElement() is not None:
-            return self.visitChildren(ctx)
-        else:
-            return self._parse_literal(ctx)
-
-    def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
-        return ctx.structElementList().accept(self)
 
     def _parse_literal(self, ctx):
         literal_type = ctx.getChild(0).symbol.type

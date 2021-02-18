@@ -11,6 +11,7 @@ class TestIK(TestCase):
 
         calc_axes = self.ik_solver.perform_ik(input_e6pos=test_data.e6pos, prev_e6_axis=test_data.e6axis)
 
+
         self.assertAlmostEqual(test_data.e6axis.A1, calc_axes.A1, delta=0.01)
         self.assertAlmostEqual(test_data.e6axis.A2, calc_axes.A2, delta=0.01)
         self.assertAlmostEqual(test_data.e6axis.A3, calc_axes.A3, delta=0.01)

@@ -142,12 +142,12 @@ class CustomKukaIKSolver:
         if dtor(l_limit) <= A1 <= dtor(h_limit):
             return A1
         else:
-            #TODO >> In this case error should be raised or return value should be intepreted in main calculation
+            # TODO >> In this case error should be raised or return value should be intepreted in main calculation
             #raiseError
             return None
 
     def calc_A2(self, pos_wcp, S, T, l_limit, h_limit, axis1):
-        #TODO >> Limits not taken into consideration, tests don't cover all possibilities
+        # TODO >> Limits not taken into consideration, tests don't cover all possibilities
         pos_wcp_rot_back = Matrix([0, 0, 0, 1])
         pos_wcp_rot_back[Coord.X] = pos_wcp[Coord.X] * mp.cos(axis1) - pos_wcp[Coord.Y] * mp.sin(axis1)
         pos_wcp_rot_back[Coord.Y] = pos_wcp[Coord.X] * mp.sin(axis1) + pos_wcp[Coord.Y] * mp.cos(axis1)
@@ -234,8 +234,8 @@ class CustomKukaIKSolver:
 
     def perform_ik(self, input_e6pos, prev_e6_axis):
 
-        input_xyz = [input_e6pos.x / 1000, input_e6pos.y / 1000, input_e6pos.z / 1000]
-        input_abc = [dtor(input_e6pos.a), dtor(input_e6pos.b), dtor(input_e6pos.c)]
+        input_xyz = [input_e6pos.X / 1000, input_e6pos.Y / 1000, input_e6pos.Z / 1000]
+        input_abc = [dtor(input_e6pos.A), dtor(input_e6pos.B), dtor(input_e6pos.C)]
 
         # abc and pos from point data
         matrix_xyz_abc = tf.euler_matrix(input_abc[0], input_abc[1], input_abc[2], axes='rzyx')
@@ -274,7 +274,6 @@ class CustomKukaIKSolver:
         return E6Axis(axes)
 
     def perform_fk(self, input_e6_axis, debug_print=False):
-        #TODO >> Implement Status and Turn; for now S=0, T=0
         e6_axis_radians = input_e6_axis.get_in_radians()
 
         axes_radian = {qi1: e6_axis_radians[0],
@@ -327,7 +326,8 @@ class CustomKukaIKSolver:
         p_mm_0FF = [m*1000 for m in p_0FF]
         deg_0FF = [rtod(rad) for rad in rad_0FF]
 
-        return E6Pos(p_mm_0FF, deg_0FF, S=0, T=0)
+        # TODO >> Implement Status and Turn; for now S=0, T=0
+        return E6Pos.from_tuples(p_mm_0FF, deg_0FF, S=0, T=0)
 
 
 

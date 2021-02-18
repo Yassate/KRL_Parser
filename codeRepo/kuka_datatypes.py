@@ -14,13 +14,48 @@ class E6Axis:
 
 
 class E6Pos:
-    def __init__(self, xyz, abc, S, T):
-        self.x, self.y, self.z = xyz[:3]
-        self.a, self.b, self.c = abc
-        self.S = S
-        self.T = T
-        self.quat = tf.quaternion_from_euler(dtor(self.a), dtor(self.b), dtor(self.c), axes='sxyz')
-    #TODO SETTERS FOR ABC TO UPDATE QUAT AND VICEVERSA
+    def __init__(self):
+        self.X, self.Y, self.Z = None, None, None
+        self.A, self.B, self.C = None, None, None
+        self.S, self.T = None, None
+        self.quat = None
+
+    # TODO >> SETTERS FOR ABC TO UPDATE QUAT AND VICE-VERSA
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __setitem__(self, item, value):
+        setattr(self, item, value)
+
+    @classmethod
+    def from_tuples(cls, xyz, abc, S, T):
+        instance = cls()
+        instance.X, instance.Y, instance.Z = xyz[:3]
+        instance.A, instance.B, instance.C = abc
+        instance.S = S
+        instance.T = T
+        instance.update_quat()
+        return instance
+
+    @classmethod
+    def from_krl_struct(cls, krl_struct_as_dict):
+    # TODO >> exception should be raised if not all necessary elements are inside dictionary
+        necessary_items = ('X', 'Y', 'Z', 'A', 'B', 'C', 'S', 'T')
+        instance = cls()
+        if all(item in krl_struct_as_dict.keys() for item in necessary_items):
+            for key in krl_struct_as_dict:
+                if hasattr(instance, key):
+                    instance[key] = krl_struct_as_dict[key]
+            instance.update_quat()
+
+        return instance
+
+    def update_quat(self):
+        if self.A is not None and self.B is not None and self.C is not None:
+            self.quat = tf.quaternion_from_euler(dtor(self.A), dtor(self.B), dtor(self.C), axes='sxyz')
+        else:
+            self.quat = None
 
     @property
     def ix(self):
@@ -73,7 +108,7 @@ class Status:
         shifted = self.val >> StatusBit.A3_POSITIVE_AREA
         return Status.lsb(shifted)
 
-    #TODO >> KUKA docu from resources is probably wrong (in old docu is opposite), need to be check with real robot
+    # TODO >> KUKA docu from resources is probably wrong (in old docu is opposite), need to be check with real robot
     @property
     def a5_on_plus(self):
         shifted = self.val >> StatusBit.A5_ON_PLUS
