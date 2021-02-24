@@ -1,16 +1,15 @@
-from unittest import TestCase
+import unittest
 from iksolver import CustomKukaIKSolver, dh_KR360_R2830
 from test.test_fwd_kin import InputKinematicData
 
 
-class TestIK(TestCase):
+class TestIK(unittest.TestCase):
     def setUp(self):
         self.ik_solver = CustomKukaIKSolver(dh_KR360_R2830)
 
     def solve_ik(self, test_data):
 
         calc_axes = self.ik_solver.perform_ik(input_e6pos=test_data.e6pos, prev_e6_axis=test_data.e6axis)
-
 
         self.assertAlmostEqual(test_data.e6axis.A1, calc_axes.A1, delta=0.01)
         self.assertAlmostEqual(test_data.e6axis.A2, calc_axes.A2, delta=0.01)
@@ -160,5 +159,105 @@ class TestIK(TestCase):
             robot_axes=[183, -121.183, 52.171, -178.122, 62.973, 31.005],
             target_xyz=[-51.8683036, -5.7574473, 3309.938091],
             target_abc=[-43.3435536, 35.414067, -24.2372062],
+            S=18, T=10)
+        self.solve_ik(input_data)
+
+    # TODO >> A2, A3 in quadrant III should be also tested, it need to be done on another kuka model (KR120 R2500 Pro)
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_up_and_in_quadrant_IV_WCP_in_quadrant_IV(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[2059.763983, -19.3609071, -237.726233],
+            target_abc=[36.3241115, -157.337019, -11.2437047],
+            S=18, T=0)
+        self.solve_ik(input_data)
+
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_down_and_in_quadrant_IV_WCP_in_quadrant_IV(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[2952.490195, -19.3604456, 430.7211721],
+            target_abc=[41.56864940, 145.4685071, 31.26293290],
+            S=16, T=4)
+        self.solve_ik(input_data)
+
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_down_and_in_quadrant_IV_WCP_in_quadrant_I(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[2395.559263, -19.3606717, 1644.261998],
+            target_abc=[-65.1385245, 52.95478560, -55.2899104],
+            S=16, T=4)
+        self.solve_ik(input_data)
+
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_up_and_in_quadrant_I_WCP_in_quadrant_IV(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[2492.15954,  -19.3607102, 714.0156365],
+            target_abc=[33.16221580, 177.8193610, 5.997348200],
+            S=18, T=2)
+        self.solve_ik(input_data)
+
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_up_and_in_quadrant_I_WCP_in_quadrant_I(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[2378.085131, -19.3607347, 1787.334949],
+            target_abc=[38.08749070, 152.3895679, 24.53577020],
+            S=18, T=2)
+        self.solve_ik(input_data)
+
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_down_and_in_quadrant_I_WCP_in_quadrant_I(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[2379.694422, -19.3607339, 2605.688204],
+            target_abc=[-66.3579830, 53.36636810, -56.8135700],
+            S=16, T=6)
+        self.solve_ik(input_data)
+
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_up_and_in_quadrant_II_WCP_in_quadrant_I(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[1171.648017, 17.87279090, 2943.336919],
+            target_abc=[-34.7683285, 14.74968830, -14.2597367],
+            S=22, T=18)
+        self.solve_ik(input_data)
+
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_down_and_in_quadrant_I_WCP_in_quadrant_II(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[213.9328963, 17.87245040, 3355.270074],
+            target_abc=[-35.7312686, -19.2098284, 9.080257400],
+            S=20, T=54)
+        self.solve_ik(input_data)
+
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_up_and_in_quadrant_II_WCP_in_quadrant_II(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[-652.3629424, 17.87200000, 3303.521190],
+            target_abc=[-56.6678734, -48.6966242, 44.56188900],
+            S=23, T=18)
+        self.solve_ik(input_data)
+
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_down_and_in_quadrant_II_WCP_in_quadrant_II(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[-652.3629424, 17.87200000, 3303.521190],
+            target_abc=[-56.6678734, -48.6966242, 44.56188900],
+            S=21, T=22)
+        self.solve_ik(input_data)
+
+    @unittest.skip("No axis data")
+    def test_A2A3_elbow_down_and_in_quadrant_II_WCP_in_quadrant_I(self):
+        input_data = InputKinematicData(
+            robot_axes=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            target_xyz=[469.6913171, 35.63617090, 1540.857654],
+            target_abc=[39.83456740, -149.460794, -31.4434278],
             S=18, T=10)
         self.solve_ik(input_data)

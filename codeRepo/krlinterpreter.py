@@ -3,6 +3,7 @@ from krlLexer import krlLexer
 from krlParser import krlParser
 from callstack import Callstack, ActivationRecord, ARType
 from kuka_datatypes import E6Pos, E6Axis
+from iksolver import CustomKukaIKSolver, dh_KR360_R2830
 
 
 class variableFactory():
@@ -26,6 +27,7 @@ class KrlInterpreter(krlVisitor):
         self._module_symtable = module_symtable
         self._current_symtable = module_symtable
         self._var_factory = variableFactory()
+        self.ik_solver = CustomKukaIKSolver(dh_KR360_R2830)
 
     def visitChildren(self, node):
         result = self.defaultResult()
@@ -121,9 +123,18 @@ class KrlInterpreter(krlVisitor):
     def visitTerminal(self, node):
         return node.getText()
 
+    def visitUnaryPlusMinuxExpression(self, ctx:krlParser.UnaryPlusMinuxExpressionContext):
+        if len(ctx.children) > 1:
+            return int(ctx.getChild(0).getText() + '1') * ctx.getChild(1).accept(self)
+        else:
+            return self.visitChildren(ctx)
+
     def visitPtpMove(self, ctx: krlParser.PtpMoveContext):
         target_name = self.visitChild(ctx, 1)
-        target_coords = self._callstack.peek().get(target_name)
+        target_e6pos = self._callstack.peek().get(target_name)
+        print(f"Robot goes with PTP movement to: {target_name}")
+        calc_axes = self.ik_solver.perform_ik(input_e6pos=target_e6pos, prev_e6_axis=E6Axis(axis_values=(0,0,0,0,0,0)))
+        print(calc_axes)
         return self.visitChildren(ctx)
 
     #def visitVariableListRest(self, ctx: krlParser.VariableListRestContext):

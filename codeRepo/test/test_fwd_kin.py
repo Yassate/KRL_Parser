@@ -1,16 +1,16 @@
-from unittest import TestCase
+import unittest
 from iksolver import CustomKukaIKSolver, dh_KR360_R2830
-from kuka_datatypes import E6Axis, E6Pos, Status, Turn
+from kuka_datatypes import E6Axis, E6Pos
 
 
 class InputKinematicData:
     def __init__(self, robot_axes, target_xyz, target_abc, S, T):
         self.e6axis = E6Axis(robot_axes)
         self.a = E6Pos.from_krl_struct({'X': 2, 'Y': 3, 'B': 5, 'Z': 11})
-        self.e6pos = E6Pos.from_tuples(target_xyz, target_abc, Status(S), Turn(T))
+        self.e6pos = E6Pos.from_tuples(target_xyz, target_abc, S, T)
 
 
-class TestFK(TestCase):
+class TestFK(unittest.TestCase):
     def setUp(self):
         self.ik_solver = CustomKukaIKSolver(dh_KR360_R2830)
 

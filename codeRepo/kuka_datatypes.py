@@ -8,6 +8,9 @@ class E6Axis:
         self.axis_values = axis_values
         self.A1, self.A2, self.A3, self.A4, self.A5, self.A6 = axis_values
 
+    def __repr__(self):
+        return f"<E6Axis: A1={self.A1}, A2={self.A2}, A3={self.A3}, A4={self.A4}, A5={self.A5}, A6={self.A6}"
+
     def get_in_radians(self):
         axes_radians = [dtor(axis) for axis in self.axis_values]
         return axes_radians
@@ -33,8 +36,8 @@ class E6Pos:
         instance = cls()
         instance.X, instance.Y, instance.Z = xyz[:3]
         instance.A, instance.B, instance.C = abc
-        instance.S = S
-        instance.T = T
+        instance.S = Status(S)
+        instance.T = Turn(T)
         instance.update_quat()
         return instance
 
@@ -46,7 +49,12 @@ class E6Pos:
         if all(item in krl_struct_as_dict.keys() for item in necessary_items):
             for key in krl_struct_as_dict:
                 if hasattr(instance, key):
-                    instance[key] = krl_struct_as_dict[key]
+                    if key == 'S':
+                        instance[key] = Status(krl_struct_as_dict[key])
+                    elif key == 'T':
+                        instance[key] = Turn(krl_struct_as_dict[key])
+                    else:
+                        instance[key] = krl_struct_as_dict[key]
             instance.update_quat()
 
         return instance
