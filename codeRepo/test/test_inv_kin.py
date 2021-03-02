@@ -250,3 +250,67 @@ class TestIK(unittest.TestCase):
             target_abc=[39.83456740, -149.460794, -31.4434278],
             S=18, T=10)
         self.solve_ik(input_data)
+
+    def test_A4A5A6_config_S2_A4_plus_A6_plus(self):
+        input_data = InputKinematicData(
+            robot_axes=[35.00, -101.00, 59.00, 110.0, 40.0, 85.0],
+            target_xyz=[860.3188182, -816.240656, 3162.13202],
+            target_abc=[122.8624581, -42.4660796, -23.6035752],
+            S=18, T=2)
+        self.solve_ik(input_data)
+
+    def test_A4A5A6_config_S2_A4_minus_A6_plus(self):
+        input_data = InputKinematicData(
+            robot_axes=[35.00, -101.00, 59.00, -250.0, 40.0, 85.0],
+            target_xyz=[860.3188182, -816.240656, 3162.13202],
+            target_abc=[122.8624581, -42.4660796, -23.6035752],
+            S=18, T=10)
+        self.solve_ik(input_data)
+
+    def test_A4A5A6_config_S2_A4_minus_A6_minus(self):
+        input_data = InputKinematicData(
+            robot_axes=[35.00, -101.00, 59.00, -250.0, 40.0, -275.0],
+            target_xyz=[860.3188182, -816.240656, 3162.13202],
+            target_abc=[122.8624581, -42.4660796, -23.6035752],
+            S=18, T=42)
+        self.solve_ik(input_data)
+
+    def test_A4A5A6_config_S2_A4_plus_A6_minus(self):
+        input_data = InputKinematicData(
+            robot_axes=[35.00, -101.00, 59.00, 110.0, 40.0, -275.0],
+            target_xyz=[860.3188182, -816.240656, 3162.13202],
+            target_abc=[122.8624581, -42.4660796, -23.6035752],
+            S=18, T=34)
+        self.solve_ik(input_data)
+
+    def test_A4A5A6_config_S6_A4_minus_A6_minus(self):
+        input_data = InputKinematicData(
+            robot_axes=[35.00, -101.00, 59.00, -70.0, -40.0, -95.0],
+            target_xyz=[860.3188182, -816.240656, 3162.13202],
+            target_abc=[122.8624581, -42.4660796, -23.6035752],
+            S=22, T=58)
+        self.solve_ik(input_data)
+
+    def test_A4A5A6_config_S6_A4_plus_A6_minus(self):
+        input_data = InputKinematicData(
+            robot_axes=[35.00, -101.00, 59.00, 290.0, -40.0, -95.0],
+            target_xyz=[860.3188182, -816.240656, 3162.13202],
+            target_abc=[122.8624581, -42.4660796, -23.6035752],
+            S=22, T=50)
+        self.solve_ik(input_data)
+
+    def test_A4A5A6_config_S6_A4_plus_A6_plus(self):
+        input_data = InputKinematicData(
+            robot_axes=[35.00, -101.00, 59.00, 290.0, -40.0, 265.0],
+            target_xyz=[860.3188182, -816.240656, 3162.13202],
+            target_abc=[122.8624581, -42.4660796, -23.6035752],
+            S=22, T=18)
+        self.solve_ik(input_data)
+
+    def test_A4A5A6_config_S6_A4_minus_A6_plus(self):
+        input_data = InputKinematicData(
+            robot_axes=[35.00, -101.00, 59.00, -70.0, -40.0, 265.0],
+            target_xyz=[860.3188182, -816.240656, 3162.13202],
+            target_abc=[122.8624581, -42.4660796, -23.6035752],
+            S=22, T=26)
+        self.solve_ik(input_data)
