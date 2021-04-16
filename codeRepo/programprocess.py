@@ -1,4 +1,5 @@
 import sys
+from icecream import ic
 from antlr4 import *
 from krlLexer import krlLexer
 from krlParser import krlParser

@@ -4,6 +4,7 @@ from krlParser import krlParser
 from callstack import Callstack, ActivationRecord, ARType
 from kuka_datatypes import E6Pos, E6Axis
 from iksolver import CustomKukaIKSolver, dh_KR360_R2830
+from icecream import ic
 
 
 class variableFactory():
@@ -135,6 +136,11 @@ class KrlInterpreter(krlVisitor):
         print(f"Robot goes with PTP movement to: {target_name}")
         calc_axes = self.ik_solver.perform_ik(input_e6pos=target_e6pos, prev_e6_axis=E6Axis(axis_values=(0,0,0,0,0,0)))
         print(calc_axes)
+        return self.visitChildren(ctx)
+
+    def visitPrimary(self, ctx:krlParser.PrimaryContext):
+        if ctx.arguments() is not None:
+            print(ctx.arguments())
         return self.visitChildren(ctx)
 
     #def visitVariableListRest(self, ctx: krlParser.VariableListRestContext):
