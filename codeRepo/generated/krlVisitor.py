@@ -264,8 +264,8 @@ class krlVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by krlParser#assignment.
-    def visitAssignment(self, ctx:krlParser.AssignmentContext):
+    # Visit a parse tree produced by krlParser#assignmentOrExpr.
+    def visitAssignmentOrExpr(self, ctx:krlParser.AssignmentOrExprContext):
         return self.visitChildren(ctx)
 
 

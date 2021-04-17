@@ -2,6 +2,7 @@ import enum
 
 
 class ARType(enum.Enum):
+    GLOBAL = 'GLOBAL'
     MODULE = 'MODULE'
     ROUTINE = 'ROUTINE'
     FUNCTION = 'FUNCTION'
@@ -44,6 +45,10 @@ class ActivationRecord:
 class Callstack:
     def __init__(self):
         self._records = []
+        scope_name = "GLOBAL"
+        global_record = ActivationRecord(name=scope_name, type=ARType.GLOBAL, nesting_level=1)
+        self.push(global_record)
+
 
     def push(self, ar):
         self._records.append(ar)

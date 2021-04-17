@@ -140,11 +140,17 @@ class KrlInterpreter(krlVisitor):
 
     def visitSubprogramCall(self, ctx:krlParser.SubprogramCallContext):
         if ctx.arguments() is not None:
-            print(ctx.arguments().accept(self))
+            pass
+            #print(ctx.arguments().accept(self))
             #print(ctx.arguments())
         return self.visitChildren(ctx)
 
     def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
+        var = ctx.getChild(0).accept(self)
+        value = ctx.getChild(2).accept(self)
+        ar = self._callstack.peek()
+
+        print(f"{var} : {value}")
         return self.visitChildren(ctx)
 
 
