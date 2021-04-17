@@ -280,9 +280,10 @@ unaryPlusMinuxExpression
    ;
 
 primary
-   : parExpression
-   | variableName ('.' variableName)* (arguments)?
-   | literal
+   : parExpression                                                                                                                  #parExpressionStatement
+   | variableName ('.' variableName)*                                                                                               #variableCall
+   | variableName ('.' variableName)* (arguments)                                                                                   #subprogramCall
+   | literal                                                                                                                        #literalStatement
    ;
 
 parExpression

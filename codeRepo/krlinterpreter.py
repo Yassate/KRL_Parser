@@ -138,10 +138,15 @@ class KrlInterpreter(krlVisitor):
         print(calc_axes)
         return self.visitChildren(ctx)
 
-    def visitPrimary(self, ctx:krlParser.PrimaryContext):
+    def visitSubprogramCall(self, ctx:krlParser.SubprogramCallContext):
         if ctx.arguments() is not None:
-            print(ctx.arguments())
+            print(ctx.arguments().accept(self))
+            #print(ctx.arguments())
         return self.visitChildren(ctx)
+
+    def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
+        return self.visitChildren(ctx)
+
 
     #def visitVariableListRest(self, ctx: krlParser.VariableListRestContext):
         #names = []
