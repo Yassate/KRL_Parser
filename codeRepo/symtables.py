@@ -4,15 +4,23 @@ from symbols import *
 class ScopedSymbolTable:
     def __init__(self, scope_name, scope_level, enclosing_scope=None):
         self._symbols = {}
+        self._inputs = self._outputs = None
         self.scope_name = scope_name
         self.scope_level = scope_level
         self.enclosing_scope = enclosing_scope
         self._init_builtins()
+        if scope_level == 0:
+            self._init_inputs_outputs()
 
     def _init_builtins(self):
         builtin_types = ["INT", "REAL", "BOOL", "CHAR", "E6POS", "E6AXIS"]
         for type_ in builtin_types:
             self.insert(Symbol(type_))
+
+    def _init_inputs_outputs(self):
+        self.insert(ArraySymbol(name="$IN", type="BOOL", size=8196))
+        self.insert(ArraySymbol(name="$OUT", type="BOOL", size=8196))
+
 
     # TODO >> Rewrite __str__ method
     def __str__(self):
@@ -44,4 +52,24 @@ class ScopedSymbolTable:
 
     def lookup(self, name):
         print(f"Lookup: {name}")
-        return self._symbols.get(name)
+        if '[' in name and ']' in name:
+            prefix = name.split('[')[0]
+            index = name.split('[')[1][:-1]
+            found = self._symbols.get(prefix)
+            if isinstance(found, ArraySymbol):
+                if found.size > index:
+                    return found
+        else:
+            return self._symbols.get(name)
+
+    def get_input(self, input_no):
+        return self._inputs[input_no]
+
+    def set_input(self, input_no, value):
+        self._inputs[input_no] = bool(value)
+
+    def get_output(self, output_no):
+        return self._outputs[output_no]
+
+    def set_output(self, output_no, value):
+        self._outputs[output_no] = bool(value)

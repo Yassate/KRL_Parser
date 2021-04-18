@@ -50,7 +50,7 @@ class KrlInterpreter(krlVisitor):
 
     def visitModuleData(self, ctx: krlParser.ModuleDataContext):
         scope_name = ctx.moduleName().accept(self)
-        a_record = ActivationRecord(name=scope_name, type=ARType.MODULE, nesting_level=1)
+        a_record = ActivationRecord(name=scope_name, type=ARType.MODULE, nesting_level=1, enclosing_ar=self._callstack.peek())
         self._callstack.push(a_record)
         self.visitChildren(ctx)
 
@@ -76,7 +76,8 @@ class KrlInterpreter(krlVisitor):
             if ctx.variableInitialisation() is not None:
                 value = ctx.variableInitialisation().accept(self)
                 # TODO >> Value validation need to be added - checking type in symbol table?
-                ar[var_name] = self._var_factory.get_variable(value, var_type)
+                ar.initialize_var(var_name=var_name, value=self._var_factory.get_variable(value, var_type))
+
             if var_list_rest is not None:
                 for name in var_list_rest.accept(self):
                     pass
@@ -145,14 +146,31 @@ class KrlInterpreter(krlVisitor):
             #print(ctx.arguments())
         return self.visitChildren(ctx)
 
+
+    #TODO >> Multiple dimension arrays to be implemented
     def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
-        var = ctx.getChild(0).accept(self)
-        value = ctx.getChild(2).accept(self)
+        var_name, index = self.visitChild(ctx, 0)
+        var_name_ctx =ctx.getChild(0)
+
+        value = self.visitChild(ctx, 2)
         ar = self._callstack.peek()
 
-        print(f"{var} : {value}")
-        return self.visitChildren(ctx)
+        if index:
+            ar[var_name][index] = value
+            print(f"{var_name}[{index}] : {value}")
+        else:
+            ar[var_name] = value
+            print(f"{var_name} = {value}")
 
+    def visitVariableName(self, ctx:krlParser.VariableNameContext):
+        var_name = ctx.IDENTIFIER().getText()
+        index = ctx.arrayVariableSuffix()
+        if index:
+            index = index.accept(self)
+        return var_name, index
+
+    def visitArrayVariableSuffix(self, ctx:krlParser.ArrayVariableSuffixContext):
+        return self.visitChild(ctx, 1)
 
     #def visitVariableListRest(self, ctx: krlParser.VariableListRestContext):
         #names = []

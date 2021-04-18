@@ -20,6 +20,20 @@ class BuiltInSymbol(Symbol):
             name=self.name,
         )
 
+class ArraySymbol(Symbol):
+    def __init__(self, name, type_=None, size=0):
+        super().__init__(name=name, type_=type_)
+        self.size = size
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return "<{class_name}(name='{name}')(size='{size})'>".format(
+            class_name=self.__class__.__name__,
+            name=self.name,
+            size=self.size
+        )
 
 class ProcedureSymbol(Symbol):
     def __init__(self, name, params=None, ctx = None):

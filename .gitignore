@@ -20,4 +20,8 @@ codeRepo/__pycache__
 codeRepo/__pycache__/
 *codeRepo/__pycache__/
 .codeRepo/__pycache__/
+codeRepo/generated/__pycache__
+codeRepo/generated/__pycache__/
+*codeRepo/generated/__pycache__/
+.codeRepo/generated/__pycache__/
 .codeRepo/resources
