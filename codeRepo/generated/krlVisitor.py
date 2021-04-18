@@ -419,6 +419,11 @@ class krlVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by krlParser#structSubVariable.
+    def visitStructSubVariable(self, ctx:krlParser.StructSubVariableContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by krlParser#parExpressionStatement.
     def visitParExpressionStatement(self, ctx:krlParser.ParExpressionStatementContext):
         return self.visitChildren(ctx)
@@ -426,6 +431,11 @@ class krlVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by krlParser#variableCall.
     def visitVariableCall(self, ctx:krlParser.VariableCallContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#structSubVariableCall.
+    def visitStructSubVariableCall(self, ctx:krlParser.StructSubVariableCallContext):
         return self.visitChildren(ctx)
 
 

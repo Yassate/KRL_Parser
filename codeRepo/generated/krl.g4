@@ -189,7 +189,7 @@ statement
    | BRAKE (IDENTIFIER)? NEWLINE                                                                                                        #brakeStatement
    | (assignmentExpression|expression) NEWLINE                                                                                          #assignmentOrExpr
    | IDENTIFIER ':' NEWLINE                                                                                                             #gotoBlock
-   | NEWLINE                                                                                                                            #newl
+   | (NEWLINE)+                                                                                                                            #newl
    | GLOBAL? INTERRUPT DECL primary WHEN expression DO (assignmentExpression|expression) NEWLINE                                        #interruptDecl
    | INTERRUPT IDENTIFIER primary? NEWLINE                                                                                              #interrupt
    | PTP geometricExpression (C_PTP (C_DIS | C_ORI | C_VEL)?)? NEWLINE                                                                  #ptpMove

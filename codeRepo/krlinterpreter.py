@@ -70,7 +70,7 @@ class KrlInterpreter(krlVisitor):
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL() is not None:
             var_type = ctx.typeVar().accept(self)
-            var_name = ctx.variableName().accept(self)
+            var_name = ctx.variableName().accept(self)[0]
             var_list_rest = ctx.variableListRest()
             ar = self._callstack.peek()
             if ctx.variableInitialisation() is not None:
@@ -132,8 +132,8 @@ class KrlInterpreter(krlVisitor):
             return self.visitChildren(ctx)
 
     def visitPtpMove(self, ctx: krlParser.PtpMoveContext):
-        target_name = self.visitChild(ctx, 1)
-        target_e6pos = self._callstack.peek().get(target_name)
+        target_name = ctx.getChild(1).getText()
+        target_e6pos = self.visitChild(ctx, 1)
         print(f"Robot goes with PTP movement to: {target_name}")
         calc_axes = self.ik_solver.perform_ik(input_e6pos=target_e6pos, prev_e6_axis=E6Axis(axis_values=(0,0,0,0,0,0)))
         print(calc_axes)
@@ -150,7 +150,6 @@ class KrlInterpreter(krlVisitor):
     #TODO >> Multiple dimension arrays to be implemented
     def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
         var_name, index = self.visitChild(ctx, 0)
-        var_name_ctx =ctx.getChild(0)
 
         value = self.visitChild(ctx, 2)
         ar = self._callstack.peek()
@@ -161,6 +160,13 @@ class KrlInterpreter(krlVisitor):
         else:
             ar[var_name] = value
             print(f"{var_name} = {value}")
+
+    #TODO >> Implement struct variables
+    def visitVariableCall(self, ctx:krlParser.VariableCallContext):
+        var_name, index = ctx.variableName()[0].accept(self)
+        ar = self._callstack.peek()
+        value = ar[var_name][index] if index else ar[var_name]
+        return value
 
     def visitVariableName(self, ctx:krlParser.VariableNameContext):
         var_name = ctx.IDENTIFIER().getText()
