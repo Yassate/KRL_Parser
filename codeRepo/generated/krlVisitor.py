@@ -364,6 +364,11 @@ class krlVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by krlParser#leftHandSide.
+    def visitLeftHandSide(self, ctx:krlParser.LeftHandSideContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by krlParser#expression.
     def visitExpression(self, ctx:krlParser.ExpressionContext):
         return self.visitChildren(ctx)

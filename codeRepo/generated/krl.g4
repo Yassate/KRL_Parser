@@ -227,7 +227,12 @@ expressionList
    ;
 
 assignmentExpression
-   : expression ('=' expression)+
+   : leftHandSide ('=' expression)+
+   ;
+
+leftHandSide
+   : variableName
+   | structSubVariable
    ;
 
 expression
@@ -279,9 +284,14 @@ unaryPlusMinuxExpression
    | primary
    ;
 
+structSubVariable
+   : variableName ('.' variableName)+
+   ;
+
 primary
    : parExpression                                                                                                                  #parExpressionStatement
    | variableName ('.' variableName)*                                                                                               #variableCall
+   | structSubVariable                                                                                                              #structSubVariableCall
    | variableName ('.' variableName)* (arguments)                                                                                   #subprogramCall
    | literal                                                                                                                        #literalStatement
    ;
