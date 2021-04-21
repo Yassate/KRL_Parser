@@ -18,8 +18,8 @@ class ScopedSymbolTable:
             self.insert(Symbol(type_))
 
     def _init_inputs_outputs(self):
-        self.insert(ArraySymbol(name="$IN", type="BOOL", size=8196))
-        self.insert(ArraySymbol(name="$OUT", type="BOOL", size=8196))
+        self.insert(ArraySymbol(name="$IN", type_="BOOL", size=8196))
+        self.insert(ArraySymbol(name="$OUT", type_="BOOL", size=8196))
 
 
     # TODO >> Rewrite __str__ method

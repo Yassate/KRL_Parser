@@ -2,6 +2,7 @@
   <dictionary name="Bartek">
     <words>
       <w>baseframe</w>
+      <w>callstack</w>
       <w>compl</w>
       <w>eulers</w>
       <w>krlinterpreter</w>

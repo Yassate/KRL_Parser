@@ -1,6 +1,6 @@
 import sys
 from icecream import ic
-from antlr4 import *
+from antlr4 import FileStream, CommonTokenStream
 from krlLexer import krlLexer
 from krlParser import krlParser
 from semanalyzer import SemanticAnalyzer
@@ -69,8 +69,6 @@ def main():
     solver = CustomKukaIKSolver(dh_KR360_R2830)
     # req = solver.performFK([0, 0, 0, 0, 0, 0])
     # IK = solver.handle_calculate_IK2(req)
-
-    print("A")
 
 
 main()

@@ -6,8 +6,7 @@ from kuka_datatypes import E6Pos, E6Axis
 from iksolver import CustomKukaIKSolver, dh_KR360_R2830
 from icecream import ic
 
-
-class variableFactory():
+class VariableFactory():
     def __init__(self):
         pass
 
@@ -20,14 +19,13 @@ class variableFactory():
         else:
             return var_value
 
-
 class KrlInterpreter(krlVisitor):
     def __init__(self, module_symtable):
         super().__init__()
         self._callstack = Callstack()
         self._module_symtable = module_symtable
         self._current_symtable = module_symtable
-        self._var_factory = variableFactory()
+        self._var_factory = VariableFactory()
         self.ik_solver = CustomKukaIKSolver(dh_KR360_R2830)
 
     def visitChildren(self, node):
@@ -45,9 +43,6 @@ class KrlInterpreter(krlVisitor):
     def visitChild(self, ctx, index):
         return ctx.getChild(index).accept(self)
 
-    def visitModule(self, ctx: krlParser.ModuleContext):
-        return self.visitChildren(ctx)
-
     def visitModuleData(self, ctx: krlParser.ModuleDataContext):
         scope_name = ctx.moduleName().accept(self)
         a_record = ActivationRecord(name=scope_name, type=ARType.MODULE, nesting_level=1, enclosing_ar=self._callstack.peek())
@@ -56,7 +51,6 @@ class KrlInterpreter(krlVisitor):
 
     def visitModuleName(self, ctx: krlParser.ModuleNameContext):
         return ctx.IDENTIFIER().accept(self)
-
 
     #def visitVariableDeclaration(self, ctx: krlParser.VariableDeclarationContext):
         #if ctx.DECL() is not None:
@@ -146,7 +140,6 @@ class KrlInterpreter(krlVisitor):
             #print(ctx.arguments())
         return self.visitChildren(ctx)
 
-
     #TODO >> Multiple dimension arrays to be implemented
     def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
         var_name, index = self.visitChild(ctx, 0)
@@ -156,10 +149,10 @@ class KrlInterpreter(krlVisitor):
 
         if index:
             ar[var_name][index] = value
-            print(f"{var_name}[{index}] : {value}")
+            print(f"{var_name}[{index}] <-- {value}")
         else:
             ar[var_name] = value
-            print(f"{var_name} = {value}")
+            print(f"{var_name} <-- {value}")
 
     #TODO >> Implement struct variables
     def visitVariableCall(self, ctx:krlParser.VariableCallContext):
@@ -183,3 +176,9 @@ class KrlInterpreter(krlVisitor):
         #for name in ctx.variableName():
             #names.append(name.accept(self))
         #return names
+
+
+class VariableName:
+    def __init__(self, name):
+        self.name = name
+        self.indices = list()

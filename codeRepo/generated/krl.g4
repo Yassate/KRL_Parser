@@ -1,4 +1,3 @@
-
 grammar krl;
 
 /*
@@ -19,6 +18,7 @@ grammar krl;
 /*
 Antlr4 port by Tom Everett, 2016
 */
+
 module
    : (moduleData | moduleRoutines) EOF
    ;

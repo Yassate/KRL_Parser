@@ -41,7 +41,6 @@ class ActivationRecord:
     def initialize_var(self, var_name, value):
         self.members[var_name] = value
 
-
     def get(self, key):
         return self.members.get(key)
 
@@ -67,9 +66,9 @@ class Callstack:
     def __init__(self):
         self._records = []
         scope_name = "GLOBAL"
-        self.global_record = ActivationRecord(name=scope_name, type=ARType.GLOBAL, nesting_level=1, enclosing_ar=None)
+        global_record = ActivationRecord(name=scope_name, type=ARType.GLOBAL, nesting_level=1, enclosing_ar=None)
+        self.push(global_record)
         self._add_system_variables()
-        self.push(self.global_record)
 
     def push(self, ar):
         self._records.append(ar)
@@ -80,12 +79,10 @@ class Callstack:
     def peek(self):
         return self._records[-1]
 
-    def peek_global(self):
-        return self.global_record
-
     def _add_system_variables(self):
-        self.global_record.initialize_var("$IN", bytearray(8192+1))
-        self.global_record.initialize_var("$OUT", bytearray(8192+1))
+        global_record = self.peek()
+        global_record.initialize_var("$IN", bytearray(8192+1))
+        global_record.initialize_var("$OUT", bytearray(8192+1))
 
     def __str__(self):
         s = '\n'.join(repr(ar) for ar in reversed(self._records))
