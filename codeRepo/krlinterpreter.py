@@ -64,7 +64,7 @@ class KrlInterpreter(krlVisitor):
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL() is not None:
             var_type = ctx.typeVar().accept(self)
-            var_name = ctx.variableName().accept(self)[0]
+            var_name = ctx.variableName().accept(self).name
             var_list_rest = ctx.variableListRest()
             ar = self._callstack.peek()
             if ctx.variableInitialisation() is not None:
@@ -72,9 +72,9 @@ class KrlInterpreter(krlVisitor):
                 # TODO >> Value validation need to be added - checking type in symbol table?
                 ar.initialize_var(var_name=var_name, value=self._var_factory.get_variable(value, var_type))
 
-            if var_list_rest is not None:
-                for name in var_list_rest.accept(self):
-                    pass
+            #if var_list_rest is not None:
+                #for name in var_list_rest.accept(self):
+                    #pass
                     # TODO >> Implement multiple variable declaration (eg. DECL INT I,X,V = 0)
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
@@ -142,34 +142,40 @@ class KrlInterpreter(krlVisitor):
 
     #TODO >> Multiple dimension arrays to be implemented
     def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
-        var_name, index = self.visitChild(ctx, 0)
+        var_name = self.visitChild(ctx, 0)
+        indices = var_name.indices
 
         value = self.visitChild(ctx, 2)
         ar = self._callstack.peek()
 
-        if index:
-            ar[var_name][index] = value
-            print(f"{var_name}[{index}] <-- {value}")
+        if indices:
+            ar[var_name.name][indices[0]] = value
+            print(f"{var_name.name}[{indices[0]}] <-- {value}")
         else:
             ar[var_name] = value
-            print(f"{var_name} <-- {value}")
+            print(f"{var_name.name} <-- {value}")
 
     #TODO >> Implement struct variables
     def visitVariableCall(self, ctx:krlParser.VariableCallContext):
-        var_name, index = ctx.variableName()[0].accept(self)
+        var_name = ctx.variableName().accept(self)
+        indices = var_name.indices
         ar = self._callstack.peek()
-        value = ar[var_name][index] if index else ar[var_name]
+        value = ar[var_name.name][indices[0]] if indices else ar[var_name.name]
         return value
 
     def visitVariableName(self, ctx:krlParser.VariableNameContext):
         var_name = ctx.IDENTIFIER().getText()
-        index = ctx.arrayVariableSuffix()
-        if index:
-            index = index.accept(self)
-        return var_name, index
+        indices = ctx.arrayVariableSuffix()
+        indices = indices.accept(self) if indices else None
+
+        return VariableName(name=var_name, indices=indices)
 
     def visitArrayVariableSuffix(self, ctx:krlParser.ArrayVariableSuffixContext):
-        return self.visitChild(ctx, 1)
+        indices = []
+        is_int = lambda val: isinstance(val, int)
+        for i in range(len(ctx.children)):
+            indices.append(self.visitChild(ctx, i))
+        return list(filter(is_int, indices))
 
     #def visitVariableListRest(self, ctx: krlParser.VariableListRestContext):
         #names = []
@@ -179,6 +185,13 @@ class KrlInterpreter(krlVisitor):
 
 
 class VariableName:
-    def __init__(self, name):
+    def __init__(self, name, indices=None):
         self.name = name
-        self.indices = list()
+        self.indices = indices
+
+
+    def is_indexed(self):
+        return self.indices is not None
+
+    def get_index_count(self):
+        return len(self.indices)

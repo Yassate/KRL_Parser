@@ -17,18 +17,35 @@ class TestInterpreter(unittest.TestCase):
         stream = CommonTokenStream(lexer)
         return krlParser(stream)
 
-    @unittest.skip("visitVariableName not ready yet")
     def test_visitVariableName(self):
         test_string = "$IN[125]"
         parser = self.parse(test_string)
         a = parser.variableName().accept(self.interpreter)
 
-        #self.assertIsInstance(a, VariableName)
+        self.assertIsInstance(a, VariableName)
 
-    @unittest.skip("visitVariableName not ready yet")
-    def test_visitArrayVariableSuffix(self):
+    def test_visitArrayVariableSuffix_1(self):
         test_string = "[125]"
         parser = self.parse(test_string)
-        a = parser.arrayVariableSuffix().accept(self.interpreter)
-        pass
+        var_suf = parser.arrayVariableSuffix()
+        result = var_suf.accept(self.interpreter)
+        self.assertIsInstance(result, list)
+        self.assertEqual(result, [125])
+
+    def test_visitArrayVariableSuffix_2(self):
+        test_string = "[125, ]"
+        parser = self.parse(test_string)
+        var_suf = parser.arrayVariableSuffix()
+        result = var_suf.accept(self.interpreter)
+        self.assertIsInstance(result, list)
+        self.assertEqual(result, [125])
+
+    def test_visitArrayVariableSuffix_3(self):
+        test_string = "[125, 225, 325]"
+        parser = self.parse(test_string)
+        var_suf = parser.arrayVariableSuffix()
+        result = var_suf.accept(self.interpreter)
+        self.assertIsInstance(result, list)
+        self.assertEqual(result, [125, 225, 325])
+
 

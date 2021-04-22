@@ -290,7 +290,7 @@ structSubVariable
 
 primary
    : parExpression                                                                                                                  #parExpressionStatement
-   | variableName ('.' variableName)*                                                                                               #variableCall
+   | variableName                                                                                                                   #variableCall
    | structSubVariable                                                                                                              #structSubVariableCall
    | variableName ('.' variableName)* (arguments)                                                                                   #subprogramCall
    | literal                                                                                                                        #literalStatement
