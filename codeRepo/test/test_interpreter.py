@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import Mock
 from antlr4 import CommonTokenStream, InputStream
 from krlLexer import krlLexer
 from krlParser import krlParser
@@ -18,17 +19,33 @@ class TestInterpreter(unittest.TestCase):
         stream = CommonTokenStream(lexer)
         return krlParser(stream)
 
-    @unittest.skip("multiple index feature need to be done, callstack need to be mocked")
-    def test_visitVariableCall(self):
-        test_string = "pos3D[10, 20, 30]"
+    def test_visitVariableCall_3D_array(self):
+        peek_return_value = {'pos3D': [
+                                      [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                                      [[20, 21, 22], [23, 24, 25], [26, 27, 28]],
+                                      [[30, 31, 32], [33, 34, 35], [36, 37, 38]],
+                                      ]}
+        mock_callstack = Mock()
+        mock_callstack.peek.return_value = peek_return_value
+
+        self.interpreter = KrlInterpreter(symtable=None, callstack=mock_callstack, var_factory=None, ik_solver=None)
+        test_string = "pos3D[2, 0, 1]"
         parser = self.parse(test_string)
         result = parser.primary().accept(self.interpreter)
 
-        var_name = VariableName(name="pos3D", indices=[10, 20, 30])
-        #indices = var_name.indices
-        #ar = self._callstack.peek()
-        #value = ar[var_name.name][indices[0]] if indices else ar[var_name.name]
-        #return value
+        self.assertEqual(result, 31)
+
+    def test_visitVariableCall_3D_array(self):
+        peek_return_value = {'position': 55}
+        mock_callstack = Mock()
+        mock_callstack.peek.return_value = peek_return_value
+
+        self.interpreter = KrlInterpreter(symtable=None, callstack=mock_callstack, var_factory=None, ik_solver=None)
+        test_string = "position"
+        parser = self.parse(test_string)
+        result = parser.primary().accept(self.interpreter)
+
+        self.assertEqual(result, 55)
 
     def test_visitVariableName_indexed(self):
         test_string = "$IN[125,]"

@@ -20,11 +20,11 @@ class VariableFactory():
             return var_value
 
 class KrlInterpreter(krlVisitor):
-    def __init__(self, module_symtable, callstack, var_factory, ik_solver):
+    def __init__(self, symtable, callstack, var_factory, ik_solver):
         super().__init__()
         self._callstack = callstack
-        self._module_symtable = module_symtable
-        self._current_symtable = module_symtable
+        self._module_symtable = symtable
+        self._current_symtable = symtable
         self._var_factory = var_factory
         self.ik_solver = ik_solver
 
@@ -157,11 +157,19 @@ class KrlInterpreter(krlVisitor):
 
     #TODO >> Implement struct variables
     def visitVariableCall(self, ctx:krlParser.VariableCallContext):
+
+        get_value = [
+            lambda indices1: ar[var_name.name],
+            lambda indices1: ar[var_name.name][indices1[0]],
+            lambda indices1: ar[var_name.name][indices1[0]][indices1[1]],
+            lambda indices1: ar[var_name.name][indices1[0]][indices1[1]][indices1[2]]]
+
+        ar = self._callstack.peek()
         var_name = ctx.variableName().accept(self)
         indices = var_name.indices
-        ar = self._callstack.peek()
-        value = ar[var_name.name][indices[0]] if indices else ar[var_name.name]
-        return value
+        indices_count = len(indices) if indices else 0
+
+        return get_value[indices_count](indices)
 
     def visitVariableName(self, ctx:krlParser.VariableNameContext):
         var_name = ctx.IDENTIFIER().getText()
