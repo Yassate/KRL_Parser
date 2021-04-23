@@ -155,21 +155,17 @@ class KrlInterpreter(krlVisitor):
             ar[var_name] = value
             print(f"{var_name.name} <-- {value}")
 
-    #TODO >> Implement struct variables
     def visitVariableCall(self, ctx:krlParser.VariableCallContext):
-
-        get_value = [
+        value = [
             lambda indices1: ar[var_name.name],
             lambda indices1: ar[var_name.name][indices1[0]],
             lambda indices1: ar[var_name.name][indices1[0]][indices1[1]],
             lambda indices1: ar[var_name.name][indices1[0]][indices1[1]][indices1[2]]]
-
         ar = self._callstack.peek()
         var_name = ctx.variableName().accept(self)
-        indices = var_name.indices
-        indices_count = len(indices) if indices else 0
+        indices_count = len(var_name.indices) if var_name.is_indexed() else 0
 
-        return get_value[indices_count](indices)
+        return value[indices_count](var_name.indices)
 
     def visitVariableName(self, ctx:krlParser.VariableNameContext):
         var_name = ctx.IDENTIFIER().getText()
@@ -199,5 +195,3 @@ class VariableName:
     def is_indexed(self):
         return self.indices is not None
 
-    def get_index_count(self):
-        return len(self.indices)
