@@ -4,9 +4,10 @@ from antlr4 import FileStream, CommonTokenStream
 from krlLexer import krlLexer
 from krlParser import krlParser
 from semanalyzer import SemanticAnalyzer
-from krlinterpreter import KrlInterpreter
+from krlinterpreter import KrlInterpreter, VariableFactory
 from iksolver import CustomKukaIKSolver, dh_KR360_R2830
 from mpmath import radians as dtor
+from callstack import Callstack
 import os
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -53,7 +54,7 @@ class ModuleProcessor:
         self._module_name = self._semanalyzer.get_module_name()
 
     def process_module(self):
-        self._krlinterpreter = KrlInterpreter(self._symtable)
+        self._krlinterpreter = KrlInterpreter(self._symtable, Callstack(), VariableFactory(), CustomKukaIKSolver(dh_KR360_R2830))
         self._krlinterpreter.visit(self._dat_tree)
         self._krlinterpreter.visit(self._src_tree)
 

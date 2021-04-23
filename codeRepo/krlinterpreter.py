@@ -20,13 +20,13 @@ class VariableFactory():
             return var_value
 
 class KrlInterpreter(krlVisitor):
-    def __init__(self, module_symtable):
+    def __init__(self, module_symtable, callstack, var_factory, ik_solver):
         super().__init__()
-        self._callstack = Callstack()
+        self._callstack = callstack
         self._module_symtable = module_symtable
         self._current_symtable = module_symtable
-        self._var_factory = VariableFactory()
-        self.ik_solver = CustomKukaIKSolver(dh_KR360_R2830)
+        self._var_factory = var_factory
+        self.ik_solver = ik_solver
 
     def visitChildren(self, node):
         result = self.defaultResult()
@@ -167,7 +167,6 @@ class KrlInterpreter(krlVisitor):
         var_name = ctx.IDENTIFIER().getText()
         indices = ctx.arrayVariableSuffix()
         indices = indices.accept(self) if indices else None
-
         return VariableName(name=var_name, indices=indices)
 
     def visitArrayVariableSuffix(self, ctx:krlParser.ArrayVariableSuffixContext):
@@ -188,7 +187,6 @@ class VariableName:
     def __init__(self, name, indices=None):
         self.name = name
         self.indices = indices
-
 
     def is_indexed(self):
         return self.indices is not None
