@@ -193,7 +193,7 @@ statement
    | GLOBAL? INTERRUPT DECL primary WHEN expression DO (assignmentExpression|expression) NEWLINE                                        #interruptDecl
    | INTERRUPT IDENTIFIER primary? NEWLINE                                                                                              #interrupt
    | PTP geometricExpression (C_PTP | C_DIS | C_ORI | C_VEL)* NEWLINE                                                                   #ptpMove
-   | PTP_REL geometricExpression (C_PTP | C_DIS | C_ORI | C_VEL)? NEWLINE                                                              #ptpRelMove
+   | PTP_REL geometricExpression (C_PTP | C_DIS | C_ORI | C_VEL)? NEWLINE                                                               #ptpRelMove
    | LIN geometricExpression (C_DIS | C_ORI | C_VEL)? NEWLINE                                                                           #linMove
    | LIN_REL geometricExpression (C_DIS | C_ORI | C_VEL)? enumElement? NEWLINE                                                          #linRelMove
    | (CIRC | CIRC_REL) geometricExpression ',' geometricExpression (',' IDENTIFIER primary)? (C_DIS | C_ORI | C_VEL)? NEWLINE           #circMove

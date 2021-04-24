@@ -10,9 +10,9 @@ class ARType(enum.Enum):
 
 
 class ActivationRecord:
-    def __init__(self, name, type, nesting_level, enclosing_ar):
+    def __init__(self, name=None, type=None, nesting_level=0, enclosing_ar=None):
         self.name = name
-        self.type = type
+        self.type_ = type
         self.nesting_level = nesting_level
         self.members = {}
         self._access_link = enclosing_ar
@@ -20,7 +20,7 @@ class ActivationRecord:
     def __setitem__(self, key, value):
         if key in self.members:
             self.members[key] = value
-        elif self.type != ARType.GLOBAL:
+        elif self.type_ != ARType.GLOBAL:
             self.set_global_var(key, value)
 
     def __getitem__(self, key):
@@ -30,11 +30,11 @@ class ActivationRecord:
             return self.get_global_var(key)
 
     def get_global_var(self, key):
-        return self.members[key] if self.type == ARType.GLOBAL else self._access_link.get_global_var(key)
+        return self.members[key] if self.type_ == ARType.GLOBAL else self._access_link.get_global_var(key)
 
     #TODO >> Add existance check
     def set_global_var(self, key, value):
-        if self.type == ARType.GLOBAL:
+        if self.type_ == ARType.GLOBAL:
             self.members[key] = value
         else:
             self._access_link.set_global_var(key, value)
@@ -49,7 +49,7 @@ class ActivationRecord:
         lines = [
             '{level}: {type} {name}'.format(
                 level=self.nesting_level,
-                type=self.type.value,
+                type=self.type_.value,
                 name=self.name,
             )
         ]

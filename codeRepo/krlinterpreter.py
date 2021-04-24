@@ -1,23 +1,34 @@
 from krlVisitor import krlVisitor
 from krlLexer import krlLexer
 from krlParser import krlParser
-from callstack import Callstack, ActivationRecord, ARType
+from callstack import ActivationRecord, ARType
 from kuka_datatypes import E6Pos, E6Axis
-from iksolver import CustomKukaIKSolver, dh_KR360_R2830
-from icecream import ic
+import coloredlogs, logging
+
+logger = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=logger)
 
 class VariableFactory():
     def __init__(self):
-        pass
+        self.structures_definitions = {
+            ('X', 'Y', 'Z', 'A', 'B', 'C', 'S', 'T', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6'): "E6POS",
+            ('A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6'): "E6AXIS"}
 
     @staticmethod
     def get_variable(var_value, var_type):
-        if var_type.upper() == "INT":
-            return int(var_value)
-        elif var_type.upper() == "E6POS":
+        if var_type.upper() == "E6POS":
             return E6Pos.from_krl_struct(var_value)
         else:
             return var_value
+
+    def get_var_type_by_struct_members(self, struct_members: tuple):
+        if struct_members in self.structures_definitions.keys():
+            return self.structures_definitions[struct_members]
+
+    def get_struct_var_by_discover(self, krl_struct: dict):
+        keys = tuple(krl_struct.keys())
+        var_type = self.get_var_type_by_struct_members(keys)
+        return self.get_variable(krl_struct, var_type)
 
 
 class KrlInterpreter(krlVisitor):
@@ -109,6 +120,9 @@ class KrlInterpreter(krlVisitor):
         else:
             return self._parse_literal(ctx)
 
+    # TODO >> this method should find out what type of structure is that and return concrete object (eg. E6POS/AXIS)
+    #def visitStructLiteral(self, ctx:krlParser.StructLiteralContext):
+        #return self.visitChildren(ctx)
 
     def visitStructElementList(self, ctx: krlParser.StructElementListContext):
         struct_elements = {}
@@ -132,18 +146,14 @@ class KrlInterpreter(krlVisitor):
             return self.visitChildren(ctx)
 
     def visitPtpMove(self, ctx: krlParser.PtpMoveContext):
-        target_name = ctx.getChild(1).getText()
-        target_e6pos = self.visitChild(ctx, 1)
-        print(f"Robot goes with PTP movement to: {target_name}")
-        calc_axes = self.ik_solver.perform_ik(input_e6pos=target_e6pos, prev_e6_axis=E6Axis(axis_values=(0,0,0,0,0,0)))
+        # TODO >> C_DIS/C_PTP should be checked (usualy third child in ctx)
+        target_e6pos = ctx.geometricExpression().accept(self)
+        logger.debug(f"Robot goes with PTP movement to: {target_e6pos}")
+        calc_axes = self.ik_solver.perform_ik(target_e6pos, prev_e6_axis=E6Axis(axis_values=(0, 0, 0, 0, 0, 0)))
         ar = self._callstack.peek()
         ar["$POS_ACT"] = target_e6pos
         ar["$AXIS_ACT"] = calc_axes
-
-        print(calc_axes)
-        #C_DIS/C_PTP should be checked (usualy third child in ctx)
-
-
+        logger.debug(calc_axes)
 
     def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
         var_name = ctx.leftHandSide().accept(self)

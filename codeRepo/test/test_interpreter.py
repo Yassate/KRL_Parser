@@ -4,7 +4,11 @@ from antlr4 import CommonTokenStream, InputStream
 from krlLexer import krlLexer
 from krlParser import krlParser
 from krlinterpreter import KrlInterpreter, VariableName
+from kuka_datatypes import E6Axis, E6Pos
+from callstack import ActivationRecord, ARType
+import logging
 
+logging.disable(logging.CRITICAL)
 
 class TestInterpreter(unittest.TestCase):
     @staticmethod
@@ -13,6 +17,15 @@ class TestInterpreter(unittest.TestCase):
         lexer = krlLexer(text)
         stream = CommonTokenStream(lexer)
         return krlParser(stream)
+
+    @staticmethod
+    def interpret_ptp_movement(test_string, peek_return_value, perform_ik_return_value):
+        parser = TestInterpreter.parser_from_string(test_string)
+        mock_callstack = Mock(**{'peek.return_value': peek_return_value})
+        mock_ik_solver = Mock(**{'perform_ik.return_value': perform_ik_return_value})
+        interpreter = KrlInterpreter(callstack=mock_callstack, ik_solver=mock_ik_solver)
+        context = parser.statement()
+        context.accept(interpreter)
 
     @staticmethod
     def interpret_assignment_expr(test_string, peek_return_value):
@@ -44,6 +57,27 @@ class TestInterpreter(unittest.TestCase):
         context = parser.arrayVariableSuffix()
         return context.accept(interpreter)
 
+
+class TestPtpMoveInterpreter(unittest.TestCase):
+    @unittest.skip("First visitStructLiteral should be refactored, should return dict or concrete class e.g E6POS/AXiS")
+    def test_visitPtpMove_basic(self):
+        ptpmove_test_string = "PTP {X 1468.736,Y 0.0,Z 3235.954,A 0.0,B 45.0,C 0.0,S 18,T 2,E1 0,E2 0,E3 0,E4 0,E5 0," \
+                              "E6 0} C_DIS "
+        pos_act_test_string = "$POS_ACT"
+        axis_act_test_string = "$AXIS_ACT"
+        peek_return_value = {"$AXIS_ACT": None, "$POS_ACT": None}
+        perform_ik_return_value = E6Axis((0, 0, 0, 0, 0, 0))
+        TestInterpreter.interpret_ptp_movement(ptpmove_test_string, peek_return_value, perform_ik_return_value)
+        pos_act = TestInterpreter.get_variable_call_result(pos_act_test_string, peek_return_value)
+        axis_act = TestInterpreter.get_variable_call_result(axis_act_test_string, peek_return_value)
+        self.assertIsInstance(pos_act, E6Pos)
+        self.assertIsInstance(axis_act, E6Axis)
+
+class TestVariableDeclarationInDataListInterpreter(unittest.TestCase):
+    def test_visitVariableDeclarationInDataList_E6POS(self):
+        test_string = "DECL E6POS XHP005={X 1468.736,Y 0.0,Z 3235.954,A 0.0,B 45.0,C 0.0,S 18,T 2,E1 0.0,E2 0.0," \
+                      "E3 0.0,E4 0.0,E5 0.0,E6 0.0} "
+        peek_return_value = ActivationRecord()
 
 class TestAssignmentExprInterpreter(unittest.TestCase):
     def test_visitAssignmentExpression_unindexed(self):

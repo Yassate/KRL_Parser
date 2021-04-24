@@ -9,7 +9,7 @@ class E6Axis:
         self.A1, self.A2, self.A3, self.A4, self.A5, self.A6 = axis_values
 
     def __repr__(self):
-        return f"<E6Axis: A1={self.A1}, A2={self.A2}, A3={self.A3}, A4={self.A4}, A5={self.A5}, A6={self.A6}"
+        return f"E6Axis: A1={self.A1}, A2={self.A2}, A3={self.A3}, A4={self.A4}, A5={self.A5}, A6={self.A6}"
 
     def get_in_radians(self):
         axes_radians = [dtor(axis) for axis in self.axis_values]
@@ -22,6 +22,9 @@ class E6Pos:
         self.A, self.B, self.C = None, None, None
         self.S, self.T = None, None
         self.quat = None
+
+    def __repr__(self):
+        return f"E6Pos: X={self.X}, Y={self.Y}, Z={self.Z}, A={self.A}, B={self.B}, C={self.C}, S={self.S}, T={self.T}"
 
     # TODO >> SETTERS FOR ABC TO UPDATE QUAT AND VICE-VERSA
 
@@ -102,6 +105,9 @@ class Status:
     def __init__(self, val):
         self.val = val
 
+    def __repr__(self):
+        return f"Status: S={self.val}"
+
     @staticmethod
     def lsb(val):
         return val & 1
@@ -126,6 +132,9 @@ class Status:
 class Turn:
     def __init__(self, val):
         self.val = val
+
+    def __repr__(self):
+        return f"Turn: T={self.val}"
 
     @staticmethod
     def lsb(val):

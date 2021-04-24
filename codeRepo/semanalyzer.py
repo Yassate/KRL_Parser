@@ -58,7 +58,6 @@ class SemanticAnalyzer(krlVisitor):
     def visitModuleData(self, ctx: krlParser.ModuleDataContext):
         return self.visitChildren(ctx)
 
-    # TODO >> How to test it?
     def visitModuleName(self, ctx: krlParser.ModuleNameContext):
         scope_name = ctx.IDENTIFIER().accept(self)
         if self._module_symtable is None:
