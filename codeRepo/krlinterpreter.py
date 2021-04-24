@@ -19,8 +19,9 @@ class VariableFactory():
         else:
             return var_value
 
+
 class KrlInterpreter(krlVisitor):
-    def __init__(self, symtable, callstack, var_factory, ik_solver):
+    def __init__(self, symtable=None, callstack=None, var_factory=None, ik_solver=None):
         super().__init__()
         self._callstack = callstack
         self._module_symtable = symtable
@@ -152,15 +153,15 @@ class KrlInterpreter(krlVisitor):
             ar[var_name.name][indices[0]] = value
             print(f"{var_name.name}[{indices[0]}] <-- {value}")
         else:
-            ar[var_name] = value
+            ar[var_name.name] = value
             print(f"{var_name.name} <-- {value}")
 
     def visitVariableCall(self, ctx:krlParser.VariableCallContext):
         value = [
-            lambda indices1: ar[var_name.name],
-            lambda indices1: ar[var_name.name][indices1[0]],
-            lambda indices1: ar[var_name.name][indices1[0]][indices1[1]],
-            lambda indices1: ar[var_name.name][indices1[0]][indices1[1]][indices1[2]]]
+            lambda indices: ar[var_name.name],
+            lambda indices: ar[var_name.name][indices[0]],
+            lambda indices: ar[var_name.name][indices[0]][indices[1]],
+            lambda indices: ar[var_name.name][indices[0]][indices[1]][indices[2]]]
         ar = self._callstack.peek()
         var_name = ctx.variableName().accept(self)
         indices_count = len(var_name.indices) if var_name.is_indexed() else 0
