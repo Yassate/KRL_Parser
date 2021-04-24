@@ -16,7 +16,8 @@ class VariableFactory():
 
     @staticmethod
     def get_variable(var_value, var_type):
-        if var_type.upper() == "E6POS":
+        var_type_capital = var_type.upper() if var_type else None
+        if var_type_capital == "E6POS":
             return E6Pos.from_krl_struct(var_value)
         else:
             return var_value
@@ -25,7 +26,7 @@ class VariableFactory():
         if struct_members in self.structures_definitions.keys():
             return self.structures_definitions[struct_members]
 
-    def get_struct_var_by_discover(self, krl_struct: dict):
+    def get_var_by_discover(self, krl_struct: dict):
         keys = tuple(krl_struct.keys())
         var_type = self.get_var_type_by_struct_members(keys)
         return self.get_variable(krl_struct, var_type)
@@ -79,15 +80,16 @@ class KrlInterpreter(krlVisitor):
     def visitSubprogramCall(self, ctx: krlParser.SubprogramCallContext):
         return self.visitChildren(ctx)
 
+    # TODO >> this method should find out what type of structure is that and return concrete object (eg. E6POS/AXIS)
     def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
-        return ctx.structElementList().accept(self)
+        krl_struct: dict = ctx.structElementList().accept(self)
+        return self._var_factory.get_var_by_discover(krl_struct)
 
     def visitModuleData(self, ctx: krlParser.ModuleDataContext):
         scope_name = ctx.moduleName().accept(self)
-        a_record = ActivationRecord(name=scope_name, type=ARType.MODULE, nesting_level=1, enclosing_ar=self._callstack.peek())
+        a_record = ActivationRecord(name=scope_name, type_=ARType.MODULE, nesting_level=1, enclosing_ar=self._callstack.peek())
         self._callstack.push(a_record)
         self.visitChildren(ctx)
-
 
 
     #def visitVariableDeclaration(self, ctx: krlParser.VariableDeclarationContext):
@@ -107,8 +109,7 @@ class KrlInterpreter(krlVisitor):
             ar = self._callstack.peek()
             if ctx.variableInitialisation() is not None:
                 value = ctx.variableInitialisation().accept(self)
-                # TODO >> Value validation need to be added - checking type in symbol table?
-                ar.initialize_var(var_name=var_name, value=self._var_factory.get_variable(value, var_type))
+                ar.initialize_var(var_name, value)
 
             #if var_list_rest is not None:
                 #for name in var_list_rest.accept(self):
@@ -119,10 +120,6 @@ class KrlInterpreter(krlVisitor):
             return self.visitChildren(ctx)
         else:
             return self._parse_literal(ctx)
-
-    # TODO >> this method should find out what type of structure is that and return concrete object (eg. E6POS/AXIS)
-    #def visitStructLiteral(self, ctx:krlParser.StructLiteralContext):
-        #return self.visitChildren(ctx)
 
     def visitStructElementList(self, ctx: krlParser.StructElementListContext):
         struct_elements = {}
@@ -140,13 +137,14 @@ class KrlInterpreter(krlVisitor):
         return node.getText()
 
     def visitUnaryPlusMinuxExpression(self, ctx:krlParser.UnaryPlusMinuxExpressionContext):
-        if len(ctx.children) > 1:
-            return int(ctx.getChild(0).getText() + '1') * ctx.getChild(1).accept(self)
+        if ctx.primary() is None and len(ctx.children) > 1:
+            return int(ctx.getChild(0).accept(self) + '1') * ctx.getChild(1).accept(self)
         else:
             return self.visitChildren(ctx)
 
+    #METHODS UNDER ARE COVERED WITH UNITTESTS
     def visitPtpMove(self, ctx: krlParser.PtpMoveContext):
-        # TODO >> C_DIS/C_PTP should be checked (usualy third child in ctx)
+        # TODO >> C_DIS/C_PTP should be checked (usually third child in ctx)
         target_e6pos = ctx.geometricExpression().accept(self)
         logger.debug(f"Robot goes with PTP movement to: {target_e6pos}")
         calc_axes = self.ik_solver.perform_ik(target_e6pos, prev_e6_axis=E6Axis(axis_values=(0, 0, 0, 0, 0, 0)))

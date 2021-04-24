@@ -10,9 +10,9 @@ class ARType(enum.Enum):
 
 
 class ActivationRecord:
-    def __init__(self, name=None, type=None, nesting_level=0, enclosing_ar=None):
+    def __init__(self, name=None, type_=None, nesting_level=0, enclosing_ar=None):
         self.name = name
-        self.type_ = type
+        self.type_ = type_
         self.nesting_level = nesting_level
         self.members = {}
         self._access_link = enclosing_ar
@@ -67,7 +67,7 @@ class Callstack:
     def __init__(self):
         self._records = []
         scope_name = "GLOBAL"
-        global_record = ActivationRecord(name=scope_name, type=ARType.GLOBAL, nesting_level=1, enclosing_ar=None)
+        global_record = ActivationRecord(name=scope_name, type_=ARType.GLOBAL, nesting_level=1, enclosing_ar=None)
         self.push(global_record)
         self._add_system_variables()
 
