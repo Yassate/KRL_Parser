@@ -44,8 +44,8 @@ class TestInterpreter(unittest.TestCase):
         context = parser.arrayVariableSuffix()
         return context.accept(interpreter)
 
-class TestAssignmentExprInterpreter(unittest.TestCase):
 
+class TestAssignmentExprInterpreter(unittest.TestCase):
     def test_visitAssignmentExpression_unindexed(self):
         assignment_test_string = "position=33"
         var_test_string = "position"
@@ -62,7 +62,6 @@ class TestAssignmentExprInterpreter(unittest.TestCase):
         var_from_ar_after_change = TestInterpreter.get_variable_call_result(var_test_string, peek_return_value)
         self.assertEqual(var_from_ar_after_change, 44)
 
-    @unittest.skip
     def test_visitAssignmentExpression_3D_array(self):
         assignment_test_string = "pos3D[2, 0, 1]=44"
         var_test_string = "pos3D[2, 0, 1]"
@@ -78,7 +77,6 @@ class TestAssignmentExprInterpreter(unittest.TestCase):
 
 
 class TestVariableCallInterpreter(unittest.TestCase):
-
     def test_visitVariableCall_unindexed(self):
         test_string = "position"
         peek_return_value = {'position': 55}
@@ -103,7 +101,6 @@ class TestVariableCallInterpreter(unittest.TestCase):
 
 
 class TestVariableNameInterpreter(unittest.TestCase):
-
     def test_visitVariableName_unindexed(self):
         test_string = "PDAT_ACT"
         result = TestInterpreter.get_variable_name_result(test_string)
@@ -122,7 +119,6 @@ class TestVariableNameInterpreter(unittest.TestCase):
 
 
 class TestArrayVariableSuffixInterpreter(unittest.TestCase):
-
     def test_visitArrayVariableSuffix_single_index(self):
         test_string = "[125]"
         result = TestInterpreter.get_array_var_suffix_result(test_string)

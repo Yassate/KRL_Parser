@@ -44,6 +44,21 @@ class KrlInterpreter(krlVisitor):
     def visitChild(self, ctx, index):
         return ctx.getChild(index).accept(self)
 
+    def _parse_literal(self, ctx):
+        literal_type = ctx.getChild(0).symbol.type
+        value = ctx.getText()
+        if literal_type == krlLexer.FLOATLITERAL:
+            return float(value)
+        elif literal_type == krlLexer.INTLITERAL:
+            return int(value)
+        elif literal_type == krlLexer.TRUE or literal_type == krlLexer.FALSE:
+            if value.lower() == "true":
+                return True
+            elif value.lower() == "false":
+                return False
+        elif literal_type == krlLexer.CHARLITERAL or literal_type == krlLexer.STRINGLITERAL:
+            return value
+
     def visitModuleData(self, ctx: krlParser.ModuleDataContext):
         scope_name = ctx.moduleName().accept(self)
         a_record = ActivationRecord(name=scope_name, type=ARType.MODULE, nesting_level=1, enclosing_ar=self._callstack.peek())
@@ -76,7 +91,6 @@ class KrlInterpreter(krlVisitor):
             #if var_list_rest is not None:
                 #for name in var_list_rest.accept(self):
                     #pass
-                    # TODO >> Implement multiple variable declaration (eg. DECL INT I,X,V = 0)
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
         return ctx.getChild(1).accept(self)
@@ -102,21 +116,6 @@ class KrlInterpreter(krlVisitor):
         val = ctx.getChild(1).accept(self)
         return {key: val}
 
-    def _parse_literal(self, ctx):
-        literal_type = ctx.getChild(0).symbol.type
-        value = ctx.getText()
-        if literal_type == krlLexer.FLOATLITERAL:
-            return float(value)
-        elif literal_type == krlLexer.INTLITERAL:
-            return int(value)
-        elif literal_type == krlLexer.TRUE or literal_type == krlLexer.FALSE:
-            if value.lower() == "true":
-                return True
-            elif value.lower() == "false":
-                return False
-        elif literal_type == krlLexer.CHARLITERAL or literal_type == krlLexer.STRINGLITERAL:
-            return value
-
     def visitTerminal(self, node):
         return node.getText()
 
@@ -135,26 +134,22 @@ class KrlInterpreter(krlVisitor):
         return self.visitChildren(ctx)
 
     def visitSubprogramCall(self, ctx:krlParser.SubprogramCallContext):
-        if ctx.arguments() is not None:
-            pass
-            #print(ctx.arguments().accept(self))
-            #print(ctx.arguments())
         return self.visitChildren(ctx)
 
-    #TODO >> Multiple dimension arrays to be implemented
     def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
-        var_name = self.visitChild(ctx, 0)
+        var_name = ctx.leftHandSide().accept(self)
+        value = ctx.expression()[0].accept(self)
         indices = var_name.indices
-
-        value = self.visitChild(ctx, 2)
         ar = self._callstack.peek()
 
-        if indices:
-            ar[var_name.name][indices[0]] = value
-            print(f"{var_name.name}[{indices[0]}] <-- {value}")
+        nextList = ar[var_name.name]
+        if var_name.is_indexed():
+            indices_count = len(indices)
+            for i in range(0, indices_count - 1):
+                nextList = nextList[indices[i]]
+            nextList[indices[indices_count - 1]] = value
         else:
             ar[var_name.name] = value
-            print(f"{var_name.name} <-- {value}")
 
     def visitVariableCall(self, ctx:krlParser.VariableCallContext):
         value = [
