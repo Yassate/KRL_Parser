@@ -1,4 +1,5 @@
 import enum
+from kuka_datatypes import E6Pos, E6Axis
 
 
 class ARType(enum.Enum):
@@ -83,6 +84,8 @@ class Callstack:
         global_record = self.peek()
         global_record.initialize_var("$IN", bytearray(8192+1))
         global_record.initialize_var("$OUT", bytearray(8192+1))
+        global_record.initialize_var("$AXIS_ACT", E6Axis([0, -90, 90, 0, 0, 0]))
+        global_record.initialize_var("$POS_ACT", E6Pos.from_tuples(xyz=(0, 0, 0), abc=(0, 0, 0), S=0, T=0))
 
     def __str__(self):
         s = '\n'.join(repr(ar) for ar in reversed(self._records))

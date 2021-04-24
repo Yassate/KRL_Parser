@@ -59,14 +59,25 @@ class KrlInterpreter(krlVisitor):
         elif literal_type == krlLexer.CHARLITERAL or literal_type == krlLexer.STRINGLITERAL:
             return value
 
+    def visitModuleName(self, ctx: krlParser.ModuleNameContext):
+        return ctx.IDENTIFIER().accept(self)
+
+    def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
+        return ctx.getChild(1).accept(self)
+
+    def visitSubprogramCall(self, ctx: krlParser.SubprogramCallContext):
+        return self.visitChildren(ctx)
+
+    def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
+        return ctx.structElementList().accept(self)
+
     def visitModuleData(self, ctx: krlParser.ModuleDataContext):
         scope_name = ctx.moduleName().accept(self)
         a_record = ActivationRecord(name=scope_name, type=ARType.MODULE, nesting_level=1, enclosing_ar=self._callstack.peek())
         self._callstack.push(a_record)
         self.visitChildren(ctx)
 
-    def visitModuleName(self, ctx: krlParser.ModuleNameContext):
-        return ctx.IDENTIFIER().accept(self)
+
 
     #def visitVariableDeclaration(self, ctx: krlParser.VariableDeclarationContext):
         #if ctx.DECL() is not None:
@@ -92,17 +103,12 @@ class KrlInterpreter(krlVisitor):
                 #for name in var_list_rest.accept(self):
                     #pass
 
-    def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
-        return ctx.getChild(1).accept(self)
-
     def visitLiteral(self, ctx: krlParser.LiteralContext):
         if ctx.structLiteral() is not None or ctx.enumElement() is not None:
             return self.visitChildren(ctx)
         else:
             return self._parse_literal(ctx)
 
-    def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
-        return ctx.structElementList().accept(self)
 
     def visitStructElementList(self, ctx: krlParser.StructElementListContext):
         struct_elements = {}
@@ -130,11 +136,14 @@ class KrlInterpreter(krlVisitor):
         target_e6pos = self.visitChild(ctx, 1)
         print(f"Robot goes with PTP movement to: {target_name}")
         calc_axes = self.ik_solver.perform_ik(input_e6pos=target_e6pos, prev_e6_axis=E6Axis(axis_values=(0,0,0,0,0,0)))
-        print(calc_axes)
-        return self.visitChildren(ctx)
+        ar = self._callstack.peek()
+        ar["$POS_ACT"] = target_e6pos
+        ar["$AXIS_ACT"] = calc_axes
 
-    def visitSubprogramCall(self, ctx:krlParser.SubprogramCallContext):
-        return self.visitChildren(ctx)
+        print(calc_axes)
+        #C_DIS/C_PTP should be checked (usualy third child in ctx)
+
+
 
     def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
         var_name = ctx.leftHandSide().accept(self)
