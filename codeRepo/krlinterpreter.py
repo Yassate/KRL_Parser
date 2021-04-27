@@ -132,7 +132,7 @@ class KrlInterpreter(krlVisitor):
         return struct_elements
 
     def visitStructElement(self, ctx: krlParser.StructElementContext):
-        key = ctx.getChild(0).getText()
+        key = ctx.getChild(0).accept(self)#.getText()
         val = ctx.getChild(1).accept(self)
         return {key: val}
 
@@ -169,6 +169,8 @@ class KrlInterpreter(krlVisitor):
         else:
             ar[var_name.name] = value
 
+    # TODO >> WRONGLY SETTED RESPONSIBILITIES -> ACTIVATION RECORD SHOULD RESOLVE IF IT'S ARRAY VARIABLE TYPE OR NOT/
+    #we should ask only for name as string -> $IN[25] -> activation record resolves wherea and how it stores variable
     def visitVariableCall(self, ctx:krlParser.VariableCallContext):
         value = [
             lambda indices: ar[var_name.name],
