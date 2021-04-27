@@ -56,6 +56,9 @@ class KrlInterpreter(krlVisitor):
     def visitChild(self, ctx, index):
         return ctx.getChild(index).accept(self)
 
+    def visitTerminal(self, node):
+        return node.getText()
+
     def _parse_literal(self, ctx):
         literal_type = ctx.getChild(0).symbol.type
         value = ctx.getText()
@@ -133,16 +136,14 @@ class KrlInterpreter(krlVisitor):
         val = ctx.getChild(1).accept(self)
         return {key: val}
 
-    def visitTerminal(self, node):
-        return node.getText()
-
-    def visitUnaryPlusMinuxExpression(self, ctx:krlParser.UnaryPlusMinuxExpressionContext):
-        if ctx.primary() is None and len(ctx.children) > 1:
-            return int(ctx.getChild(0).accept(self) + '1') * ctx.getChild(1).accept(self)
-        else:
-            return self.visitChildren(ctx)
 
     #METHODS UNDER ARE COVERED WITH UNITTESTS
+    def visitUnaryPlusMinuxExpression(self, ctx:krlParser.UnaryPlusMinuxExpressionContext):
+        if ctx.primary():
+            return self.visitChildren(ctx)
+        else:
+            return int(ctx.getChild(0).accept(self) + '1') * ctx.getChild(1).accept(self)
+
     def visitPtpMove(self, ctx: krlParser.PtpMoveContext):
         # TODO >> C_DIS/C_PTP should be checked (usually third child in ctx)
         target_e6pos = ctx.geometricExpression().accept(self)

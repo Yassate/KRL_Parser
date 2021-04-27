@@ -65,6 +65,27 @@ class TestInterpreter(unittest.TestCase):
         context = parser.arrayVariableSuffix()
         return context.accept(interpreter)
 
+    @staticmethod
+    def get_unary_plus_minux_result(test_string):
+        parser = TestInterpreter.parser_from_string(test_string)
+        interpreter = KrlInterpreter()
+        context = parser.unaryPlusMinuxExpression()
+        return context.accept(interpreter)
+
+
+class TestUnaryPlusMinuxExpressionInterpreter(unittest.TestCase):
+    def test_visitUnaryPlusMinuxExpression_plus(self):
+        unaryplusminux_test_string = "+1"
+        result = TestInterpreter.get_unary_plus_minux_result(unaryplusminux_test_string)
+        self.assertIsInstance(result, int)
+        self.assertEqual(result, 1)
+
+    def test_visitUnaryPlusMinuxExpression_minus(self):
+        unaryplusminux_test_string = "-1"
+        result = TestInterpreter.get_unary_plus_minux_result(unaryplusminux_test_string)
+        self.assertIsInstance(result, int)
+        self.assertEqual(result, -1)
+
 
 class TestPtpMoveInterpreter(unittest.TestCase):
     def test_visitPtpMove_basic(self):
@@ -81,7 +102,7 @@ class TestPtpMoveInterpreter(unittest.TestCase):
         self.assertIsInstance(axis_act, E6Axis)
 
 
-# TODO >> MORE TESTS NEEDED
+# TODO >> MORE TESTS NEEDED, more variable types
 class TestVariableDeclarationInDataListInterpreter(unittest.TestCase):
     def test_visitVariableDeclarationInDataList_E6POS(self):
         var_decl_test_string = "DECL E6POS XHP005={X 1468.736,Y 0.0,Z 3235.954,A 0.0,B 45.0,C 0.0,S 18,T 2,E1 0.0," \
