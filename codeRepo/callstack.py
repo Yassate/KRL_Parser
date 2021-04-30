@@ -29,6 +29,22 @@ class ActivationRecord:
         else:
             return self.get_global_var(key)
 
+    def split_var_name(self, input_name: str):
+        splitted = input_name[:-1].split('[') if input_name.endswith(']') else ''
+        var_name, indices = splitted[0], splitted[1:]
+        return var_name, indices
+
+    def resolve_var_name(self, input_name):
+        var_name, indices = self.split_var_name(input_name)
+        call_option = len(indices)
+        value = [
+            lambda index: self.members[var_name],
+            lambda index: self.members[var_name][index[0]],
+            lambda index: self.members[var_name][index[0]][index[1]],
+            lambda index: self.members[var_name][index[0]][index[1]][index[2]]]
+        return value[call_option](indices)
+
+
     def get_global_var(self, key):
         return self.members[key] if self.type_ == ARType.GLOBAL else self._access_link.get_global_var(key)
 

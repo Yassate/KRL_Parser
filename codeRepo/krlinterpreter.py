@@ -186,21 +186,14 @@ class KrlInterpreter(krlVisitor):
     def visitVariableName(self, ctx:krlParser.VariableNameContext):
         var_name = ctx.IDENTIFIER().getText()
         indices = ctx.arrayVariableSuffix()
-        indices = indices.accept(self) if indices else None
-        return VariableName(name=var_name, indices=indices)
+        indices = indices.accept(self) if indices else ''
+        return var_name + indices
 
     def visitArrayVariableSuffix(self, ctx:krlParser.ArrayVariableSuffixContext):
         indices = []
-        is_int = lambda val: isinstance(val, int)
         for i in range(len(ctx.children)):
             indices.append(self.visitChild(ctx, i))
-        return list(filter(is_int, indices))
-
-    #def visitVariableListRest(self, ctx: krlParser.VariableListRestContext):
-        #names = []
-        #for name in ctx.variableName():
-            #names.append(name.accept(self))
-        #return names
+        return ''.join(map(str, indices))
 
 
 class VariableName:
