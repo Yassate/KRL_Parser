@@ -132,7 +132,7 @@ class KrlInterpreter(krlVisitor):
         return struct_elements
 
     def visitStructElement(self, ctx: krlParser.StructElementContext):
-        key = ctx.getChild(0).accept(self)#.getText()
+        key = ctx.getChild(0).getText()
         val = ctx.getChild(1).accept(self)
         return {key: val}
 
