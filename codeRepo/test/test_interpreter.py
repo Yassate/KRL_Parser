@@ -173,14 +173,18 @@ class TestVariableNameInterpreter(unittest.TestCase):
     def test_visitVariableName_unindexed(self):
         test_string = "PDAT_ACT"
         result = TestInterpreter.get_variable_name_result(test_string)
-        self.assertIsInstance(result, str)
-        self.assertEqual("PDAT_ACT", result)
+        expected = VariableName(name="PDAT_ACT", indices=None)
+        self.assertIsInstance(result, VariableName)
+        self.assertEqual(result.name, expected.name)
+        self.assertEqual(result.indices, expected.indices)
 
     def test_visitVariableName_indexed(self):
-        test_string = "$IN[125, ]"
+        test_string = "$IN[125,]"
         result = TestInterpreter.get_variable_name_result(test_string)
-        self.assertIsInstance(result, str)
-        self.assertEqual("$IN[125,]", result)
+        expected = VariableName(name='$IN', indices=[125])
+        self.assertIsInstance(result, VariableName)
+        self.assertEqual(result.name, expected.name)
+        self.assertEqual(result.indices, expected.indices)
 
 
 class TestArrayVariableSuffixInterpreter(unittest.TestCase):
@@ -188,16 +192,16 @@ class TestArrayVariableSuffixInterpreter(unittest.TestCase):
         test_string = "[125]"
         result = TestInterpreter.get_array_var_suffix_result(test_string)
         self.assertIsInstance(result, str)
-        self.assertEqual("[125]", result)
+        self.assertEqual(result, [125])
 
     def test_visitArrayVariableSuffix_multiple_index(self):
         test_string = "[125, 225, 325]"
         result = TestInterpreter.get_array_var_suffix_result(test_string)
         self.assertIsInstance(result, str)
-        self.assertEqual("[125,225,325]", result)
+        self.assertEqual(result, [125, 225, 325])
 
     def test_visitArrayVariableSuffix_char_array(self):
         test_string = "[125, ]"
         result = TestInterpreter.get_array_var_suffix_result(test_string)
         self.assertIsInstance(result, str)
-        self.assertEqual("[125,]", result)
+        self.assertEqual(result, [125])

@@ -23,26 +23,23 @@ class ActivationRecord:
         elif self.type_ != ARType.GLOBAL:
             self.set_global_var(key, value)
 
-    def __getitem__(self, key):
-        if key in self.members:
-            return self.members[key]
-        else:
-            return self.get_global_var(key)
+    def __getitem__(self, input_var_name):
+        var_name, indices = self._split_var_name(input_var_name)
+        current_value = self.members[var_name] if var_name in self.members else self.get_global_var(var_name)
+        if indices:
+            call_option = len(indices) - 1
+            value = [
+                lambda index: self.members[var_name][index[0]],
+                lambda index: self.members[var_name][index[0]][index[1]],
+                lambda index: self.members[var_name][index[0]][index[1]][index[2]]]
+            current_value = value[call_option](indices)
+        return current_value
 
-    def split_var_name(self, input_name: str):
-        splitted = input_name[:-1].split('[') if input_name.endswith(']') else ''
+    # noinspection PyMethodMayBeStatic
+    def _split_var_name(self, input_var_name: str):
+        splitted = input_var_name[:-1].split('[') if input_var_name.endswith(']') else ''
         var_name, indices = splitted[0], splitted[1:]
         return var_name, indices
-
-    def resolve_var_name(self, input_name):
-        var_name, indices = self.split_var_name(input_name)
-        call_option = len(indices)
-        value = [
-            lambda index: self.members[var_name],
-            lambda index: self.members[var_name][index[0]],
-            lambda index: self.members[var_name][index[0]][index[1]],
-            lambda index: self.members[var_name][index[0]][index[1]][index[2]]]
-        return value[call_option](indices)
 
 
     def get_global_var(self, key):
