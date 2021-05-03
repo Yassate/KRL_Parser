@@ -107,7 +107,7 @@ class KrlInterpreter(krlVisitor):
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL() is not None:
             var_type = ctx.typeVar().accept(self)
-            var_name = ctx.variableName().accept(self).name
+            var_name = ctx.variableName().accept(self)
             var_list_rest = ctx.variableListRest()
             ar = self._callstack.peek()
             if ctx.variableInitialisation() is not None:
@@ -132,7 +132,7 @@ class KrlInterpreter(krlVisitor):
         return struct_elements
 
     def visitStructElement(self, ctx: krlParser.StructElementContext):
-        key = ctx.getChild(0).accept(self)#.getText()
+        key = ctx.getChild(0).getText()
         val = ctx.getChild(1).accept(self)
         return {key: val}
 
@@ -157,50 +157,27 @@ class KrlInterpreter(krlVisitor):
     def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
         var_name = ctx.leftHandSide().accept(self)
         value = ctx.expression()[0].accept(self)
-        indices = var_name.indices
         ar = self._callstack.peek()
-
-        nextList = ar[var_name.name]
-        if var_name.is_indexed():
-            indices_count = len(indices)
-            for i in range(0, indices_count - 1):
-                nextList = nextList[indices[i]]
-            nextList[indices[indices_count - 1]] = value
-        else:
-            ar[var_name.name] = value
+        ar[var_name] = value
 
     # TODO >> WRONGLY SETTED RESPONSIBILITIES -> ACTIVATION RECORD SHOULD RESOLVE IF IT'S ARRAY VARIABLE TYPE OR NOT/
     #we should ask only for name as string -> $IN[25] -> activation record resolves wherea and how it stores variable
     def visitVariableCall(self, ctx:krlParser.VariableCallContext):
-        value = [
-            lambda indices: ar[var_name.name],
-            lambda indices: ar[var_name.name][indices[0]],
-            lambda indices: ar[var_name.name][indices[0]][indices[1]],
-            lambda indices: ar[var_name.name][indices[0]][indices[1]][indices[2]]]
         ar = self._callstack.peek()
         var_name = ctx.variableName().accept(self)
-        indices_count = len(var_name.indices) if var_name.is_indexed() else 0
-
-        return value[indices_count](var_name.indices)
+        return ar[var_name]
 
     def visitVariableName(self, ctx:krlParser.VariableNameContext):
         var_name = ctx.IDENTIFIER().getText()
-        indices = ctx.arrayVariableSuffix()
-        indices = indices.accept(self) if indices else None
-        return VariableName(name=var_name, indices=indices)
+        var_suffix = ctx.arrayVariableSuffix()
+        indices = var_suffix.accept(self) if var_suffix else ''
+        return var_name + indices
 
     def visitArrayVariableSuffix(self, ctx:krlParser.ArrayVariableSuffixContext):
         indices = []
-        is_int = lambda val: isinstance(val, int)
         for i in range(len(ctx.children)):
             indices.append(self.visitChild(ctx, i))
-        return list(filter(is_int, indices))
-
-    #def visitVariableListRest(self, ctx: krlParser.VariableListRestContext):
-        #names = []
-        #for name in ctx.variableName():
-            #names.append(name.accept(self))
-        #return names
+        return ''.join(map(str, indices))
 
 
 class VariableName:

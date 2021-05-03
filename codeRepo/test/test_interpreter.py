@@ -113,95 +113,97 @@ class TestVariableDeclarationInDataListInterpreter(unittest.TestCase):
         created_var_value = TestInterpreter.get_variable_call_result(created_var_test_string, peek_return_value)
         self.assertIsInstance(created_var_value, E6Pos)
 
-
 class TestAssignmentExprInterpreter(unittest.TestCase):
     def test_visitAssignmentExpression_unindexed(self):
         assignment_test_string = "position=33"
         var_test_string = "position"
-        peek_return_value = {'position': 55}
-        TestInterpreter.interpret_assignment_expr(assignment_test_string, peek_return_value)
-        var_from_ar_after_change = TestInterpreter.get_variable_call_result(var_test_string, peek_return_value)
+        preset_ar = ActivationRecord()
+        preset_ar.initialize_var(var_name='position', value=55)
+        TestInterpreter.interpret_assignment_expr(assignment_test_string, peek_return_value=preset_ar)
+        var_from_ar_after_change = TestInterpreter.get_variable_call_result(var_test_string, peek_return_value=preset_ar)
         self.assertEqual(var_from_ar_after_change, 33)
 
     def test_visitAssignmentExpression_indexed(self):
         assignment_test_string = "position[0]=44"
         var_test_string = "position[0]"
-        peek_return_value = {'position': [31, 55]}
-        TestInterpreter.interpret_assignment_expr(assignment_test_string, peek_return_value)
-        var_from_ar_after_change = TestInterpreter.get_variable_call_result(var_test_string, peek_return_value)
+        preset_ar = ActivationRecord()
+        preset_ar.initialize_var(var_name='position', value=[31, 55])
+        TestInterpreter.interpret_assignment_expr(assignment_test_string, peek_return_value=preset_ar)
+        var_from_ar_after_change = TestInterpreter.get_variable_call_result(var_test_string, peek_return_value=preset_ar)
         self.assertEqual(var_from_ar_after_change, 44)
 
     def test_visitAssignmentExpression_3D_array(self):
         assignment_test_string = "pos3D[2, 0, 1]=44"
         var_test_string = "pos3D[2, 0, 1]"
-        peek_return_value = {'pos3D': [
-                                      [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
-                                      [[20, 21, 22], [23, 24, 25], [26, 27, 28]],
-                                      [[30, 31, 32], [33, 34, 35], [36, 37, 38]],
-                                      ]}
+        preset_ar = ActivationRecord()
+        preset_ar.initialize_var(var_name='pos3D', value=[
+                                                         [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                                                         [[20, 21, 22], [23, 24, 25], [26, 27, 28]],
+                                                         [[30, 31, 32], [33, 34, 35], [36, 37, 38]],
+                                                         ])
 
-        TestInterpreter.interpret_assignment_expr(assignment_test_string, peek_return_value)
-        var_from_ar_after_change = TestInterpreter.get_variable_call_result(var_test_string, peek_return_value)
+        TestInterpreter.interpret_assignment_expr(assignment_test_string, peek_return_value=preset_ar)
+        var_from_ar_after_change = TestInterpreter.get_variable_call_result(var_test_string, peek_return_value=preset_ar)
         self.assertEqual(var_from_ar_after_change, 44)
 
 
 class TestVariableCallInterpreter(unittest.TestCase):
     def test_visitVariableCall_unindexed(self):
         test_string = "position"
-        peek_return_value = {'position': 55}
-        result = TestInterpreter.get_variable_call_result(test_string, peek_return_value)
+        preset_ar = ActivationRecord()
+        preset_ar.initialize_var(var_name='position', value=55)
+        result = TestInterpreter.get_variable_call_result(test_string, peek_return_value=preset_ar)
         self.assertEqual(result, 55)
 
     def test_visitVariableCall_indexed(self):
         test_string = "position[0]"
-        peek_return_value = {'position': [31, 55]}
-        result = TestInterpreter.get_variable_call_result(test_string, peek_return_value)
+        preset_ar = ActivationRecord()
+        preset_ar.initialize_var(var_name='position', value=[31, 55])
+        result = TestInterpreter.get_variable_call_result(test_string, peek_return_value=preset_ar)
         self.assertEqual(result, 31)
 
     def test_visitVariableCall_3D_array(self):
         test_string = "pos3D[2, 0, 1]"
-        peek_return_value = {'pos3D': [
-                                      [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
-                                      [[20, 21, 22], [23, 24, 25], [26, 27, 28]],
-                                      [[30, 31, 32], [33, 34, 35], [36, 37, 38]],
-                                      ]}
-        result = TestInterpreter.get_variable_call_result(test_string, peek_return_value)
+        preset_ar = ActivationRecord()
+        preset_ar.initialize_var(var_name='pos3D', value=[
+                                                         [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                                                         [[20, 21, 22], [23, 24, 25], [26, 27, 28]],
+                                                         [[30, 31, 32], [33, 34, 35], [36, 37, 38]],
+                                                         ])
+        result = TestInterpreter.get_variable_call_result(test_string, peek_return_value=preset_ar)
         self.assertEqual(result, 31)
+#TODO >> RESULT SHOULD BE SECOND PARAMETER OF ASSERT
 
 
 class TestVariableNameInterpreter(unittest.TestCase):
     def test_visitVariableName_unindexed(self):
         test_string = "PDAT_ACT"
         result = TestInterpreter.get_variable_name_result(test_string)
-        expected = VariableName(name="PDAT_ACT", indices=None)
-        self.assertIsInstance(result, VariableName)
-        self.assertEqual(result.name, expected.name)
-        self.assertEqual(result.indices, expected.indices)
+        self.assertIsInstance(result, str)
+        self.assertEqual("PDAT_ACT", result)
 
     def test_visitVariableName_indexed(self):
-        test_string = "$IN[125,]"
+        test_string = "$IN[125, ]"
         result = TestInterpreter.get_variable_name_result(test_string)
-        expected = VariableName(name='$IN', indices=[125])
-        self.assertIsInstance(result, VariableName)
-        self.assertEqual(result.name, expected.name)
-        self.assertEqual(result.indices, expected.indices)
+        self.assertIsInstance(result, str)
+        self.assertEqual("$IN[125,]", result)
 
 
 class TestArrayVariableSuffixInterpreter(unittest.TestCase):
     def test_visitArrayVariableSuffix_single_index(self):
         test_string = "[125]"
         result = TestInterpreter.get_array_var_suffix_result(test_string)
-        self.assertIsInstance(result, list)
-        self.assertEqual(result, [125])
+        self.assertIsInstance(result, str)
+        self.assertEqual("[125]", result)
 
     def test_visitArrayVariableSuffix_multiple_index(self):
         test_string = "[125, 225, 325]"
         result = TestInterpreter.get_array_var_suffix_result(test_string)
-        self.assertIsInstance(result, list)
-        self.assertEqual(result, [125, 225, 325])
+        self.assertIsInstance(result, str)
+        self.assertEqual("[125,225,325]", result)
 
     def test_visitArrayVariableSuffix_char_array(self):
         test_string = "[125, ]"
         result = TestInterpreter.get_array_var_suffix_result(test_string)
-        self.assertIsInstance(result, list)
-        self.assertEqual(result, [125])
+        self.assertIsInstance(result, str)
+        self.assertEqual("[125,]", result)

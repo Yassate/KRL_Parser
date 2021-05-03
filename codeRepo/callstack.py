@@ -17,27 +17,52 @@ class ActivationRecord:
         self.members = {}
         self._access_link = enclosing_ar
 
-    def __setitem__(self, key, value):
-        if key in self.members:
-            self.members[key] = value
-        elif self.type_ != ARType.GLOBAL:
-            self.set_global_var(key, value)
+    def __setitem__(self, input_var_name, value):
+        var_name, indices = self._split_var_name(input_var_name)
 
-    def __getitem__(self, key):
-        if key in self.members:
-            return self.members[key]
+        if var_name in self.members:
+            if indices:
+                current_variable = self.members[var_name]
+                indices_count = len(indices)
+                for i in range(0, indices_count - 1):
+                    current_variable = current_variable[indices[i]]
+                current_variable[indices[indices_count - 1]] = value
+            else:
+                self.members[var_name] = value
         else:
-            return self.get_global_var(key)
+            self.set_global_var(var_name, value)
+            return
+
+    def __getitem__(self, input_var_name):
+        var_name, indices = self._split_var_name(input_var_name)
+        current_value = self.members[var_name] if var_name in self.members else self.get_global_var(var_name)
+        if indices:
+            call_option = len(indices) - 1
+            value = [
+                lambda index: current_value[index[0]],
+                lambda index: current_value[index[0]][index[1]],
+                lambda index: current_value[index[0]][index[1]][index[2]]]
+            current_value = value[call_option](indices)
+        return current_value
+
+    # noinspection PyMethodMayBeStatic
+    def _split_var_name(self, input_var_name: str):
+        if input_var_name.endswith(']'):
+            splitted = input_var_name[:-1].split('[')
+            var_name, indices = splitted[0], list(map(int, splitted[1].split(',')))
+        else:
+            var_name, indices = input_var_name, None
+        return var_name, indices
 
     def get_global_var(self, key):
-        return self.members[key] if self.type_ == ARType.GLOBAL else self._access_link.get_global_var(key)
+        return self.members[key] if self.type_ == ARType.GLOBAL else self._access_link[key]
 
     # TODO >> Add existence check
     def set_global_var(self, key, value):
         if self.type_ == ARType.GLOBAL:
             self.members[key] = value
         else:
-            self._access_link.set_global_var(key, value)
+            self._access_link[key] = value
 
     def initialize_var(self, var_name, value):
         self.members[var_name] = value
