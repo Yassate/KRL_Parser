@@ -21,7 +21,6 @@ class ScopedSymbolTable:
         self.insert(ArraySymbol(name="$IN", type_="BOOL", size=8196))
         self.insert(ArraySymbol(name="$OUT", type_="BOOL", size=8196))
 
-
     # TODO >> Rewrite __str__ method
     def __str__(self):
         h1 = 'SCOPE (SCOPED SYMBOL TABLE)'
@@ -30,8 +29,7 @@ class ScopedSymbolTable:
             ('Scope name', self.scope_name),
             ('Scope level', self.scope_level),
             ('Enclosing scope',
-             self.enclosing_scope.scope_name if self.enclosing_scope else None
-            )
+             self.enclosing_scope.scope_name if self.enclosing_scope else None)
         ):
             lines.append('%-15s: %s' % (header_name, header_value))
         h2 = 'Scope (Scoped symbol table) contents'
@@ -47,7 +45,7 @@ class ScopedSymbolTable:
     __repr__ = __str__
 
     def insert(self, symbol):
-        #print(f"Insert: {symbol.name}")
+        # print(f"Insert: {symbol.name}")
         self._symbols[symbol.name] = symbol
 
     def lookup(self, name):

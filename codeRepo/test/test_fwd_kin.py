@@ -14,7 +14,7 @@ class TestFK(unittest.TestCase):
     def setUp(self):
         self.ik_solver = CustomKukaIKSolver(dh_KR360_R2830)
 
-    #TODO >> load test data from external source (?)
+    # TODO >> load test data from external source (?)
     def set_up_test_data(self):
         pass
 

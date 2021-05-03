@@ -8,7 +8,8 @@ import coloredlogs, logging
 logger = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=logger)
 
-class VariableFactory():
+
+class VariableFactory:
     def __init__(self):
         self.structures_definitions = {
             ('X', 'Y', 'Z', 'A', 'B', 'C', 'S', 'T', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6'): "E6POS",
@@ -83,7 +84,6 @@ class KrlInterpreter(krlVisitor):
     def visitSubprogramCall(self, ctx: krlParser.SubprogramCallContext):
         return self.visitChildren(ctx)
 
-    # TODO >> this method should find out what type of structure is that and return concrete object (eg. E6POS/AXIS)
     def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
         krl_struct: dict = ctx.structElementList().accept(self)
         return self._var_factory.get_var_by_discover(krl_struct)
@@ -93,16 +93,6 @@ class KrlInterpreter(krlVisitor):
         a_record = ActivationRecord(name=scope_name, type_=ARType.MODULE, nesting_level=1, enclosing_ar=self._callstack.peek())
         self._callstack.push(a_record)
         self.visitChildren(ctx)
-
-
-    #def visitVariableDeclaration(self, ctx: krlParser.VariableDeclarationContext):
-        #if ctx.DECL() is not None:
-            #var_type = ctx.typeVar().accept(self)
-            #self._currentscope.insert(Symbol(ctx.variableName().accept(self), var_type))
-            #var_list_rest = ctx.variableListRest()
-            #if var_list_rest is not None:
-                #for name in var_list_rest.accept(self):
-                    #self._currentscope.insert(Symbol(name, var_type))
 
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL() is not None:
@@ -132,13 +122,12 @@ class KrlInterpreter(krlVisitor):
         return struct_elements
 
     def visitStructElement(self, ctx: krlParser.StructElementContext):
-        key = ctx.getChild(0).getText()
-        val = ctx.getChild(1).accept(self)
+        key = ctx.variableName().accept(self)
+        val = ctx.unaryPlusMinuxExpression().accept(self)
         return {key: val}
 
-
-    #METHODS UNDER ARE COVERED WITH UNITTESTS
-    def visitUnaryPlusMinuxExpression(self, ctx:krlParser.UnaryPlusMinuxExpressionContext):
+    # METHODS UNDER ARE COVERED WITH UNITTESTS
+    def visitUnaryPlusMinuxExpression(self, ctx: krlParser.UnaryPlusMinuxExpressionContext):
         if ctx.primary():
             return self.visitChildren(ctx)
         else:
@@ -154,26 +143,24 @@ class KrlInterpreter(krlVisitor):
         ar["$AXIS_ACT"] = calc_axes
         logger.debug(calc_axes)
 
-    def visitAssignmentExpression(self, ctx:krlParser.AssignmentExpressionContext):
+    def visitAssignmentExpression(self, ctx: krlParser.AssignmentExpressionContext):
         var_name = ctx.leftHandSide().accept(self)
         value = ctx.expression()[0].accept(self)
         ar = self._callstack.peek()
         ar[var_name] = value
 
-    # TODO >> WRONGLY SETTED RESPONSIBILITIES -> ACTIVATION RECORD SHOULD RESOLVE IF IT'S ARRAY VARIABLE TYPE OR NOT/
-    #we should ask only for name as string -> $IN[25] -> activation record resolves wherea and how it stores variable
-    def visitVariableCall(self, ctx:krlParser.VariableCallContext):
+    def visitVariableCall(self, ctx: krlParser.VariableCallContext):
         ar = self._callstack.peek()
         var_name = ctx.variableName().accept(self)
         return ar[var_name]
 
-    def visitVariableName(self, ctx:krlParser.VariableNameContext):
+    def visitVariableName(self, ctx: krlParser.VariableNameContext):
         var_name = ctx.IDENTIFIER().getText()
         var_suffix = ctx.arrayVariableSuffix()
         indices = var_suffix.accept(self) if var_suffix else ''
         return var_name + indices
 
-    def visitArrayVariableSuffix(self, ctx:krlParser.ArrayVariableSuffixContext):
+    def visitArrayVariableSuffix(self, ctx: krlParser.ArrayVariableSuffixContext):
         indices = []
         for i in range(len(ctx.children)):
             indices.append(self.visitChild(ctx, i))
@@ -187,4 +174,3 @@ class VariableName:
 
     def is_indexed(self):
         return self.indices is not None
-

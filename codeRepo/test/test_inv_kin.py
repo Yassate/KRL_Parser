@@ -162,7 +162,7 @@ class TestIK(unittest.TestCase):
             S=18, T=10)
         self.solve_ik(input_data)
 
-    # TODO >> A2, A3 in quadrant III should be also tested, reachability avalaible on KUKA KR120 R2500 Pro
+    # TODO >> A2, A3 in quadrant III should be also tested, reachability available on KUKA KR120 R2500 Pro
     def test_A2A3_elbow_up_and_in_quadrant_IV_WCP_in_quadrant_IV(self):
         input_data = InputKinematicData(
             robot_axes=[0.0, 3.0, 62.0, 5.0, 50.0, 30.0],

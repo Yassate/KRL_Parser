@@ -1,4 +1,4 @@
-#copyright RuslanSpivak.com
+# copyright RuslanSpivak.com
 
 
 class Symbol:
@@ -20,6 +20,7 @@ class BuiltInSymbol(Symbol):
             name=self.name,
         )
 
+
 class ArraySymbol(Symbol):
     def __init__(self, name, type_=None, size=0):
         super().__init__(name=name, type_=type_)
@@ -35,11 +36,12 @@ class ArraySymbol(Symbol):
             size=self.size
         )
 
+
 class ProcedureSymbol(Symbol):
-    def __init__(self, name, params=None, ctx = None):
+    def __init__(self, name, params=None, ctx=None):
         super(ProcedureSymbol, self).__init__(name)
         self.params = params if params is not None else []
-        self.ctx = None
+        self.ctx = ctx
 
     def __str__(self):
         return '<{class_name}(name={name}, parameters={params})>'.format(

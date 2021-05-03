@@ -3,12 +3,13 @@ from unittest.mock import Mock
 from antlr4 import CommonTokenStream, InputStream
 from krlLexer import krlLexer
 from krlParser import krlParser
-from krlinterpreter import KrlInterpreter, VariableName, VariableFactory
+from krlinterpreter import KrlInterpreter, VariableFactory
 from kuka_datatypes import E6Axis, E6Pos
 from callstack import ActivationRecord
 import logging
 
 logging.disable(logging.CRITICAL)
+
 
 class TestInterpreter(unittest.TestCase):
     @staticmethod
@@ -78,13 +79,13 @@ class TestUnaryPlusMinuxExpressionInterpreter(unittest.TestCase):
         unaryplusminux_test_string = "+1"
         result = TestInterpreter.get_unary_plus_minux_result(unaryplusminux_test_string)
         self.assertIsInstance(result, int)
-        self.assertEqual(result, 1)
+        self.assertEqual(1, result)
 
     def test_visitUnaryPlusMinuxExpression_minus(self):
         unaryplusminux_test_string = "-1"
         result = TestInterpreter.get_unary_plus_minux_result(unaryplusminux_test_string)
         self.assertIsInstance(result, int)
-        self.assertEqual(result, -1)
+        self.assertEqual(-1, result)
 
 
 class TestPtpMoveInterpreter(unittest.TestCase):
@@ -113,6 +114,7 @@ class TestVariableDeclarationInDataListInterpreter(unittest.TestCase):
         created_var_value = TestInterpreter.get_variable_call_result(created_var_test_string, peek_return_value)
         self.assertIsInstance(created_var_value, E6Pos)
 
+
 class TestAssignmentExprInterpreter(unittest.TestCase):
     def test_visitAssignmentExpression_unindexed(self):
         assignment_test_string = "position=33"
@@ -121,7 +123,7 @@ class TestAssignmentExprInterpreter(unittest.TestCase):
         preset_ar.initialize_var(var_name='position', value=55)
         TestInterpreter.interpret_assignment_expr(assignment_test_string, peek_return_value=preset_ar)
         var_from_ar_after_change = TestInterpreter.get_variable_call_result(var_test_string, peek_return_value=preset_ar)
-        self.assertEqual(var_from_ar_after_change, 33)
+        self.assertEqual(33, var_from_ar_after_change)
 
     def test_visitAssignmentExpression_indexed(self):
         assignment_test_string = "position[0]=44"
@@ -130,7 +132,7 @@ class TestAssignmentExprInterpreter(unittest.TestCase):
         preset_ar.initialize_var(var_name='position', value=[31, 55])
         TestInterpreter.interpret_assignment_expr(assignment_test_string, peek_return_value=preset_ar)
         var_from_ar_after_change = TestInterpreter.get_variable_call_result(var_test_string, peek_return_value=preset_ar)
-        self.assertEqual(var_from_ar_after_change, 44)
+        self.assertEqual(44, var_from_ar_after_change)
 
     def test_visitAssignmentExpression_3D_array(self):
         assignment_test_string = "pos3D[2, 0, 1]=44"
@@ -144,7 +146,7 @@ class TestAssignmentExprInterpreter(unittest.TestCase):
 
         TestInterpreter.interpret_assignment_expr(assignment_test_string, peek_return_value=preset_ar)
         var_from_ar_after_change = TestInterpreter.get_variable_call_result(var_test_string, peek_return_value=preset_ar)
-        self.assertEqual(var_from_ar_after_change, 44)
+        self.assertEqual(44, var_from_ar_after_change)
 
 
 class TestVariableCallInterpreter(unittest.TestCase):
@@ -153,14 +155,14 @@ class TestVariableCallInterpreter(unittest.TestCase):
         preset_ar = ActivationRecord()
         preset_ar.initialize_var(var_name='position', value=55)
         result = TestInterpreter.get_variable_call_result(test_string, peek_return_value=preset_ar)
-        self.assertEqual(result, 55)
+        self.assertEqual(55, result)
 
     def test_visitVariableCall_indexed(self):
         test_string = "position[0]"
         preset_ar = ActivationRecord()
         preset_ar.initialize_var(var_name='position', value=[31, 55])
         result = TestInterpreter.get_variable_call_result(test_string, peek_return_value=preset_ar)
-        self.assertEqual(result, 31)
+        self.assertEqual(31, result)
 
     def test_visitVariableCall_3D_array(self):
         test_string = "pos3D[2, 0, 1]"
@@ -171,8 +173,7 @@ class TestVariableCallInterpreter(unittest.TestCase):
                                                          [[30, 31, 32], [33, 34, 35], [36, 37, 38]],
                                                          ])
         result = TestInterpreter.get_variable_call_result(test_string, peek_return_value=preset_ar)
-        self.assertEqual(result, 31)
-#TODO >> RESULT SHOULD BE SECOND PARAMETER OF ASSERT
+        self.assertEqual(31, result)
 
 
 class TestVariableNameInterpreter(unittest.TestCase):

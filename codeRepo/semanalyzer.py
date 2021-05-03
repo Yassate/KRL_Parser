@@ -103,7 +103,3 @@ class SemanticAnalyzer(krlVisitor):
         for name in ctx.variableName():
             names.append(name.accept(self))
         return names
-
-
-
-

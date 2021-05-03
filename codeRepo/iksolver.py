@@ -97,8 +97,6 @@ class CustomKukaIKSolver:
 
         self.axis3d = py3drot.plot_basis(R=np.eye(3), ax_s=4)
 
-        #self.test_plot()
-        #self.performIK()
 
     def test_plot(self):
         pos = np.array([1.0, 1.0, 1.0])

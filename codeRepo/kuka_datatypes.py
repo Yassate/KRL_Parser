@@ -46,7 +46,7 @@ class E6Pos:
 
     @classmethod
     def from_krl_struct(cls, krl_struct_as_dict):
-    # TODO >> exception should be raised if not all necessary elements are inside dictionary
+        # TODO >> exception should be raised if not all necessary elements are inside dictionary
         necessary_items = ('X', 'Y', 'Z', 'A', 'B', 'C', 'S', 'T')
         instance = cls()
         if all(item in krl_struct_as_dict.keys() for item in necessary_items):

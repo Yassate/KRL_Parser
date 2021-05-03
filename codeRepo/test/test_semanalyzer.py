@@ -4,6 +4,7 @@ from krlLexer import krlLexer
 from krlParser import krlParser
 from antlr4 import *
 
+
 class VisitorTester(TestCase):
     def setUp(self):
         self.sem_analyzer = SemanticAnalyzer()
@@ -46,8 +47,6 @@ class VisitLiteralTest(VisitorTester):
     def test_visit_string_returns_string(self):
         test_string = '"test_string"'
         result = self._result_from_string(test_string)
-
-
         self.assertIsInstance(result, str)
         self.assertEqual(result, "test_string")
 

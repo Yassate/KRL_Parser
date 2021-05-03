@@ -1,5 +1,4 @@
 import sys
-from icecream import ic
 from antlr4 import FileStream, CommonTokenStream
 from krlLexer import krlLexer
 from krlParser import krlParser
@@ -67,7 +66,7 @@ def main():
     current_module.process_module()
 
     # print(pp.pprint(myVisitor.variables))
-    solver = CustomKukaIKSolver(dh_KR360_R2830)
+    # solver = CustomKukaIKSolver(dh_KR360_R2830)
     # req = solver.performFK([0, 0, 0, 0, 0, 0])
     # IK = solver.handle_calculate_IK2(req)
 
