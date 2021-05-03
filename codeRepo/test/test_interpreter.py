@@ -172,6 +172,7 @@ class TestVariableCallInterpreter(unittest.TestCase):
                                                          ])
         result = TestInterpreter.get_variable_call_result(test_string, peek_return_value=preset_ar)
         self.assertEqual(result, 31)
+#TODO >> RESULT SHOULD BE SECOND PARAMETER OF ASSERT
 
 
 class TestVariableNameInterpreter(unittest.TestCase):
