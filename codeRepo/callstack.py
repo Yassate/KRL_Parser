@@ -32,7 +32,7 @@ class ActivationRecord:
     def get_global_var(self, key):
         return self.members[key] if self.type_ == ARType.GLOBAL else self._access_link.get_global_var(key)
 
-    #TODO >> Add existance check
+    # TODO >> Add existence check
     def set_global_var(self, key, value):
         if self.type_ == ARType.GLOBAL:
             self.members[key] = value
