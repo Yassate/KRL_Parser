@@ -16,7 +16,7 @@ class VariableFactory:
             ('A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6'): "E6AXIS"}
 
     @staticmethod
-    def get_variable(var_value, var_type):
+    def get_var_by_type(var_value, var_type):
         var_type_capital = var_type.upper() if var_type else None
         if var_type_capital == "E6POS":
             return E6Pos.from_krl_struct(var_value)
@@ -30,7 +30,10 @@ class VariableFactory:
     def get_var_by_discover(self, krl_struct: dict):
         keys = tuple(krl_struct.keys())
         var_type = self._get_var_type_by_struct_members(keys)
-        return self.get_variable(krl_struct, var_type)
+        return self.get_var_by_type(krl_struct, var_type)
+
+
+
 
 
 class KrlInterpreter(krlVisitor):
