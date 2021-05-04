@@ -11,7 +11,7 @@ coloredlogs.install(level='DEBUG', logger=logger)
 
 class VariableFactory:
     def __init__(self):
-        self.structures_definitions = {
+        self.structs_def = {
             ('X', 'Y', 'Z', 'A', 'B', 'C', 'S', 'T', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6'): "E6POS",
             ('A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6'): "E6AXIS"}
 
@@ -23,13 +23,13 @@ class VariableFactory:
         else:
             return var_value
 
-    def get_var_type_by_struct_members(self, struct_members: tuple):
-        if struct_members in self.structures_definitions.keys():
-            return self.structures_definitions[struct_members]
+    def _get_var_type_by_struct_members(self, struct_members: tuple):
+        struct_type = self.structs_def[struct_members] if struct_members in self.structs_def.keys() else "USER_DEFINED"
+        return struct_type
 
     def get_var_by_discover(self, krl_struct: dict):
         keys = tuple(krl_struct.keys())
-        var_type = self.get_var_type_by_struct_members(keys)
+        var_type = self._get_var_type_by_struct_members(keys)
         return self.get_variable(krl_struct, var_type)
 
 
@@ -54,26 +54,25 @@ class KrlInterpreter(krlVisitor):
                 result = childResult
         return result
 
-    def visitChild(self, ctx, index):
+    def visitChild(self, ctx, index=0):
         return ctx.getChild(index).accept(self)
 
     def visitTerminal(self, node):
         return node.getText()
 
-    def _parse_literal(self, ctx):
+    # TODO >> String literals should be checked if they have apostrophes inside, need to find out how it works on KUKA
+    def _parse_simple_literal(self, ctx: krlParser.LiteralContext):
+        parse = {
+                krlLexer.INTLITERAL: lambda val: int(val),
+                krlLexer.FLOATLITERAL: lambda val: float(val),
+                krlLexer.TRUE: lambda val: True,
+                krlLexer.FALSE: lambda val: False,
+                krlLexer.CHARLITERAL: lambda val: val[1:-1],
+                krlLexer.STRINGLITERAL: lambda val: val[1:-1]
+                }
         literal_type = ctx.getChild(0).symbol.type
         value = ctx.getText()
-        if literal_type == krlLexer.FLOATLITERAL:
-            return float(value)
-        elif literal_type == krlLexer.INTLITERAL:
-            return int(value)
-        elif literal_type == krlLexer.TRUE or literal_type == krlLexer.FALSE:
-            if value.lower() == "true":
-                return True
-            elif value.lower() == "false":
-                return False
-        elif literal_type == krlLexer.CHARLITERAL or literal_type == krlLexer.STRINGLITERAL:
-            return value
+        return parse[literal_type](value)
 
     def visitModuleName(self, ctx: krlParser.ModuleNameContext):
         return ctx.IDENTIFIER().accept(self)
@@ -84,8 +83,14 @@ class KrlInterpreter(krlVisitor):
     def visitSubprogramCall(self, ctx: krlParser.SubprogramCallContext):
         return self.visitChildren(ctx)
 
+    # TODO STRUCT LITERAL CAN HAVE TYPE SPECIFIED INSIDE {}, for example: my_pos = {E6POS: X 64.0, Y -32.1}
     def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
+        type_name: str = ctx.typeName().accept(self) if ctx.typeName() else None
         krl_struct: dict = ctx.structElementList().accept(self)
+        #variable = self._var_factory.get_var_by_discover(krl_struct) if type_name else self._var_factory.get_var_by_type()
+        #if type_name:
+
+
         return self._var_factory.get_var_by_discover(krl_struct)
 
     def visitModuleData(self, ctx: krlParser.ModuleDataContext):
@@ -108,11 +113,15 @@ class KrlInterpreter(krlVisitor):
                 #for name in var_list_rest.accept(self):
                     #pass
 
+    def visitEnumElement(self, ctx:krlParser.EnumElementContext):
+        return self.visitChildren(ctx)
+
+    # TODO >> enum literal implementation
     def visitLiteral(self, ctx: krlParser.LiteralContext):
-        if ctx.structLiteral() is not None or ctx.enumElement() is not None:
-            return self.visitChildren(ctx)
-        else:
-            return self._parse_literal(ctx)
+        literal_is_compound = ctx.structLiteral() or ctx.enumElement()
+        return self.visitChild(ctx) if literal_is_compound else self._parse_simple_literal(ctx)
+
+    # METHODS UNDER ARE COVERED WITH UNITTESTS
 
     def visitStructElementList(self, ctx: krlParser.StructElementListContext):
         struct_elements = {}
@@ -126,7 +135,6 @@ class KrlInterpreter(krlVisitor):
         val = ctx.unaryPlusMinuxExpression().accept(self)
         return {key: val}
 
-    # METHODS UNDER ARE COVERED WITH UNITTESTS
     def visitUnaryPlusMinuxExpression(self, ctx: krlParser.UnaryPlusMinuxExpressionContext):
         if ctx.primary():
             return self.visitChildren(ctx)
@@ -165,12 +173,3 @@ class KrlInterpreter(krlVisitor):
         for i in range(len(ctx.children)):
             indices.append(self.visitChild(ctx, i))
         return ''.join(map(str, indices))
-
-
-class VariableName:
-    def __init__(self, name, indices=None):
-        self.name = name
-        self.indices = indices
-
-    def is_indexed(self):
-        return self.indices is not None

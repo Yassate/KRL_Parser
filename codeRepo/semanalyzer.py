@@ -3,7 +3,7 @@ from krlLexer import krlLexer
 from krlParser import krlParser
 from symtables import *
 
-
+# TODO >> SEMANTIC ANALYZER TO COMPLETE REBUILD, SOME METHODS SHOULD BE TAKEN FROM krlInterpreter()
 class SemanticAnalyzer(krlVisitor):
     def __init__(self):
         super().__init__()

@@ -23,6 +23,11 @@ class E6Pos:
         self.S, self.T = None, None
         self.quat = None
 
+    def __eq__(self, other):
+        pos_equal = self.X == other.X and self.Y == other.Y and self.Z == other.Z
+        angles_equal = self.ix == other.ix and self.iy == other.iy and self.iz == other.iz and self.w == other.w
+        return True if pos_equal and angles_equal else False
+
     def __repr__(self):
         return f"E6Pos: X={self.X}, Y={self.Y}, Z={self.Z}, A={self.A}, B={self.B}, C={self.C}, S={self.S}, T={self.T}"
 
