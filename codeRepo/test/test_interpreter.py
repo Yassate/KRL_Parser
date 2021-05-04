@@ -88,7 +88,7 @@ class TestInterpreter(unittest.TestCase):
         return context.accept(interpreter)
 
 
-#TODO >> test enum and struct
+#TODO >> test enum
 class TestLiteralInterpreter(unittest.TestCase):
     def test_visitFloatLiteral(self):
         test_string = "2.38765"
@@ -126,9 +126,20 @@ class TestLiteralInterpreter(unittest.TestCase):
         self.assertIsInstance(result, str)
         self.assertEqual("t", result)
 
-    @unittest.skip
     def test_visitStructLiteral(self):
-        pass
+        test_string = '{TOOL_NO 64, POINT2[] " "}'
+        result = TestInterpreter.get_literal_result(test_string)
+        expected = {'TOOL_NO': 64, 'POINT2[]': " "}
+        self.assertIsInstance(result, dict)
+        self.assertEqual(expected, result)
+
+    def test_visitStructLiteral_with_type(self):
+        test_string = "{E6POS: X 1468.7,Y 10.0,Z 3235.9,A 110.0,B 45.0,C 10.0,S 18,T 2," \
+                      "E1 0.0, E2 0.0,E3 0.0,E4 0.0,E5 0.0,E6 0.0}"
+        result = TestInterpreter.get_literal_result(test_string)
+        expected = E6Pos.from_tuples(xyz=(1468.7, 10.0, 3235.9), abc=(110.0, 45.0, 10.0), S=18, T=2)
+        self.assertIsInstance(result, E6Pos)
+        self.assertEqual(expected, result)
 
     @unittest.skip("Enums not implemented")
     def test_visitEnumLiteral(self):
@@ -256,7 +267,6 @@ class TestVariableCallInterpreter(unittest.TestCase):
 
 
 class TestVariableNameInterpreter(unittest.TestCase):
-
     def test_visitVariableName_chararray(self):
         test_string = "POINT2[]"
         result = TestInterpreter.get_variable_name_result(test_string)

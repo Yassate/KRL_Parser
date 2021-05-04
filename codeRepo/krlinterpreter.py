@@ -15,8 +15,7 @@ class VariableFactory:
             ('X', 'Y', 'Z', 'A', 'B', 'C', 'S', 'T', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6'): "E6POS",
             ('A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6'): "E6AXIS"}
 
-    @staticmethod
-    def get_var_by_type(var_value, var_type):
+    def get_var_by_type(self, var_value, var_type):
         var_type_capital = var_type.upper() if var_type else None
         if var_type_capital == "E6POS":
             return E6Pos.from_krl_struct(var_value)
@@ -27,13 +26,11 @@ class VariableFactory:
         struct_type = self.structs_def[struct_members] if struct_members in self.structs_def.keys() else "USER_DEFINED"
         return struct_type
 
+    # INFO >> should be only used for creating object (E6POS/E6AXIS..) if PTP/LIN called on struct: PTP {X 1.0, Y 30...
     def get_var_by_discover(self, krl_struct: dict):
         keys = tuple(krl_struct.keys())
         var_type = self._get_var_type_by_struct_members(keys)
         return self.get_var_by_type(krl_struct, var_type)
-
-
-
 
 
 class KrlInterpreter(krlVisitor):
@@ -81,20 +78,7 @@ class KrlInterpreter(krlVisitor):
         return ctx.IDENTIFIER().accept(self)
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
-        return ctx.getChild(1).accept(self)
-
-    def visitSubprogramCall(self, ctx: krlParser.SubprogramCallContext):
-        return self.visitChildren(ctx)
-
-    # TODO STRUCT LITERAL CAN HAVE TYPE SPECIFIED INSIDE {}, for example: my_pos = {E6POS: X 64.0, Y -32.1}
-    def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
-        type_name: str = ctx.typeName().accept(self) if ctx.typeName() else None
-        krl_struct: dict = ctx.structElementList().accept(self)
-        #variable = self._var_factory.get_var_by_discover(krl_struct) if type_name else self._var_factory.get_var_by_type()
-        #if type_name:
-
-
-        return self._var_factory.get_var_by_discover(krl_struct)
+        return ctx.unaryPlusMinuxExpression().accept(self)
 
     def visitModuleData(self, ctx: krlParser.ModuleDataContext):
         scope_name = ctx.moduleName().accept(self)
@@ -102,29 +86,37 @@ class KrlInterpreter(krlVisitor):
         self._callstack.push(a_record)
         self.visitChildren(ctx)
 
+    def visitEnumElement(self, ctx:krlParser.EnumElementContext):
+        return self.visitChildren(ctx)
+
+    # METHODS UNDER ARE COVERED WITH UNITTESTS
+
+    def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
+        var_type: str = ctx.typeName().accept(self) if ctx.typeName() else None
+        var_value: dict = ctx.structElementList().accept(self)
+        return self._var_factory.get_var_by_type(var_value, var_type) if var_type else var_value
+
+    #TODO >> varlistrest to be implemented
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
-        if ctx.DECL() is not None:
+        if ctx.DECL():
             var_type = ctx.typeVar().accept(self)
             var_name = ctx.variableName().accept(self)
             var_list_rest = ctx.variableListRest()
             ar = self._callstack.peek()
-            if ctx.variableInitialisation() is not None:
+            if ctx.variableInitialisation():
                 value = ctx.variableInitialisation().accept(self)
+                if type(value) == dict:
+                    value = self._var_factory.get_var_by_type(value, var_type)
                 ar.initialize_var(var_name, value)
 
             #if var_list_rest is not None:
                 #for name in var_list_rest.accept(self):
                     #pass
 
-    def visitEnumElement(self, ctx:krlParser.EnumElementContext):
-        return self.visitChildren(ctx)
-
-    # TODO >> enum literal implementation
+    # TODO >> Enum literal implementation
     def visitLiteral(self, ctx: krlParser.LiteralContext):
         literal_is_compound = ctx.structLiteral() or ctx.enumElement()
         return self.visitChild(ctx) if literal_is_compound else self._parse_simple_literal(ctx)
-
-    # METHODS UNDER ARE COVERED WITH UNITTESTS
 
     def visitStructElementList(self, ctx: krlParser.StructElementListContext):
         struct_elements = {}
@@ -146,7 +138,9 @@ class KrlInterpreter(krlVisitor):
 
     def visitPtpMove(self, ctx: krlParser.PtpMoveContext):
         # TODO >> C_DIS/C_PTP should be checked (usually third child in ctx)
-        target_e6pos = ctx.geometricExpression().accept(self)
+        # TODO >> Other drivable points to be implemented - like FRAME, or E3POS
+        target = ctx.geometricExpression().accept(self)
+        target_e6pos = self._var_factory.get_var_by_discover(target) if type(target) == dict else target
         logger.debug(f"Robot goes with PTP movement to: {target_e6pos}")
         calc_axes = self.ik_solver.perform_ik(target_e6pos, prev_e6_axis=E6Axis(axis_values=(0, 0, 0, 0, 0, 0)))
         ar = self._callstack.peek()
