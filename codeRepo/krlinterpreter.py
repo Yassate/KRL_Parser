@@ -148,6 +148,7 @@ class KrlInterpreter(krlVisitor):
         ar["$AXIS_ACT"] = calc_axes
         logger.debug(calc_axes)
 
+    # TODO >> Type check INT=INT CHAR=CHAR INT=CHAR..
     def visitAssignmentExpression(self, ctx: krlParser.AssignmentExpressionContext):
         var_name = ctx.leftHandSide().accept(self)
         value = ctx.expression()[0].accept(self)
