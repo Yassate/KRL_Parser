@@ -61,7 +61,7 @@ class SemanticAnalyzer(krlVisitor):
     def visitModuleName(self, ctx: krlParser.ModuleNameContext):
         scope_name = ctx.IDENTIFIER().accept(self)
         if self._module_symtable is None:
-            self._module_symtable = ScopedSymbolTable(scope_name, scope_level=2)
+            self._module_symtable = ScopedSymbolTable(scope_name, scope_level=2, enclosing_scope=self._global_symtable)
             self._current_symtable = self._module_symtable
 
     # TODO >> this method is copy of visitVariableDeclarationInDataList; to refactor

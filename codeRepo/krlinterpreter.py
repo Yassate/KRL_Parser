@@ -113,7 +113,7 @@ class KrlInterpreter(krlVisitor):
                 #for name in var_list_rest.accept(self):
                     #pass
 
-    # TODO >> Enum literal implementation
+    # TODO >> Enum literal visitor
     def visitLiteral(self, ctx: krlParser.LiteralContext):
         literal_is_compound = ctx.structLiteral() or ctx.enumElement()
         return self.visitChild(ctx) if literal_is_compound else self._parse_simple_literal(ctx)
