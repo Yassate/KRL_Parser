@@ -184,3 +184,14 @@ class Turn:
     def a6_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_6
         return Turn.lsb(shifted)
+
+
+class KrlEnum:
+    def __init__(self, val):
+        self.val = val
+
+    def __eq__(self, other):
+        return self.val == other.val
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

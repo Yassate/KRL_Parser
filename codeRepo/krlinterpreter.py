@@ -2,7 +2,7 @@ from krlVisitor import krlVisitor
 from krlLexer import krlLexer
 from krlParser import krlParser
 from callstack import ActivationRecord, ARType
-from kuka_datatypes import E6Pos, E6Axis
+from kuka_datatypes import E6Pos, E6Axis, KrlEnum
 import coloredlogs, logging
 
 logger = logging.getLogger(__name__)
@@ -117,6 +117,9 @@ class KrlInterpreter(krlVisitor):
     def visitLiteral(self, ctx: krlParser.LiteralContext):
         literal_is_compound = ctx.structLiteral() or ctx.enumElement()
         return self.visitChild(ctx) if literal_is_compound else self._parse_simple_literal(ctx)
+
+    def visitEnumElement(self, ctx: krlParser.EnumElementContext):
+        return KrlEnum(str(ctx.IDENTIFIER()))
 
     def visitStructElementList(self, ctx: krlParser.StructElementListContext):
         struct_elements = {}

@@ -4,7 +4,7 @@ from antlr4 import CommonTokenStream, InputStream
 from krlLexer import krlLexer
 from krlParser import krlParser
 from krlinterpreter import KrlInterpreter, VariableFactory
-from kuka_datatypes import E6Axis, E6Pos
+from kuka_datatypes import E6Axis, E6Pos, KrlEnum
 from callstack import ActivationRecord
 import logging
 
@@ -124,6 +124,7 @@ class TestLiteralInterpreter(unittest.TestCase):
         test_string = "'t'"
         result = TestInterpreter.get_literal_result(test_string)
         self.assertIsInstance(result, str)
+        self.assertEqual(len(result), 1)
         self.assertEqual("t", result)
 
     def test_visitStructLiteral(self):
@@ -141,9 +142,12 @@ class TestLiteralInterpreter(unittest.TestCase):
         self.assertIsInstance(result, E6Pos)
         self.assertEqual(expected, result)
 
-    @unittest.skip("Enums not implemented")
     def test_visitEnumLiteral(self):
-        pass
+        test_string = "#P_ACTIVE"
+        result = TestInterpreter.get_literal_result(test_string)
+        self.assertIsInstance(result, KrlEnum)
+        expected = KrlEnum("P_ACTIVE")
+        self.assertEqual(expected, result)
 
 
 class TestStructElementListInterpreter(unittest.TestCase):
