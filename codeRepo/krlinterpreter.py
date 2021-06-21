@@ -155,9 +155,10 @@ class KrlInterpreter(krlVisitor):
         ar = self._callstack.peek()
         ar[var_name] = value
 
+    # TODO >> All .accept(self) should be changed to visit(ctx.....)
     def visitVariableCall(self, ctx: krlParser.VariableCallContext):
         ar = self._callstack.peek()
-        var_name = ctx.variableName().accept(self)
+        var_name = self.visit(ctx.variableName())
         return ar[var_name]
 
     def visitVariableName(self, ctx: krlParser.VariableNameContext):
