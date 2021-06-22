@@ -49,13 +49,13 @@ class KrlInterpreter(krlVisitor):
             if not self.shouldVisitNextChild(node, result):
                 return result
             c = node.getChild(i)
-            childResult = c.accept(self)
+            childResult = self.visit(c)
             if childResult is not None:
                 result = childResult
         return result
 
     def visitChild(self, ctx, index=0):
-        return ctx.getChild(index).accept(self)
+        return self.visit(ctx.getChild(index))
 
     def visitTerminal(self, node):
         return node.getText()
@@ -78,7 +78,7 @@ class KrlInterpreter(krlVisitor):
         return self.visit(ctx.IDENTIFIER())
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
-        return ctx.unaryPlusMinuxExpression().accept(self)
+        return self.visit(ctx.unaryPlusMinuxExpression())
 
     def visitModuleData(self, ctx: krlParser.ModuleDataContext):
         scope_name = self.visit(ctx.moduleName())
@@ -99,51 +99,47 @@ class KrlInterpreter(krlVisitor):
     #TODO >> varlistrest to be implemented
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL():
-            var_type = ctx.typeVar().accept(self)
-            var_name = ctx.variableName().accept(self)
+
+            var_type = self.visit(ctx.typeVar())
+            var_name = self.visit(ctx.variableName())
             var_list_rest = ctx.variableListRest()
             ar = self._callstack.peek()
             if ctx.variableInitialisation():
-                value = ctx.variableInitialisation().accept(self)
+                value = self.visit(ctx.variableInitialisation())
                 if type(value) == dict:
                     value = self._var_factory.get_var_by_type(value, var_type)
                 ar.initialize_var(var_name, value)
 
-            #if var_list_rest is not None:
-                #for name in var_list_rest.accept(self):
-                    #pass
-
-    # TODO >> Enum literal visitor
     def visitLiteral(self, ctx: krlParser.LiteralContext):
         literal_is_compound = ctx.structLiteral() or ctx.enumElement()
         return self.visitChild(ctx) if literal_is_compound else self._parse_simple_literal(ctx)
 
     def visitEnumElement(self, ctx: krlParser.EnumElementContext):
-        ident = self.visit(ctx.IDENTIFIER())
-        return KrlEnum(str(ident))
+        identifier = self.visit(ctx.IDENTIFIER())
+        return KrlEnum(str(identifier))
 
     def visitStructElementList(self, ctx: krlParser.StructElementListContext):
         struct_elements = {}
         for struct_elem in ctx.structElement():
-            element = struct_elem.accept(self)
+            element = self.visit(struct_elem)
             struct_elements.update(element)
         return struct_elements
 
     def visitStructElement(self, ctx: krlParser.StructElementContext):
-        key = ctx.variableName().accept(self)
-        val = ctx.unaryPlusMinuxExpression().accept(self)
+        key = self.visit(ctx.variableName())
+        val = self.visit(ctx.unaryPlusMinuxExpression())
         return {key: val}
 
     def visitUnaryPlusMinuxExpression(self, ctx: krlParser.UnaryPlusMinuxExpressionContext):
         if ctx.primary():
             return self.visitChildren(ctx)
         else:
-            return int(ctx.getChild(0).accept(self) + '1') * ctx.getChild(1).accept(self)
+            return int(self.visitChild(ctx, 0) + '1') * self.visitChild(ctx, 1)
 
     def visitPtpMove(self, ctx: krlParser.PtpMoveContext):
         # TODO >> C_DIS/C_PTP should be checked (usually third child in ctx)
         # TODO >> Other drivable points to be implemented - like FRAME, or E3POS
-        target = ctx.geometricExpression().accept(self)
+        target = self.visit(ctx.geometricExpression())
         target_e6pos = self._var_factory.get_var_by_discover(target) if type(target) == dict else target
         logger.debug(f"Robot goes with PTP movement to: {target_e6pos}")
         calc_axes = self.ik_solver.perform_ik(target_e6pos, prev_e6_axis=E6Axis(axis_values=(0, 0, 0, 0, 0, 0)))
@@ -154,12 +150,11 @@ class KrlInterpreter(krlVisitor):
 
     # TODO >> Type check INT=INT CHAR=CHAR INT=CHAR..
     def visitAssignmentExpression(self, ctx: krlParser.AssignmentExpressionContext):
-        var_name = ctx.leftHandSide().accept(self)
-        value = ctx.expression()[0].accept(self)
+        var_name = self.visit(ctx.leftHandSide())
+        value = self.visit(ctx.expression()[0])
         ar = self._callstack.peek()
         ar[var_name] = value
 
-    # TODO >> All .accept(self) should be changed to visit(ctx.....)
     def visitVariableCall(self, ctx: krlParser.VariableCallContext):
         ar = self._callstack.peek()
         var_name = self.visit(ctx.variableName())
@@ -168,7 +163,7 @@ class KrlInterpreter(krlVisitor):
     def visitVariableName(self, ctx: krlParser.VariableNameContext):
         var_name = ctx.IDENTIFIER().getText()
         var_suffix = ctx.arrayVariableSuffix()
-        indices = var_suffix.accept(self) if var_suffix else ''
+        indices = self.visit(var_suffix) if var_suffix else ''
         return var_name + indices
 
     def visitArrayVariableSuffix(self, ctx: krlParser.ArrayVariableSuffixContext):
