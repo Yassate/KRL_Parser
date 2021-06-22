@@ -320,7 +320,7 @@ arguments
    : '(' (expressionList)? ')'
    ;
 
-literal
+IDENTIFIER
    : INTLITERAL
    | FLOATLITERAL
    | CHARLITERAL

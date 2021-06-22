@@ -88,7 +88,6 @@ class TestInterpreter(unittest.TestCase):
         return context.accept(interpreter)
 
 
-#TODO >> test enum
 class TestLiteralInterpreter(unittest.TestCase):
     def test_visitFloatLiteral(self):
         test_string = "2.38765"
@@ -145,8 +144,8 @@ class TestLiteralInterpreter(unittest.TestCase):
     def test_visitEnumLiteral(self):
         test_string = "#P_ACTIVE"
         result = TestInterpreter.get_literal_result(test_string)
-        self.assertIsInstance(result, KrlEnum)
         expected = KrlEnum("P_ACTIVE")
+        self.assertIsInstance(result, KrlEnum)
         self.assertEqual(expected, result)
 
 

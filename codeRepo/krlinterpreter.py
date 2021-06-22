@@ -75,13 +75,13 @@ class KrlInterpreter(krlVisitor):
         return parse[literal_type](value)
 
     def visitModuleName(self, ctx: krlParser.ModuleNameContext):
-        return ctx.IDENTIFIER().accept(self)
+        return self.visit(ctx.IDENTIFIER())
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
         return ctx.unaryPlusMinuxExpression().accept(self)
 
     def visitModuleData(self, ctx: krlParser.ModuleDataContext):
-        scope_name = ctx.moduleName().accept(self)
+        scope_name = self.visit(ctx.moduleName())
         a_record = ActivationRecord(name=scope_name, type_=ARType.MODULE, nesting_level=1, enclosing_ar=self._callstack.peek())
         self._callstack.push(a_record)
         self.visitChildren(ctx)
@@ -92,8 +92,8 @@ class KrlInterpreter(krlVisitor):
     # METHODS UNDER ARE COVERED WITH UNITTESTS
 
     def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
-        var_type: str = ctx.typeName().accept(self) if ctx.typeName() else None
-        var_value: dict = ctx.structElementList().accept(self)
+        var_type: str = self.visit(ctx.typeName()) if ctx.typeName() else None
+        var_value: dict = self.visit(ctx.structElementList())
         return self._var_factory.get_var_by_type(var_value, var_type) if var_type else var_value
 
     #TODO >> varlistrest to be implemented
@@ -119,7 +119,8 @@ class KrlInterpreter(krlVisitor):
         return self.visitChild(ctx) if literal_is_compound else self._parse_simple_literal(ctx)
 
     def visitEnumElement(self, ctx: krlParser.EnumElementContext):
-        return KrlEnum(str(ctx.IDENTIFIER()))
+        ident = self.visit(ctx.IDENTIFIER())
+        return KrlEnum(str(ident))
 
     def visitStructElementList(self, ctx: krlParser.StructElementListContext):
         struct_elements = {}
