@@ -3,7 +3,8 @@ from krlLexer import krlLexer
 from krlParser import krlParser
 from callstack import ActivationRecord, ARType
 from kuka_datatypes import E6Pos, E6Axis, KrlEnum
-import coloredlogs, logging
+import coloredlogs
+import logging
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=logger)
@@ -86,10 +87,9 @@ class KrlInterpreter(krlVisitor):
         self._callstack.push(a_record)
         self.visitChildren(ctx)
 
-    def visitEnumElement(self, ctx:krlParser.EnumElementContext):
-        return self.visitChildren(ctx)
-
     # METHODS UNDER ARE COVERED WITH UNITTESTS
+    def visitEnumElement(self, ctx: krlParser.EnumElementContext):
+        return self.visitChildren(ctx)
 
     def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
         var_type: str = self.visit(ctx.typeName()) if ctx.typeName() else None

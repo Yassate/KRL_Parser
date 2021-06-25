@@ -55,3 +55,17 @@ class ProcedureSymbol(Symbol):
         )
 
     __repr__ = __str__
+
+
+class ModuleSymbol(Symbol):
+    def __init__(self, name, ctx=None):
+        super(ModuleSymbol, self).__init__(name)
+        self.ctx = ctx
+
+    def __str__(self):
+        return '<{class_name}(name={name})>'.format(
+            class_name=self.__class__.__name__,
+            name=self.name,
+        )
+
+    __repr__ = __str__
