@@ -2,7 +2,7 @@ import sys
 from antlr4 import FileStream, CommonTokenStream
 from krlLexer import krlLexer
 from krlParser import krlParser
-from semanalyzer import SemanticAnalyzer
+from semanalyzer import SemanticAnalyzer, ScopeStack
 from krlinterpreter import KrlInterpreter, VariableFactory
 from iksolver import CustomKukaIKSolver, dh_KR360_R2830
 from mpmath import radians as dtor
@@ -60,14 +60,14 @@ class ModuleProcessor:
 
 
 def main():
-    file_paths = [r"testFiles\cfg_test.dat", r"testFiles\exampleKukaPath.src", r"testFiles\exampleKukaPath.dat"]
+    file_paths = sorted([r"testFiles\cfg_test.dat", r"testFiles\exampleKukaPath.src", r"testFiles\exampleKukaPath.dat"])
 
     #current_module = ModuleProcessor(src_file_path)
     #current_module.analyze_semantics()
     #current_module.process_module()
 
     global_symtable = ScopedSymbolTable(scope_name="GLOBAL", scope_level=1)
-    temp_semanalyzer = SemanticAnalyzer(global_symtable)
+    temp_semanalyzer = SemanticAnalyzer(ScopeStack())
 
     for file_path in file_paths:
         text = FileStream(file_path)

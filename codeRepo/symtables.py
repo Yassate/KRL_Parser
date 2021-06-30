@@ -21,28 +21,30 @@ class ScopedSymbolTable:
         self.insert(ArraySymbol(name="$IN", type_="BOOL", size=8196))
         self.insert(ArraySymbol(name="$OUT", type_="BOOL", size=8196))
 
-    # TODO >> Rewrite __str__ method
-    def __str__(self):
-        h1 = 'SCOPE (SCOPED SYMBOL TABLE)'
-        lines = ['\n', h1, '=' * len(h1)]
-        for header_name, header_value in (
-            ('Scope name', self.scope_name),
-            ('Scope level', self.scope_level),
-            ('Enclosing scope',
-             self.enclosing_scope.scope_name if self.enclosing_scope else None)
-        ):
-            lines.append('%-15s: %s' % (header_name, header_value))
-        h2 = 'Scope (Scoped symbol table) contents'
-        lines.extend([h2, '-' * len(h2)])
-        lines.extend(
-            ('%7s: %r' % (key, value))
-            for key, value in self._symbols.items()
-        )
-        lines.append('\n')
-        s = '\n'.join(lines)
-        return s
+    # # TODO >> Rewrite __repr__ method
+    # def __str__(self):
+    #     h1 = 'SCOPE (SCOPED SYMBOL TABLE)'
+    #     lines = ['\n', h1, '=' * len(h1)]
+    #     for header_name, header_value in (
+    #         ('Scope name', self.scope_name),
+    #         ('Scope level', self.scope_level),
+    #         ('Enclosing scope',
+    #          self.enclosing_scope.scope_name if self.enclosing_scope else None)
+    #     ):
+    #         lines.append('%-15s: %s' % (header_name, header_value))
+    #     h2 = 'Scope (Scoped symbol table) contents'
+    #     lines.extend([h2, '-' * len(h2)])
+    #     lines.extend(
+    #         ('%7s: %r' % (key, value))
+    #         for key, value in self._symbols.items()
+    #     )
+    #     lines.append('\n')
+    #     s = '\n'.join(lines)
+    #     return s
 
-    __repr__ = __str__
+    def __repr__(self):
+        enc_scope = self.enclosing_scope.scope_name if self.enclosing_scope else "None"
+        return f"Scope: {self.scope_name}, level: {self.scope_level}, enclosing scope: {enc_scope}"
 
     def insert(self, symbol):
         # print(f"Insert: {symbol.name}")
