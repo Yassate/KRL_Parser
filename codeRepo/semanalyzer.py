@@ -53,6 +53,7 @@ class SemanticAnalyzer(krlVisitor):
     def visitChild(self, ctx, index=0):
         return self.visit(ctx.getChild(index))
 
+    #TODO >> Need to find other way for transfering symbol table between correct .dat and .src files"
     def visitModuleData(self, ctx: krlParser.ModuleContext):
         module_name = self.visit(ctx.moduleName()).lower()
         logger.debug(f"Visiting module data {module_name}")
@@ -75,16 +76,8 @@ class SemanticAnalyzer(krlVisitor):
     def visitModuleName(self, ctx: krlParser.ModuleNameContext):
         return self.visit(ctx.IDENTIFIER())
 
-    # # TODO >> this method is copy of visitVariableDeclarationInDataList; to refactor
-    # def visitVariableDeclaration(self, ctx: krlParser.VariableDeclarationContext):
-    #     if ctx.DECL() is not None:
-    #         var_type = self.visit(ctx.typeVar())
-    #         self._current_symtable.insert(Symbol(self.visit(ctx.variableName()), var_type))
-    #         var_list_rest = ctx.variableListRest()
-    #         if var_list_rest:
-    #             for name in self.visit(var_list_rest):
-    #                 self._current_symtable.insert(Symbol(name, var_type))
-    #
+    #TODO >> NEXT STEP -> struct definition and struct object symbols need to added
+
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL():
             var_typename = self.visit(ctx.typeVar())
@@ -95,8 +88,6 @@ class SemanticAnalyzer(krlVisitor):
             if var_list_rest:
                 for var_name in self.visit(var_list_rest):
                     symtable.insert(Symbol(name=var_name, typename=var_typename))
-            # TODO >> implement GLOBAL/CONST declaration handling
-        # TODO >> what to return?
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
         return self.visitChild(ctx, 1)

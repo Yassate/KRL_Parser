@@ -21,7 +21,6 @@ class ScopedSymbolTable:
         self.insert(ArraySymbol(name="$IN", type_="BOOL", size=8196))
         self.insert(ArraySymbol(name="$OUT", type_="BOOL", size=8196))
 
-    # # TODO >> Rewrite __repr__ method
     # def __str__(self):
     #     h1 = 'SCOPE (SCOPED SYMBOL TABLE)'
     #     lines = ['\n', h1, '=' * len(h1)]
