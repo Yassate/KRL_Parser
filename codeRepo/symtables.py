@@ -15,7 +15,7 @@ class ScopedSymbolTable:
     def _init_builtins(self):
         builtin_types = ["INT", "REAL", "BOOL", "CHAR", "E6POS", "E6AXIS"]
         for type_ in builtin_types:
-            self.insert(Symbol(type_))
+            self.insert(BuiltInTypeSymbol(type_))
 
     def _init_inputs_outputs(self):
         self.insert(ArraySymbol(name="$IN", type_="BOOL", size=8196))
@@ -73,3 +73,7 @@ class ScopedSymbolTable:
 
     def set_output(self, output_no, value):
         self._outputs[output_no] = bool(value)
+
+    def fill_in_types_by_typename(self):
+        for symbol in self._symbols.values():
+            symbol.type_ = self.lookup(symbol.typename) if symbol.typename else None

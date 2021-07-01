@@ -60,13 +60,12 @@ class ModuleProcessor:
 
 
 def main():
-    file_paths = sorted([r"testFiles\cfg_test.dat", r"testFiles\exampleKukaPath.src", r"testFiles\exampleKukaPath.dat"])
-
+    file_paths = sorted([r"testFiles\config.dat", r"testFiles\testglobals.dat", r"testFiles\exampleKukaPath.src", r"testFiles\exampleKukaPath.dat"])
+    parse_trees = {}
     #current_module = ModuleProcessor(src_file_path)
     #current_module.analyze_semantics()
     #current_module.process_module()
 
-    global_symtable = ScopedSymbolTable(scope_name="GLOBAL", scope_level=1)
     temp_semanalyzer = SemanticAnalyzer(ScopeStack())
 
     for file_path in file_paths:
@@ -74,11 +73,16 @@ def main():
         lexer = krlLexer(text)
         stream = CommonTokenStream(lexer)
         parser = krlParser(stream)
-        temp_semanalyzer.visit(parser.module())
-        pass
+        parse_trees[file_path] = parser.module()
 
-    pass
+    for parse_tree in parse_trees.values():
+        temp_semanalyzer.visit(parse_tree)
 
+    global_symtable = temp_semanalyzer.get_global_symtable()
+    global_symtable.fill_in_types_by_typename()
+    temp_krlinterpreter = KrlInterpreter(global_symtable, Callstack(), VariableFactory(), CustomKukaIKSolver(dh_KR360_R2830))
 
+    # for parse_tree in parse_trees.values():
+    #     temp_krlinterpreter.visit(parse_tree)
 
 main()

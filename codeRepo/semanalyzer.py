@@ -34,7 +34,6 @@ class ScopeStack:
         return self.__str__()
 
 
-# TODO >> SEMANTIC ANALYZER TO COMPLETE REBUILD, SOME METHODS SHOULD BE TAKEN FROM krlInterpreter()
 class SemanticAnalyzer(krlVisitor):
     def __init__(self, scope_stack):
         super().__init__()
@@ -48,16 +47,26 @@ class SemanticAnalyzer(krlVisitor):
     def _current_symtable(self, new_cur_scope):
         self._scope_stack.push(new_cur_scope)
 
+    def get_global_symtable(self):
+        return self._scope_stack.peek_global()
+
     def visitChild(self, ctx, index=0):
         return self.visit(ctx.getChild(index))
 
     def visitModuleData(self, ctx: krlParser.ModuleContext):
-        module_name = self.visit(ctx.moduleName())
+        module_name = self.visit(ctx.moduleName()).lower()
         logger.debug(f"Visiting module data {module_name}")
         global_scope = self._scope_stack.peek_global()
-        global_scope.insert(ModuleSymbol(module_name, ctx))
-        new_scope = ScopedSymbolTable(module_name, scope_level=2, enclosing_scope=global_scope)
-        self._scope_stack.push(new_scope)
+        if self._current_symtable != global_scope:
+            self._scope_stack.pop()
+        global_scope.insert(SubroutineSymbol(module_name, ctx))
+        if module_name != "config":
+            new_scope = ScopedSymbolTable(module_name, scope_level=2, enclosing_scope=global_scope)
+            self._scope_stack.push(new_scope)
+        return self.visitChildren(ctx)
+
+    def visitModuleRoutines(self, ctx: krlParser.ModuleRoutinesContext):
+        ctx.symtable = self._current_symtable
         return self.visitChildren(ctx)
 
     def visitEnumDefinition(self, ctx: krlParser.EnumDefinitionContext):
@@ -66,24 +75,26 @@ class SemanticAnalyzer(krlVisitor):
     def visitModuleName(self, ctx: krlParser.ModuleNameContext):
         return self.visit(ctx.IDENTIFIER())
 
-    # TODO >> this method is copy of visitVariableDeclarationInDataList; to refactor
-    def visitVariableDeclaration(self, ctx: krlParser.VariableDeclarationContext):
-        if ctx.DECL() is not None:
-            var_type = self.visit(ctx.typeVar())
-            self._current_symtable.insert(Symbol(self.visit(ctx.variableName()), var_type))
-            var_list_rest = ctx.variableListRest()
-            if var_list_rest:
-                for name in self.visit(var_list_rest):
-                    self._current_symtable.insert(Symbol(name, var_type))
-
+    # # TODO >> this method is copy of visitVariableDeclarationInDataList; to refactor
+    # def visitVariableDeclaration(self, ctx: krlParser.VariableDeclarationContext):
+    #     if ctx.DECL() is not None:
+    #         var_type = self.visit(ctx.typeVar())
+    #         self._current_symtable.insert(Symbol(self.visit(ctx.variableName()), var_type))
+    #         var_list_rest = ctx.variableListRest()
+    #         if var_list_rest:
+    #             for name in self.visit(var_list_rest):
+    #                 self._current_symtable.insert(Symbol(name, var_type))
+    #
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL():
-            var_type = self.visit(ctx.typeVar())
-            self._current_symtable.insert(Symbol(self.visit(ctx.variableName()), var_type))
+            var_typename = self.visit(ctx.typeVar())
+            var_name = self.visit(ctx.variableName())
+            symtable = self.get_global_symtable() if ctx.GLOBAL() else self._current_symtable
+            symtable.insert(Symbol(name=var_name, typename=var_typename))
             var_list_rest = ctx.variableListRest()
             if var_list_rest:
-                for name in self.visit(var_list_rest):
-                    self._current_symtable.insert(Symbol(name, var_type))
+                for var_name in self.visit(var_list_rest):
+                    symtable.insert(Symbol(name=var_name, typename=var_typename))
             # TODO >> implement GLOBAL/CONST declaration handling
         # TODO >> what to return?
 

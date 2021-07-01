@@ -99,7 +99,6 @@ class KrlInterpreter(krlVisitor):
     #TODO >> varlistrest to be implemented
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL():
-
             var_type = self.visit(ctx.typeVar())
             var_name = self.visit(ctx.variableName())
             var_list_rest = ctx.variableListRest()

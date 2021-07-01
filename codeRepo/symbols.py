@@ -17,7 +17,7 @@ class Symbol:
         )
 
 
-class BuiltInSymbol(Symbol):
+class BuiltInTypeSymbol(Symbol):
     def __init__(self, name):
         super().__init__(name)
 
@@ -57,9 +57,9 @@ class ProcedureSymbol(Symbol):
     __repr__ = __str__
 
 
-class ModuleSymbol(Symbol):
+class SubroutineSymbol(Symbol):
     def __init__(self, name, ctx=None):
-        super(ModuleSymbol, self).__init__(name)
+        super(SubroutineSymbol, self).__init__(name)
         self.ctx = ctx
 
     def __str__(self):
