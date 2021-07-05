@@ -83,7 +83,7 @@ class SemanticAnalyzer(krlVisitor):
             members_names = [self.visit(ctx.variableName(i))]
             members_names.extend(self.visit(ctx.variableListRest(i)))
             for member_name in members_names:
-                struct_symbol.members.append(Symbol(member_name, typename=members_type))
+                struct_symbol.members.append(VarSymbol(member_name, typename=members_type))
 
         symtable.insert(struct_symbol)
         return self.visitChildren(ctx)
@@ -96,11 +96,11 @@ class SemanticAnalyzer(krlVisitor):
             var_typename = self.visit(ctx.typeVar())
             var_name = self.visit(ctx.variableName())
             symtable = self.get_global_symtable() if ctx.GLOBAL() else self._current_symtable
-            symtable.insert(Symbol(name=var_name, typename=var_typename))
+            symtable.insert(VarSymbol(name=var_name, typename=var_typename))
             var_list_rest = ctx.variableListRest()
             if var_list_rest:
                 for var_name in self.visit(var_list_rest):
-                    symtable.insert(Symbol(name=var_name, typename=var_typename))
+                    symtable.insert(VarSymbol(name=var_name, typename=var_typename))
 
     def visitVariableInitialisation(self, ctx: krlParser.VariableInitialisationContext):
         return self.visitChild(ctx, 1)

@@ -75,7 +75,7 @@ class ScopedSymbolTable:
 
     def fill_in_types_by_typename(self):
         for symbol in self._symbols.values():
-            if isinstance(symbol, Symbol):
-                symbol.type_ = self.lookup(symbol.typename)
+            if isinstance(symbol, VarSymbol):
+                symbol.fill_in_type_by_typename(self)
             elif isinstance(symbol, StructTypeSymbol):
                 symbol.fill_in_member_types_by_typename(self)
