@@ -73,10 +73,23 @@ class SemanticAnalyzer(krlVisitor):
     def visitEnumDefinition(self, ctx: krlParser.EnumDefinitionContext):
         pass
 
+    def visitStructureDefinition(self, ctx: krlParser.StructureDefinitionContext):
+        typename = self.visit(ctx.typeName())
+        symtable = self.get_global_symtable() if ctx.GLOBAL() else self._current_symtable
+        struct_symbol = StructTypeSymbol(typename)
+
+        for i, typeVarCtx in enumerate(ctx.typeVar()):
+            members_type = self.visit(typeVarCtx)
+            members_names = [self.visit(ctx.variableName(i))]
+            members_names.extend(self.visit(ctx.variableListRest(i)))
+            for member_name in members_names:
+                struct_symbol.members.append(Symbol(member_name, typename=members_type))
+
+        symtable.insert(struct_symbol)
+        return self.visitChildren(ctx)
+
     def visitModuleName(self, ctx: krlParser.ModuleNameContext):
         return self.visit(ctx.IDENTIFIER())
-
-    #TODO >> NEXT STEP -> struct definition and struct object symbols need to added
 
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL():
