@@ -50,7 +50,7 @@ class ScopedSymbolTable:
         self._symbols[symbol.name] = symbol
 
     def lookup(self, name):
-        print(f"Lookup: {name}")
+        #print(f"Lookup: {name}")
         if '[' in name and ']' in name:
             prefix = name.split('[')[0]
             index = name.split('[')[1][:-1]
@@ -75,7 +75,6 @@ class ScopedSymbolTable:
 
     def fill_in_types_by_typename(self):
         for symbol in self._symbols.values():
-            if isinstance(symbol, VarSymbol):
-                symbol.fill_in_type_by_typename(self)
-            elif isinstance(symbol, StructTypeSymbol):
-                symbol.fill_in_member_types_by_typename(self)
+            # TODO >> Maybe it should be reworked? ABCs, filter or separate symtables for different symbol types
+            if isinstance(symbol, (StructTypeSymbol, VarSymbol)):
+                symbol.fill_in_types_by_typename(self)

@@ -1,6 +1,4 @@
-
-
-class TypeSymbol:
+class Symbol:
     def __init__(self, name):
         self.name = name
 
@@ -8,16 +6,16 @@ class TypeSymbol:
         return f"{self.name}"
 
 
-class VarSymbol:
+class VarSymbol(Symbol):
     def __init__(self, name, type_=None, typename=None):
-        self.name = name
+        super().__init__(name)
         self.type_ = type_
         self.typename = typename
 
     def __str__(self):
         return f"{self.name}, type: {self.typename}"
 
-    def fill_in_type_by_typename(self, symtable):
+    def fill_in_types_by_typename(self, symtable):
         self.type_ = symtable.lookup(self.typename)
 
 
@@ -26,25 +24,22 @@ class CallableSymbol():
         self.name = name
 
 
-class BuiltInTypeSymbol(TypeSymbol):
+class BuiltInTypeSymbol(Symbol):
     def __init__(self, name):
         super().__init__(name)
 
 
-class StructTypeSymbol(TypeSymbol):
+class StructTypeSymbol(Symbol):
     def __init__(self, name):
         super().__init__(name)
-        self.members = []
+        self.members = {}
 
     def add_member(self, member):
-        self.members.insert(member)
+        self.members[member.name] = member
 
-    def fill_in_member_types_by_typename(self, symtable):
-        for symbol in self.members:
-            if isinstance(symbol, VarSymbol):
-                symbol.type_ = symtable.lookup(symbol.typename)
-            elif isinstance(symbol, StructTypeSymbol):
-                symbol.fill_in_member_types_by_typename(self)
+    def fill_in_types_by_typename(self, symtable):
+        for symbol in self.members.values():
+            symbol.fill_in_types_by_typename(symtable)
 
 
 class ArraySymbol(VarSymbol):
