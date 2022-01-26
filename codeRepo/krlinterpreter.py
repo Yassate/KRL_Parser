@@ -88,8 +88,6 @@ class KrlInterpreter(krlVisitor):
         self.visitChildren(ctx)
 
     # METHODS UNDER ARE COVERED WITH UNITTESTS
-    def visitEnumElement(self, ctx: krlParser.EnumElementContext):
-        return self.visitChildren(ctx)
 
     def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
         var_type: str = self.visit(ctx.typeName()) if ctx.typeName() else None

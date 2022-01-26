@@ -254,7 +254,6 @@ class CustomKukaIKSolver:
         R_3_6 = R_0_3.inv() * R_0_6
 
         axis5 = self.calc_A5(R_3_6=R_3_6, T=input_e6pos.T, l_limit=-120, h_limit=120)
-
         axis4 = self.calc_A4(R_3_6, input_e6pos.T, l_limit=-350, h_limit=350, axis5=axis5, prev_axis4=prev_e6_axis.A4)
         axis6 = self.calc_A6(R_3_6, input_e6pos.T, l_limit=-350, h_limit=350, axis5=axis5, prev_axis6=prev_e6_axis.A6)
 

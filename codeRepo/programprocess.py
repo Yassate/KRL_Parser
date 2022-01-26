@@ -9,7 +9,11 @@ from mpmath import radians as dtor
 from callstack import Callstack
 import os
 from symtables import *
+import coloredlogs
+import logging
 
+logger = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=logger)
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(dir_path + r"\generated")
 print(sys.path)
@@ -60,7 +64,7 @@ class ModuleProcessor:
 
 
 def main():
-    file_paths = sorted([r"testFiles\config.dat", r"testFiles\testglobals.dat", r"testFiles\exampleKukaPath.src", r"testFiles\exampleKukaPath.dat"])
+    file_paths = sorted([r"testFiles\config.dat", r"testFiles\testglobals.dat", r"testFiles\exampleKukaPath.src", r"testFiles\exampleKukaPath2.src", r"testFiles\exampleKukaPath.dat"])
     parse_trees = {}
     #current_module = ModuleProcessor(src_file_path)
     #current_module.analyze_semantics()
@@ -75,6 +79,7 @@ def main():
         parser = krlParser(stream)
         parse_trees[file_path] = parser.module()
 
+    logger.debug("Semantic analysis phase I")
     for parse_tree in parse_trees.values():
         temp_semanalyzer.visit(parse_tree)
 
@@ -82,7 +87,11 @@ def main():
     global_symtable.fill_in_types_by_typename()
     temp_krlinterpreter = KrlInterpreter(global_symtable, Callstack(), VariableFactory(), CustomKukaIKSolver(dh_KR360_R2830))
 
-    # for parse_tree in parse_trees.values():
-    #     temp_krlinterpreter.visit(parse_tree)
+    logger.debug("Interpretation phase I")
+
+    temp_krlinterpreter.visit(parse_trees['testFiles\\exampleKukaPath.dat'])
+    temp_krlinterpreter.visit(parse_trees['testFiles\\exampleKukaPath.src'])
+    #for parse_tree in parse_trees.values():
+        #temp_krlinterpreter.visit(parse_tree)
 
 main()

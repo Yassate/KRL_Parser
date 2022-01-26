@@ -3,6 +3,7 @@ from krlParser import krlParser
 from symtables import *
 import coloredlogs
 import logging
+
 logger = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=logger)
 
@@ -53,13 +54,12 @@ class SemanticAnalyzer(krlVisitor):
     def visitChild(self, ctx, index=0):
         return self.visit(ctx.getChild(index))
 
-    #TODO >> Need to find other way for transfering symbol table between correct .dat and .src files"
+    # TODO >> Need to find other way for transfering symbol table between correct .dat and .src files"
     def visitModuleData(self, ctx: krlParser.ModuleContext):
         module_name = self.visit(ctx.moduleName()).lower()
         logger.debug(f"Visiting module data {module_name}")
         global_scope = self._scope_stack.peek_global()
-        if self._current_symtable != global_scope:
-            self._scope_stack.pop()
+        assert self._current_symtable == global_scope
         global_scope.insert(SubroutineSymbol(module_name, ctx))
         if module_name != "config":
             new_scope = ScopedSymbolTable(module_name, scope_level=2, enclosing_scope=global_scope)
@@ -67,6 +67,28 @@ class SemanticAnalyzer(krlVisitor):
         return self.visitChildren(ctx)
 
     def visitModuleRoutines(self, ctx: krlParser.ModuleRoutinesContext):
+        #ctx.symtable = self._current_symtable
+        self.visitChildren(ctx)
+        if self._current_symtable != self.get_global_symtable():
+            self._scope_stack.pop()
+
+    def visitMainRoutine(self, ctx: krlParser.MainRoutineContext):
+        if ctx.functionDefinition():
+            #main routine shouldn't be a function
+            pass
+        elif ctx.procedureDefinition():
+            routine_symbol = self.visit(ctx.procedureDefinition())
+            self.get_global_symtable().insert(routine_symbol)
+
+    def visitProcedureDefinition(self, ctx: krlParser.ProcedureDefinitionContext):
+        procedure_name = self.visit(ctx.procedureName())
+        if self._current_symtable.scope_name != procedure_name:     #can be already there after visit in .dat file
+            new_scope = ScopedSymbolTable(scope_name=procedure_name, scope_level=self._current_symtable.scope_level)
+            self._scope_stack.push(new_scope)
+        self.visitChildren(ctx)
+        return ProcedureSymbol(name=procedure_name, ctx=ctx.routineBody())
+
+    def visitRoutineBody(self, ctx: krlParser.RoutineBodyContext):
         ctx.symtable = self._current_symtable
         return self.visitChildren(ctx)
 
@@ -126,4 +148,10 @@ class SemanticAnalyzer(krlVisitor):
         for i in range(len(ctx.children)):
             indices.append(self.visitChild(ctx, i))
         return ''.join(map(str, indices))
-        return ''
+
+    # NEED IMPLEMENTATION OF SOME CASES
+
+    # EXT  P00 (P00_COMMAND  :IN,FUNCT_TYPE  :IN,CHAR [] :OUT,INT  :IN )
+    # GLOBAL DEFFCT CHAR[15] K_ADDR(BASE_NO: IN)
+    def visitTypeVar(self, ctx: krlParser.TypeVarContext):
+        return self.visitChildren(ctx)
