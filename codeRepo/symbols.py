@@ -49,13 +49,22 @@ class ArraySymbol(VarSymbol):
 
 
 class ProcedureSymbol(CallableSymbol):
-    def __init__(self, name, params=None, ctx=None):
+    def __init__(self, name, ctx):
         super(ProcedureSymbol, self).__init__(name)
-        self.params = params if params is not None else []
         self.ctx = ctx
 
 
-class SubroutineSymbol(CallableSymbol):
-    def __init__(self, name, ctx=None):
-        super(SubroutineSymbol, self).__init__(name)
+class FunctionSymbol(CallableSymbol):
+    def __init__(self, name, ctx, return_symbol):
+        super(FunctionSymbol, self).__init__(name)
         self.ctx = ctx
+        self.returnSymbol = return_symbol
+
+    def fill_in_types_by_typename(self, symtable):
+        self.returnSymbol.fill_in_types_by_typename(symtable)
+
+class DatFileSymbol(CallableSymbol):
+    def __init__(self, name, ctx):
+        super(DatFileSymbol, self).__init__(name)
+        self.ctx = ctx
+        self.executed = False

@@ -11,7 +11,7 @@ coloredlogs.install(level='DEBUG', logger=logger)
 class ScopeStack:
     def __init__(self):
         self._records = []
-        global_scope = ScopedSymbolTable(scope_name="GLOBAL", scope_level=1)
+        global_scope = ScopedSymbolTable(name="GLOBAL", lvl=1)
         self.push(global_scope)
 
     def push(self, scope):
@@ -41,11 +41,11 @@ class SemanticAnalyzer(krlVisitor):
         self._scope_stack = scope_stack
 
     @property
-    def _current_symtable(self):
+    def _act_symtable(self):
         return self._scope_stack.peek()
 
-    @_current_symtable.setter
-    def _current_symtable(self, new_cur_scope):
+    @_act_symtable.setter
+    def _act_symtable(self, new_cur_scope):
         self._scope_stack.push(new_cur_scope)
 
     def get_global_symtable(self):
@@ -59,37 +59,51 @@ class SemanticAnalyzer(krlVisitor):
         module_name = self.visit(ctx.moduleName()).lower()
         logger.debug(f"Visiting module data {module_name}")
         global_scope = self._scope_stack.peek_global()
-        assert self._current_symtable == global_scope
-        global_scope.insert(SubroutineSymbol(module_name, ctx))
+        assert self._act_symtable == global_scope
         if module_name != "config":
-            new_scope = ScopedSymbolTable(module_name, scope_level=2, enclosing_scope=global_scope)
+            new_scope = ScopedSymbolTable(module_name, lvl=2, enc_scope=global_scope)
+            new_scope.insert(DatFileSymbol(module_name, ctx))
             self._scope_stack.push(new_scope)
-        return self.visitChildren(ctx)
+        self.visitChildren(ctx)
 
     def visitModuleRoutines(self, ctx: krlParser.ModuleRoutinesContext):
         #ctx.symtable = self._current_symtable
         self.visitChildren(ctx)
-        if self._current_symtable != self.get_global_symtable():
+        if self._act_symtable != self.get_global_symtable():
             self._scope_stack.pop()
 
     def visitMainRoutine(self, ctx: krlParser.MainRoutineContext):
-        if ctx.functionDefinition():
-            #main routine shouldn't be a function
-            pass
-        elif ctx.procedureDefinition():
-            routine_symbol = self.visit(ctx.procedureDefinition())
-            self.get_global_symtable().insert(routine_symbol)
+        routine_def = ctx.functionDefinition() or ctx.procedureDefinition()
+        routine_symbol = self.visit(routine_def)
+        self.get_global_symtable().insert(routine_symbol)
+
+    def visitSubRoutine(self, ctx: krlParser.SubRoutineContext):
+        routine_def = ctx.functionDefinition() or ctx.procedureDefinition()
+        routine_symbol = self.visit(routine_def)
+        correct_symtable = self.get_global_symtable() if routine_def.GLOBAL() else self._act_symtable
+        correct_symtable.insert(routine_symbol)
 
     def visitProcedureDefinition(self, ctx: krlParser.ProcedureDefinitionContext):
-        procedure_name = self.visit(ctx.procedureName())
-        if self._current_symtable.scope_name != procedure_name:     #can be already there after visit in .dat file
-            new_scope = ScopedSymbolTable(scope_name=procedure_name, scope_level=self._current_symtable.scope_level)
-            self._scope_stack.push(new_scope)
+        proc_name = self.visit(ctx.procedureName())
+        new_scope = ScopedSymbolTable(proc_name, self._act_symtable.lvl + 1, self._act_symtable)
+        self._scope_stack.push(new_scope)
+        # TODO >> Implement storing runtime variable symbols and formal parameters
         self.visitChildren(ctx)
-        return ProcedureSymbol(name=procedure_name, ctx=ctx.routineBody())
+        self._scope_stack.pop()
+        return ProcedureSymbol(name=proc_name, ctx=ctx.routineBody())
+
+    def visitFunctionDefinition(self, ctx: krlParser.FunctionDefinitionContext):
+        func_name = self.visit(ctx.functionName())
+        new_scope = ScopedSymbolTable(func_name, self._act_symtable.lvl + 1, self._act_symtable)
+        self._scope_stack.push(new_scope)
+        return_type = self.visit(ctx.typeVar())
+        # TODO >> Implement storing runtime variable symbols and formal parameters
+        self.visitChildren(ctx)
+        self._scope_stack.pop()
+        return FunctionSymbol(name=func_name, ctx=ctx.routineBody(), return_symbol=VarSymbol(name="", typename=return_type))
 
     def visitRoutineBody(self, ctx: krlParser.RoutineBodyContext):
-        ctx.symtable = self._current_symtable
+        ctx.symtable = self._act_symtable
         return self.visitChildren(ctx)
 
     def visitEnumDefinition(self, ctx: krlParser.EnumDefinitionContext):
@@ -97,7 +111,7 @@ class SemanticAnalyzer(krlVisitor):
 
     def visitStructureDefinition(self, ctx: krlParser.StructureDefinitionContext):
         typename = self.visit(ctx.typeName())
-        symtable = self.get_global_symtable() if ctx.GLOBAL() else self._current_symtable
+        symtable = self.get_global_symtable() if ctx.GLOBAL() else self._act_symtable
         struct_symbol = StructTypeSymbol(typename)
 
         for i, typeVarCtx in enumerate(ctx.typeVar()):
@@ -117,7 +131,7 @@ class SemanticAnalyzer(krlVisitor):
         if ctx.DECL():
             var_typename = self.visit(ctx.typeVar())
             var_name = self.visit(ctx.variableName())
-            symtable = self.get_global_symtable() if ctx.GLOBAL() else self._current_symtable
+            symtable = self.get_global_symtable() if ctx.GLOBAL() else self._act_symtable
             symtable.insert(VarSymbol(name=var_name, typename=var_typename))
             var_list_rest = ctx.variableListRest()
             if var_list_rest:

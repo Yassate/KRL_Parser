@@ -2,15 +2,18 @@ from symbols import *
 
 
 class ScopedSymbolTable:
-    def __init__(self, scope_name, scope_level, enclosing_scope=None):
+    def __init__(self, name, lvl, enc_scope=None):
         self._symbols = {}
+        self._childscopes = []
         self._inputs = self._outputs = None
-        self.scope_name = scope_name
-        self.scope_level = scope_level
-        self.enclosing_scope = enclosing_scope
+        self.name = name
+        self.lvl = lvl
+        self.enc_scope = enc_scope
         self._init_builtins()
-        if scope_level == 0:
+        if lvl == 0:
             self._init_inputs_outputs()
+        if enc_scope:
+            enc_scope.append_child(self)
 
     def _init_builtins(self):
         builtin_types = ["INT", "REAL", "BOOL", "CHAR", "E6POS", "E6AXIS"]
@@ -42,13 +45,14 @@ class ScopedSymbolTable:
     #     return s
 
     def __repr__(self):
-        enc_scope = self.enclosing_scope.scope_name if self.enclosing_scope else "None"
-        return f"Scope: {self.scope_name}, level: {self.scope_level}, enclosing scope: {enc_scope}"
+        enc_scope = self.enc_scope.name if self.enc_scope else "None"
+        return f"Scope: {self.name}, level: {self.lvl}, enclosing scope: {enc_scope}"
 
     def insert(self, symbol):
         # print(f"Insert: {symbol.name}")
         self._symbols[symbol.name] = symbol
 
+    # TODO >> Lookup should be case insensitive
     def lookup(self, name):
         #print(f"Lookup: {name}")
         if '[' in name and ']' in name:
@@ -73,8 +77,13 @@ class ScopedSymbolTable:
     def set_output(self, output_no, value):
         self._outputs[output_no] = bool(value)
 
+    def append_child(self, child_symtable):
+        self._childscopes.append(child_symtable)
+
     def fill_in_types_by_typename(self):
         for symbol in self._symbols.values():
             # TODO >> Maybe it should be reworked? ABCs, filter or separate symtables for different symbol types
-            if isinstance(symbol, (StructTypeSymbol, VarSymbol)):
+            if isinstance(symbol, (StructTypeSymbol, VarSymbol, FunctionSymbol)):
                 symbol.fill_in_types_by_typename(self)
+        for symtable in self._childscopes:
+            symtable.fill_in_types_by_typename()

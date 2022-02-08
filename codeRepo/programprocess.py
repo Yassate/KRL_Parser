@@ -51,7 +51,7 @@ class ModuleProcessor:
         self._dat_tree = self._file_to_ast(dat_file_path)
 
     def analyze_semantics(self):
-        self._semanalyzer = SemanticAnalyzer(global_symtable=ScopedSymbolTable(scope_name="GLOBAL", scope_level=1))
+        self._semanalyzer = SemanticAnalyzer(global_symtable=ScopedSymbolTable(name="GLOBAL", lvl=1))
         self._semanalyzer.visit(self._dat_tree)
         self._semanalyzer.visit(self._src_tree)
         self._symtable = self._semanalyzer.get_module_symtable()
