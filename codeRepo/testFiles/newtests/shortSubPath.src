@@ -1,0 +1,37 @@
+&ACCESS RVO1
+&REL 274
+&COMMENT Bld
+&PARAM DISKPATH = KRC:\R1\Program\
+
+DEF shortSubPath( )
+
+$OUT[180]=TRUE
+$OUT[181]=TRUE
+
+;FOLD PTP HP005 CONT Vel=100 % PDATHH Tool[64]:NULL [64]:NULL ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP005; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP005
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP005 C_DIS C_DIS
+;ENDFOLD
+
+;FOLD PTP HP010 CONT Vel=100 % PDATHH Tool[64]:NULL Base[64]:NULL ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP010; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP010
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP010 C_Dis
+;ENDFOLD
+
+$OUT[180]=FALSE
+
+END

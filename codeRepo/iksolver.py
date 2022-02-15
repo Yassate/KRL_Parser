@@ -17,9 +17,7 @@ def createMatrix(alpha, a, q, d):
                   [sin(q),  cos(q) * cos(alpha),   -cos(q) * sin(alpha), a * sin(q)],
                   [0,       sin(alpha),             cos(alpha),          d],
                   [0, 0, 0, 1]])
-
     return mat
-
 
 # # Define DH param symbols
 d0, d1, d2, d3, d4, d5, d6, d7 = symbols('d0:8')  # link_offset_i
@@ -34,22 +32,6 @@ qX = symbols('qX')
 q0, q1, q2, q3, q4, q5, q6, q7 = symbols('q0:8')  # theta_i
 qi0, qi1, qi2, qi3, qi4, qi5, qi6, qi7 = symbols('qi0:8')
 
-dh_KR360_R2830 = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
-                  alpha1: pi/2,  a1: 0.50,   d1: -1.045,  q1: qi1,
-                  alpha2: 0,     a2: 1.30,   d2: 0,       q2: qi2-pi/2,
-                  alpha3: -pi/2, a3: 0.055,  d3: 0,       q3: qi3+pi,
-                  alpha4: pi/2,  a4: 0,      d4: -1.025,  q4: qi4,
-                  alpha5: -pi/2, a5: 0,      d5: 0,       q5: qi5,
-                  alpha6: pi,    a6: 0,      d6: -0.29,   q6: qi6}
-
-dh_KR360_R2830 = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
-                  alpha1: pi/2,  a1: 0.50,   d1: -1.045,  q1: qi1,
-                  alpha2: 0,     a2: 1.30,   d2: 0,       q2: qi2-pi/2,
-                  alpha3: -pi/2, a3: 0.055,  d3: 0,       q3: qi3+pi,
-                  alphaX: 0,     aX: 0,      dX: -1.025,  qX: 0,
-                  alpha4: pi/2,  a4: 0,      d4: 0,       q4: qi4,
-                  alpha5: -pi/2, a5: 0,      d5: 0,       q5: qi5,
-                  alpha6: pi,    a6: 0,      d6: -0.29,   q6: qi6}
 
 dh_KR360_R2830 = {alpha0: pi,    a0: 0,      d0: 0,       q0: 0,
                   alpha1: pi/2,  a1: 0.50,   d1: -1.045,  q1: qi1,
@@ -325,8 +307,6 @@ class CustomKukaIKSolver:
         return E6Pos.from_tuples(p_mm_0FF, deg_0FF, S=0, T=0)
 
 
-
-
 kuka_solver = CustomKukaIKSolver(dh_KR360_R2830)
 #calc_frame = kuka_solver.performFK(test_e6axis, debug_print=True)
 
@@ -334,5 +314,3 @@ kuka_solver = CustomKukaIKSolver(dh_KR360_R2830)
 #print(calc_frame.orientation)
 #calc_frame.abc = [90, 90, 90]
 #print(calc_frame.orientation)
-
-

@@ -1,0 +1,106 @@
+&ACCESS RVO1
+&REL 274
+&COMMENT Bld
+&PARAM DISKPATH = KRC:\R1\Program\
+DEF modified_kuka_path( )
+
+DECL INT SRCDATA
+DECL FLOAT SCRDATAFLOAT, ADRa
+DECL INT DATAS13
+
+;FOLD INI
+  ;FOLD BASISTECH INI
+    GLOBAL INTERRUPT DECL 3 WHEN $IN[1]==TRUE DO IR_STOPM ( )
+    INTERRUPT ON 3 
+    BAS (#INITMOV,0 )
+  ;ENDFOLD (BASISTECH INI)
+  ;FOLD USER INI
+    ;Make your modifications here
+  ;ENDFOLD (USER INI)
+;ENDFOLD (INI)
+
+WAIT FOR ($IN[126])
+$OUT[125]=TRUE
+$OUT[161]=FALSE
+
+
+;FOLD PTP HP005 CONT Vel=100 % PDATHH Tool[64]:NULL [64]:NULL ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP005; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP005
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP005 C_DIS C_DIS
+;ENDFOLD
+;FOLD PTP HP010 CONT Vel=100 % PDATHH Tool[64]:NULL Base[64]:NULL ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP010; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP010
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP010 C_Dis
+;ENDFOLD
+;FOLD PTP HP015 CONT Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP015; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP015
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP015 C_Dis
+;ENDFOLD
+;FOLD PTP HP020 CONT Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP020; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP020
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP020 C_Dis
+;ENDFOLD
+;FOLD PTP HP025 Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP025; Kuka.BlendingEnabled=False; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP025
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP025
+;ENDFOLD
+;FOLD PTP HP030 Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP030; Kuka.BlendingEnabled=False; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP030
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS(0)
+PTP XHP030
+;ENDFOLD
+
+IF NOT GHOST() THEN
+shortSubPath()
+ENDIF
+
+$OUT[125]=TRUE
+$OUT[161]=TRUE
+COLLSTOP( 15, 2+0 )
+USE_CD_PARAMS( 0)
+
+END
+
+
+

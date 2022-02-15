@@ -3,13 +3,9 @@
 # Steps which are listed on the bottom need to be checked, if everything is implemented
 
 # TODO >> STEP0 -> Find out the way for some kind of "programming journal"
-# TODO >> STEP0,5 -> Runtime variables in routines need to be added to symbol tables
-# TODO >> STEP1 -> check what should be accomplished during semantic analysis phase and add objectives
-# TODO >> STEP2 -> implement test cases for semantic analysis
+# TODO >> STEP1 -> Add Runtime variables to functions - they need to be added to symbol tables
 # TODO >> STEP3 -> improve struct definition handling, problem with strings (e.g. char point2[24] in STRUC FDAT)
 # TODO >> STEP4 -> implement each visitor method for interpration phase
-
-
 
 #Semantic analyser goes through dat files, collecting and inserting symtables into parse tree of subroutine
 #ParseTree needs symtable and symtable (for example routines symbols) need reference to part of parse trees

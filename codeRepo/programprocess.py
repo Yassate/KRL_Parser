@@ -64,7 +64,7 @@ class ModuleProcessor:
 
 
 def main():
-    file_paths = sorted([r"testFiles\config.dat", r"testFiles\testglobals.dat", r"testFiles\exampleKukaPath.src", r"testFiles\exampleKukaPath2.src", r"testFiles\exampleKukaPath.dat"])
+    file_paths = sorted([r"testFiles\config.dat", r"testFiles\testglobals.dat", r"testFiles\modified_kuka_path.src", r"testFiles\modified_kuka_path.dat", r"testFiles\shortSubPath.src", r"testFiles\shortSubPath.dat", r"testFiles\ghost_lib.src", r"testFiles\ghost_lib.dat"])
     parse_trees = {}
     #current_module = ModuleProcessor(src_file_path)
     #current_module.analyze_semantics()
@@ -89,8 +89,8 @@ def main():
 
     logger.debug("Interpretation phase I")
 
-    temp_krlinterpreter.visit(parse_trees['testFiles\\exampleKukaPath.dat'])
-    temp_krlinterpreter.visit(parse_trees['testFiles\\exampleKukaPath.src'])
+    temp_krlinterpreter.visit(parse_trees['testFiles\\modified_kuka_path.dat'])
+    temp_krlinterpreter.visit(parse_trees['testFiles\\modified_kuka_path.src'])
     #for parse_tree in parse_trees.values():
         #temp_krlinterpreter.visit(parse_tree)
 
