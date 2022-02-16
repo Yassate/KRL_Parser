@@ -87,7 +87,15 @@ class KrlInterpreter(krlVisitor):
         self._callstack.push(a_record)
         self.visitChildren(ctx)
 
-    # METHODS UNDER ARE COVERED WITH UNITTESTS
+    def visitSubprogramCall(self, ctx: krlParser.SubprogramCallContext):
+        #unlikely or even impossible (no examples in robot backup) routine calls with dot like "module.function()"
+        routine_name = self.visit(ctx.variableName()[0])
+        routine_symbol = self._current_symtable.lookup(routine_name)
+        if routine_symbol:
+            self.visit(routine_symbol.ctx)
+        return self.visitChildren(ctx)
+
+    # METHODS UNDER ARE COVERED WITH UNIT TESTS
 
     def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
         var_type: str = self.visit(ctx.typeName()) if ctx.typeName() else None
@@ -155,6 +163,7 @@ class KrlInterpreter(krlVisitor):
     def visitVariableCall(self, ctx: krlParser.VariableCallContext):
         ar = self._callstack.peek()
         var_name = self.visit(ctx.variableName())
+        logger.debug(f"Variable value resolved - {var_name}:{ar[var_name]}")
         return ar[var_name]
 
     def visitVariableName(self, ctx: krlParser.VariableNameContext):

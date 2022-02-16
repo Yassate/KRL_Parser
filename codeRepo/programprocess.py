@@ -64,7 +64,7 @@ class ModuleProcessor:
 
 
 def main():
-    file_paths = sorted([r"testFiles\config.dat", r"testFiles\testglobals.dat", r"testFiles\modified_kuka_path.src", r"testFiles\modified_kuka_path.dat", r"testFiles\shortSubPath.src", r"testFiles\shortSubPath.dat", r"testFiles\ghost_lib.src", r"testFiles\ghost_lib.dat"])
+    file_paths = sorted([r"testFiles\config.dat", r"testFiles\testglobals.dat", r"testFiles\modified_kuka_path.src", r"testFiles\modified_kuka_path.dat", r"testFiles\shortSubPath.src", r"testFiles\shortSubPath.dat", r"testFiles\custom_lib.src", r"testFiles\custom_lib.dat"])
     parse_trees = {}
     #current_module = ModuleProcessor(src_file_path)
     #current_module.analyze_semantics()

@@ -3,18 +3,27 @@
 &COMMENT 
 &USER PKL_AST
 
-DEF ghost_lib( )
+DEF custom_lib( )
 
 END
 
 GLOBAL DEFFCT BOOL Ghost()
    CONTINUE
-   return GhostForced and $IN[I_GhostActive] and not $in[I_GhostNonActive]
+   return GhostForced() and $IN[I_GhostActive] and not $in[I_GhostNonActive]
 endfct
 
 DEFFCT BOOL GhostForced()
 	return ghost_forced
 ENDFCT
+
+GLOBAL DEF bas (COMMAND :IN,REAL_PAR :IN )
+  DECL BAS_COMMAND COMMAND
+  REAL REAL_PAR
+END
+
+GLOBAL DEF SET_CD_PARAMS (Index :IN)
+  DECL INT Index
+END
 
 GLOBAL DEFFCT BOOL nearE6Pos(ePOS:IN)
  DECL E6POS ePOS

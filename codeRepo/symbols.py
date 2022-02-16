@@ -1,6 +1,6 @@
 class Symbol:
     def __init__(self, name):
-        self.name = name
+        self.name = name.lower()
 
     def __str__(self):
         return f"{self.name}"
@@ -19,9 +19,9 @@ class VarSymbol(Symbol):
         self.type_ = symtable.lookup(self.typename)
 
 
-class CallableSymbol():
+class CallableSymbol(Symbol):
     def __init__(self, name):
-        self.name = name
+        super().__init__(name)
 
 
 class BuiltInTypeSymbol(Symbol):
@@ -62,6 +62,7 @@ class FunctionSymbol(CallableSymbol):
 
     def fill_in_types_by_typename(self, symtable):
         self.returnSymbol.fill_in_types_by_typename(symtable)
+
 
 class DatFileSymbol(CallableSymbol):
     def __init__(self, name, ctx):

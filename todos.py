@@ -2,10 +2,13 @@
 # Ctxs are added to routine definitions, routine bodies has access to correct symbol table. Symbol tables have parent-child bidirectional references
 # Steps which are listed on the bottom need to be checked, if everything is implemented
 
-# TODO >> STEP0 -> Find out the way for some kind of "programming journal"
-# TODO >> STEP1 -> Add Runtime variables to functions - they need to be added to symbol tables
-# TODO >> STEP3 -> improve struct definition handling, problem with strings (e.g. char point2[24] in STRUC FDAT)
-# TODO >> STEP4 -> implement each visitor method for interpration phase
+# TODO >> NEXT - Take care of activation record push and pop sequences. For now, only when entering module data(!) in
+# interpreting phase then activation record is pushed into the callstack. pop() method is never called.
+
+
+# TODO >> LATER -> Add Runtime variables to functions - they need to be added to symbol tables
+# TODO LATER >> improve struct definition handling, problem with strings (e.g. char point2[24] in STRUC FDAT)
+# TODO LATER implement each visitor method for interpration phase
 
 #Semantic analyser goes through dat files, collecting and inserting symtables into parse tree of subroutine
 #ParseTree needs symtable and symtable (for example routines symbols) need reference to part of parse trees

@@ -16,13 +16,13 @@ class ScopedSymbolTable:
             enc_scope.append_child(self)
 
     def _init_builtins(self):
-        builtin_types = ["INT", "REAL", "BOOL", "CHAR", "E6POS", "E6AXIS"]
+        builtin_types = ["int", "real", "bool", "char", "e6pos", "e6axis"]
         for type_ in builtin_types:
             self.insert(BuiltInTypeSymbol(type_))
 
     def _init_inputs_outputs(self):
-        self.insert(ArraySymbol(name="$IN", type_="BOOL", size=8196))
-        self.insert(ArraySymbol(name="$OUT", type_="BOOL", size=8196))
+        self.insert(ArraySymbol(name="$in", type_="bool", size=8196))
+        self.insert(ArraySymbol(name="$out", type_="bool", size=8196))
 
     # def __str__(self):
     #     h1 = 'SCOPE (SCOPED SYMBOL TABLE)'
@@ -54,6 +54,7 @@ class ScopedSymbolTable:
 
     # TODO >> Lookup should be case insensitive
     def lookup(self, name):
+        name = name.lower()
         #print(f"Lookup: {name}")
         if '[' in name and ']' in name:
             prefix = name.split('[')[0]

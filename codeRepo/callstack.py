@@ -18,6 +18,7 @@ class ActivationRecord:
         self._access_link = enclosing_ar
 
     def __setitem__(self, input_var_name, value):
+        input_var_name = input_var_name.lower()
         var_name, indices = self._split_var_name(input_var_name)
 
         if var_name in self.members:
@@ -34,6 +35,7 @@ class ActivationRecord:
             return
 
     def __getitem__(self, input_var_name):
+        input_var_name = input_var_name.lower()
         var_name, indices = self._split_var_name(input_var_name)
         current_value = self.members[var_name] if var_name in self.members else self.get_global_var(var_name)
         if indices:
@@ -55,16 +57,21 @@ class ActivationRecord:
         return var_name, indices
 
     def get_global_var(self, key):
+        key = key.lower()
+        if key=="i_ghostactive":
+            a=2
         return self.members[key] if self.type_ == ARType.GLOBAL else self._access_link[key]
 
     # TODO >> Add existence check
     def set_global_var(self, key, value):
+        key = key.lower()
         if self.type_ == ARType.GLOBAL:
             self.members[key] = value
         else:
             self._access_link[key] = value
 
     def initialize_var(self, var_name, value):
+        var_name = var_name.lower()
         self.members[var_name] = value
 
     def get(self, key):
@@ -107,10 +114,10 @@ class Callstack:
 
     def _add_system_variables(self):
         global_record = self.peek()
-        global_record.initialize_var("$IN", bytearray(8192+1))
-        global_record.initialize_var("$OUT", bytearray(8192+1))
-        global_record.initialize_var("$AXIS_ACT", E6Axis([0, -90, 90, 0, 0, 0]))
-        global_record.initialize_var("$POS_ACT", E6Pos.from_tuples(xyz=(0, 0, 0), abc=(0, 0, 0), S=0, T=0))
+        global_record.initialize_var("$in", bytearray(8192+1))
+        global_record.initialize_var("$out", bytearray(8192+1))
+        global_record.initialize_var("$axis_act", E6Axis([0, -90, 90, 0, 0, 0]))
+        global_record.initialize_var("$pos_act", E6Pos.from_tuples(xyz=(0, 0, 0), abc=(0, 0, 0), S=0, T=0))
 
     def __str__(self):
         s = '\n'.join(repr(ar) for ar in reversed(self._records))
