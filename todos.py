@@ -3,9 +3,10 @@
 # Steps which are listed on the bottom need to be checked, if everything is implemented
 
 # TODO >> NEXT - Take care of activation record push and pop sequences. For now, only when entering module data(!) in
-# interpreting phase then activation record is pushed into the callstack. pop() method is never called.
+#   interpreting phase activation record is pushed into the callstack. pop() method is never called.
 
-
+# TODO >> Maybe add global function call from local function to better check scope handling for activation records
+# TODO >> LATER -> Better implementation of case insensitive dictionary (now, there is bunch of xxx.lower() calls
 # TODO >> LATER -> Add Runtime variables to functions - they need to be added to symbol tables
 # TODO LATER >> improve struct definition handling, problem with strings (e.g. char point2[24] in STRUC FDAT)
 # TODO LATER implement each visitor method for interpration phase

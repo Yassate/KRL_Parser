@@ -6,6 +6,17 @@ class Symbol:
         return f"{self.name}"
 
 
+class CallableSymbol(Symbol):
+    def __init__(self, name, ctx):
+        super().__init__(name)
+        self.ctx = ctx
+
+
+class BuiltInTypeSymbol(Symbol):
+    def __init__(self, name):
+        super().__init__(name)
+
+
 class VarSymbol(Symbol):
     def __init__(self, name, type_=None, typename=None):
         super().__init__(name)
@@ -17,16 +28,6 @@ class VarSymbol(Symbol):
 
     def fill_in_types_by_typename(self, symtable):
         self.type_ = symtable.lookup(self.typename)
-
-
-class CallableSymbol(Symbol):
-    def __init__(self, name):
-        super().__init__(name)
-
-
-class BuiltInTypeSymbol(Symbol):
-    def __init__(self, name):
-        super().__init__(name)
 
 
 class StructTypeSymbol(Symbol):
@@ -49,15 +50,15 @@ class ArraySymbol(VarSymbol):
 
 
 class ProcedureSymbol(CallableSymbol):
-    def __init__(self, name, ctx):
-        super(ProcedureSymbol, self).__init__(name)
-        self.ctx = ctx
+    def __init__(self, name, ctx, module_ctx):
+        super().__init__(name, ctx)
+        self.module_ctx = module_ctx
 
 
 class FunctionSymbol(CallableSymbol):
-    def __init__(self, name, ctx, return_symbol):
-        super(FunctionSymbol, self).__init__(name)
-        self.ctx = ctx
+    def __init__(self, name, ctx, module_ctx, return_symbol):
+        super().__init__(name, ctx)
+        self.module_ctx = module_ctx
         self.returnSymbol = return_symbol
 
     def fill_in_types_by_typename(self, symtable):
@@ -66,6 +67,5 @@ class FunctionSymbol(CallableSymbol):
 
 class DatFileSymbol(CallableSymbol):
     def __init__(self, name, ctx):
-        super(DatFileSymbol, self).__init__(name)
-        self.ctx = ctx
+        super().__init__(name, ctx)
         self.executed = False

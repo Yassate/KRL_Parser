@@ -11,7 +11,7 @@ coloredlogs.install(level='DEBUG', logger=logger)
 class ScopeStack:
     def __init__(self):
         self._records = []
-        global_scope = ScopedSymbolTable(name="GLOBAL", lvl=1)
+        global_scope = ScopedSymbolTable(name="GLOBAL")
         self.push(global_scope)
 
     def push(self, scope):
@@ -61,7 +61,7 @@ class SemanticAnalyzer(krlVisitor):
         global_scope = self._scope_stack.peek_global()
         assert self._act_symtable == global_scope
         if module_name != "config":
-            new_scope = ScopedSymbolTable(module_name, lvl=2, enc_scope=global_scope)
+            new_scope = ScopedSymbolTable(module_name, enc_scope=global_scope)
             new_scope.insert(DatFileSymbol(module_name, ctx))
             self._scope_stack.push(new_scope)
         self.visitChildren(ctx)
@@ -85,25 +85,28 @@ class SemanticAnalyzer(krlVisitor):
 
     def visitProcedureDefinition(self, ctx: krlParser.ProcedureDefinitionContext):
         proc_name = self.visit(ctx.procedureName())
-        new_scope = ScopedSymbolTable(proc_name, self._act_symtable.lvl + 1, self._act_symtable)
+        dat_symbol = self._act_symtable.lookup(self._act_symtable.name)
+        new_scope = ScopedSymbolTable(proc_name, self._act_symtable)
+        ctx.symtable = ctx.routineBody()
         self._scope_stack.push(new_scope)
         # TODO >> Implement storing runtime variable symbols and formal parameters
         self.visitChildren(ctx)
         self._scope_stack.pop()
-        return ProcedureSymbol(name=proc_name, ctx=ctx.routineBody())
+        return ProcedureSymbol(name=proc_name, ctx=ctx, module_ctx=dat_symbol.ctx)
 
     def visitFunctionDefinition(self, ctx: krlParser.FunctionDefinitionContext):
         func_name = self.visit(ctx.functionName())
-        new_scope = ScopedSymbolTable(func_name, self._act_symtable.lvl + 1, self._act_symtable)
+        dat_symbol = self._act_symtable.lookup(self._act_symtable.name)
+        new_scope = ScopedSymbolTable(func_name, self._act_symtable)
+        ctx.symtable = ctx.routineBody()
         self._scope_stack.push(new_scope)
         return_type = self.visit(ctx.typeVar())
         # TODO >> Implement storing runtime variable symbols and formal parameters
         self.visitChildren(ctx)
         self._scope_stack.pop()
-        return FunctionSymbol(name=func_name, ctx=ctx.routineBody(), return_symbol=VarSymbol(name="", typename=return_type))
+        return FunctionSymbol(name=func_name, ctx=ctx, module_ctx=dat_symbol.ctx, return_symbol=VarSymbol(name="", typename=return_type))
 
     def visitRoutineBody(self, ctx: krlParser.RoutineBodyContext):
-        ctx.symtable = self._act_symtable
         return self.visitChildren(ctx)
 
     def visitEnumDefinition(self, ctx: krlParser.EnumDefinitionContext):

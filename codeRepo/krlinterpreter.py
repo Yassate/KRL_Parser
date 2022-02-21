@@ -86,17 +86,18 @@ class KrlInterpreter(krlVisitor):
         a_record = ActivationRecord(name=scope_name, type_=ARType.MODULE, nesting_level=1, enclosing_ar=self._callstack.peek())
         self._callstack.push(a_record)
         self.visitChildren(ctx)
+        #self._callstack.pop()
 
     def visitSubprogramCall(self, ctx: krlParser.SubprogramCallContext):
         #unlikely or even impossible (no examples in robot backup) routine calls with dot like "module.function()"
         routine_name = self.visit(ctx.variableName()[0])
         routine_symbol = self._current_symtable.lookup(routine_name)
         if routine_symbol:
+            self.visit(routine_symbol.module_ctx)
             self.visit(routine_symbol.ctx)
         return self.visitChildren(ctx)
 
     # METHODS UNDER ARE COVERED WITH UNIT TESTS
-
     def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
         var_type: str = self.visit(ctx.typeName()) if ctx.typeName() else None
         var_value: dict = self.visit(ctx.structElementList())

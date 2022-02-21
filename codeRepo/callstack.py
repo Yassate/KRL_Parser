@@ -58,8 +58,6 @@ class ActivationRecord:
 
     def get_global_var(self, key):
         key = key.lower()
-        if key=="i_ghostactive":
-            a=2
         return self.members[key] if self.type_ == ARType.GLOBAL else self._access_link[key]
 
     # TODO >> Add existence check
