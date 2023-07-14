@@ -1,0 +1,134 @@
+&ACCESS RVO1
+&REL 274
+&COMMENT Bld
+&PARAM DISKPATH = KRC:\R1\Program\Production\223
+DEF msn223v_030_01_030r2( )
+
+DECL INT SRCDATA
+DECL FLOAT SCRDATAFLOAT, ADRa
+DECL INT DATAS13
+
+;FOLD INI
+  ;FOLD BASISTECH INI
+    GLOBAL INTERRUPT DECL 3 WHEN $IN[1]==TRUE DO IR_STOPM ( )
+    INTERRUPT ON 3 
+    BAS (#INITMOV,0 )
+  ;ENDFOLD (BASISTECH INI)
+  ;FOLD USER INI
+    ;Make your modifications here
+  ;ENDFOLD (USER INI)
+;ENDFOLD (INI)
+
+WAIT FOR  ( $IN[126] )
+$OUT[125]=TRUE
+$OUT[161]=FALSE
+
+COLLSTOP( 15, 1 ) ;not Interrupt-Controlled
+USE_CD_PARAMS(1)
+
+;FOLD PTP HP005 CONT Vel=100 % PDATHH Tool[64]:NULL [64]:NULL ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP005; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP005
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP005 C_DIS C_DIS
+;ENDFOLD
+
+;FOLD PTP HP010 CONT Vel=100 % PDATHH Tool[64]:NULL Base[64]:NULL ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP010; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP010
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP010 C_Dis
+;ENDFOLD
+;FOLD PTP HP015 CONT Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP015; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP015
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP015 C_Dis
+;ENDFOLD
+;FOLD PTP HP020 CONT Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP020; Kuka.BlendingEnabled=True; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP020
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP020 C_Dis
+;ENDFOLD
+;FOLD PTP HP025 Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP025; Kuka.BlendingEnabled=False; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP025
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP025
+;ENDFOLD
+;FOLD PTP HP030 Vel=100 % PDATHH Tool[64]:NULL Base[64]: ;%{PE}
+;FOLD Parameters ;%{h}
+;Params IlfProvider=kukaroboter.basistech.inlineforms.movement.old; Kuka.IsGlobalPoint=False; Kuka.PointName=HP030; Kuka.BlendingEnabled=False; Kuka.MoveDataPtpName=PDATHH; Kuka.VelocityPtp=100; Kuka.CurrentCDSetIndex=0; Kuka.MovementParameterFieldEnabled=True; IlfCommand=PTP
+;ENDFOLD
+$BWDSTART = FALSE
+PDAT_ACT = PPDATHH
+FDAT_ACT = FHP030
+BAS(#PTP_PARAMS, 100.0)
+SET_CD_PARAMS (0)
+PTP XHP030
+;ENDFOLD
+
+$OUT[125]=TRUE
+$OUT[161]=TRUE
+COLLSTOP( 15, 2+0 )
+USE_CD_PARAMS( 0)
+
+END
+
+GLOBAL DEFFCT BOOL nearE6Pos(ePOS:IN)
+ DECL E6POS ePOS
+
+ DECL E6POS Delta
+ DECL BOOL bRet
+
+ bRet = False
+
+ Delta.X = ABS(ePOS.X - $Pos_Act.X)
+ Delta.Y = ABS(ePOS.Y - $Pos_Act.Y)
+ Delta.Z = ABS(ePOS.Z - $Pos_Act.Z)
+ Delta.A = ABS(ePOS.A - $Pos_Act.A)
+ Delta.B = ABS(ePOS.B - $Pos_Act.B)
+ Delta.C = ABS(ePOS.C - $Pos_Act.C)
+
+ Delta.S = ePOS.S - $Pos_Act.S
+ Delta.T = ePOS.T - $Pos_Act.T
+
+ Delta.E1 = ABS(ePOS.E1 - $Pos_Act.E1)
+ Delta.E2 = ABS(ePOS.E2 - $Pos_Act.E2)
+ Delta.E3 = ABS(ePOS.E3 - $Pos_Act.E3)
+ Delta.E4 = ABS(ePOS.E4 - $Pos_Act.E4)
+ Delta.E5 = ABS(ePOS.E5 - $Pos_Act.E5)
+ Delta.E6 = ABS(ePOS.E6 - $Pos_Act.E6)
+
+ bRet= (Delta.X < MaxPosTol.X) and (Delta.Y < MaxPosTol.Y) and (Delta.Z < MaxPosTol.Z) and (Delta.A < MaxPosTol.A) and (Delta.B < MaxPosTol.B) and (Delta.C < MaxPosTol.C)
+ bRet=bRet and (Delta.S == 0) and (Delta.T == 0)
+ bRet=bRet and (Delta.E1 < MaxPosTol.E1) and (Delta.E2 < MaxPosTol.E2) and (Delta.E3 < MaxPosTol.E3) and (Delta.E4 < MaxPosTol.E4) and (Delta.E5 < MaxPosTol.E5) and (Delta.E6 < MaxPosTol.E6)
+ Return(bRet)
+ENDFCT
+
