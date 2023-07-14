@@ -7,7 +7,8 @@ I found that there is probably area for improvement.
 ### Short details
 
 - Program is able to execute KRL script with robot cartesian motion and prints robot axes values, inverse kinematics is used,
-- Inverse kinematic solver is tested with a lot of test cases (30+), for every configuration of KUKA robot arm,
+- Inverse kinematic solver is based on decoupling method, first 3 axes are responsible for translation, last 3 - for rotation,
+- Inverse kinematic solver is tested with a lot of test cases (30+), for every configuration of spherical wrist KUKA robot arm,
 - ANTLR Grammar for KUKA KRL language is used, from official repo, but modified,
 - Basic interpretation works, based on nice explanation of interpretation process from [Ruslan's Spivak blog](https://ruslanspivak.com/),
 - It's really BASIC interpretation; global variables, nested calls etc. will not work.
