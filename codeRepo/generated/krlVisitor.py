@@ -264,8 +264,8 @@ class krlVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by krlParser#assignment.
-    def visitAssignment(self, ctx:krlParser.AssignmentContext):
+    # Visit a parse tree produced by krlParser#assignmentOrExpr.
+    def visitAssignmentOrExpr(self, ctx:krlParser.AssignmentOrExprContext):
         return self.visitChildren(ctx)
 
 
@@ -364,6 +364,11 @@ class krlVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by krlParser#leftHandSide.
+    def visitLeftHandSide(self, ctx:krlParser.LeftHandSideContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by krlParser#expression.
     def visitExpression(self, ctx:krlParser.ExpressionContext):
         return self.visitChildren(ctx)
@@ -414,8 +419,33 @@ class krlVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by krlParser#primary.
-    def visitPrimary(self, ctx:krlParser.PrimaryContext):
+    # Visit a parse tree produced by krlParser#structSubVariable.
+    def visitStructSubVariable(self, ctx:krlParser.StructSubVariableContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#parExpressionStatement.
+    def visitParExpressionStatement(self, ctx:krlParser.ParExpressionStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#variableCall.
+    def visitVariableCall(self, ctx:krlParser.VariableCallContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#structSubVariableCall.
+    def visitStructSubVariableCall(self, ctx:krlParser.StructSubVariableCallContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#subprogramCall.
+    def visitSubprogramCall(self, ctx:krlParser.SubprogramCallContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by krlParser#literalStatement.
+    def visitLiteralStatement(self, ctx:krlParser.LiteralStatementContext):
         return self.visitChildren(ctx)
 
 

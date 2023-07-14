@@ -97,8 +97,6 @@ class CustomKukaIKSolver:
 
         self.axis3d = py3drot.plot_basis(R=np.eye(3), ax_s=4)
 
-        #self.test_plot()
-        #self.performIK()
 
     def test_plot(self):
         pos = np.array([1.0, 1.0, 1.0])
@@ -200,7 +198,6 @@ class CustomKukaIKSolver:
 
         return -A5 if sign_nok else A5
 
-
     @staticmethod
     def calc_A4(R_3_6, T, l_limit, h_limit, axis5, prev_axis4=0):
         if round(axis5, 5) == 0:
@@ -230,7 +227,6 @@ class CustomKukaIKSolver:
             A6 = A6 + copysign(2*mp.pi, -A6)
 
         return A6
-
 
     def perform_ik(self, input_e6pos, prev_e6_axis):
 

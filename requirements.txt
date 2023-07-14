@@ -2,4 +2,6 @@ mpmath==1.1.0
 numpy==1.19.2
 sympy==1.6.2
 transformations==2020.1.1
-accessify>=0.3.1
+matplotlib>=3.3.2
+pytransform3d>=1.3
+coloredlogs>=15.0

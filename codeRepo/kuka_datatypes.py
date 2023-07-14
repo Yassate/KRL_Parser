@@ -9,7 +9,7 @@ class E6Axis:
         self.A1, self.A2, self.A3, self.A4, self.A5, self.A6 = axis_values
 
     def __repr__(self):
-        return f"<E6Axis: A1={self.A1}, A2={self.A2}, A3={self.A3}, A4={self.A4}, A5={self.A5}, A6={self.A6}"
+        return f"E6Axis: A1={self.A1}, A2={self.A2}, A3={self.A3}, A4={self.A4}, A5={self.A5}, A6={self.A6}"
 
     def get_in_radians(self):
         axes_radians = [dtor(axis) for axis in self.axis_values]
@@ -22,6 +22,14 @@ class E6Pos:
         self.A, self.B, self.C = None, None, None
         self.S, self.T = None, None
         self.quat = None
+
+    def __eq__(self, other):
+        pos_equal = self.X == other.X and self.Y == other.Y and self.Z == other.Z
+        angles_equal = self.ix == other.ix and self.iy == other.iy and self.iz == other.iz and self.w == other.w
+        return True if pos_equal and angles_equal else False
+
+    def __repr__(self):
+        return f"E6Pos: X={self.X}, Y={self.Y}, Z={self.Z}, A={self.A}, B={self.B}, C={self.C}, S={self.S}, T={self.T}"
 
     # TODO >> SETTERS FOR ABC TO UPDATE QUAT AND VICE-VERSA
 
@@ -43,7 +51,7 @@ class E6Pos:
 
     @classmethod
     def from_krl_struct(cls, krl_struct_as_dict):
-    # TODO >> exception should be raised if not all necessary elements are inside dictionary
+        # TODO >> exception should be raised if not all necessary elements are inside dictionary
         necessary_items = ('X', 'Y', 'Z', 'A', 'B', 'C', 'S', 'T')
         instance = cls()
         if all(item in krl_struct_as_dict.keys() for item in necessary_items):
@@ -102,6 +110,9 @@ class Status:
     def __init__(self, val):
         self.val = val
 
+    def __repr__(self):
+        return f"Status: S={self.val}"
+
     @staticmethod
     def lsb(val):
         return val & 1
@@ -126,6 +137,9 @@ class Status:
 class Turn:
     def __init__(self, val):
         self.val = val
+
+    def __repr__(self):
+        return f"Turn: T={self.val}"
 
     @staticmethod
     def lsb(val):
@@ -170,3 +184,14 @@ class Turn:
     def a6_on_minus(self):
         shifted = self.val >> TurnBit.AXIS_6
         return Turn.lsb(shifted)
+
+
+class KrlEnum:
+    def __init__(self, val):
+        self.val = val
+
+    def __eq__(self, other):
+        return self.val == other.val
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
