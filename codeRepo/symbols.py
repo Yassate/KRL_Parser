@@ -1,71 +1,71 @@
-# copyright RuslanSpivak.com
-
-
 class Symbol:
+    def __init__(self, name):
+        self.name = name.lower()
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class CallableSymbol(Symbol):
+    def __init__(self, name, ctx):
+        super().__init__(name)
+        self.ctx = ctx
+
+
+class BuiltInTypeSymbol(Symbol):
+    def __init__(self, name):
+        super().__init__(name)
+
+
+class VarSymbol(Symbol):
     def __init__(self, name, type_=None, typename=None):
-        self.name = name
+        super().__init__(name)
         self.type_ = type_
         self.typename = typename
 
     def __str__(self):
-        return self.name
+        return f"{self.name}, type: {self.typename}"
 
-    def __repr__(self):
-        return "<{class_name}(name='{name}')>".format(
-            class_name=self.__class__.__name__,
-            name=self.name,
-        )
+    def fill_in_types_by_typename(self, symtable):
+        self.type_ = symtable.lookup(self.typename)
 
 
-class BuiltInSymbol(Symbol):
+class StructTypeSymbol(Symbol):
     def __init__(self, name):
         super().__init__(name)
+        self.members = {}
+
+    def add_member(self, member):
+        self.members[member.name] = member
+
+    def fill_in_types_by_typename(self, symtable):
+        for symbol in self.members.values():
+            symbol.fill_in_types_by_typename(symtable)
 
 
-class ArraySymbol(Symbol):
-    def __init__(self, name, type_=None, size=0):
-        super().__init__(name=name, type_=type_)
+class ArraySymbol(VarSymbol):
+    def __init__(self, name, typename=None, size=0):
+        super().__init__(name=name, typename=typename)
         self.size = size
 
-    def __repr__(self):
-        return "<{class_name}(name='{name}')(size='{size})'>".format(
-            class_name=self.__class__.__name__,
-            name=self.name,
-            size=self.size
-        )
+
+class ProcedureSymbol(CallableSymbol):
+    def __init__(self, name, ctx, module_ctx):
+        super().__init__(name, ctx)
+        self.module_ctx = module_ctx
 
 
-class StructSymbol(Symbol):
-    def __init__(self, name):
-        super().__init__(name)
-        self.members = None
+class FunctionSymbol(CallableSymbol):
+    def __init__(self, name, ctx, module_ctx, return_symbol):
+        super().__init__(name, ctx)
+        self.module_ctx = module_ctx
+        self.returnSymbol = return_symbol
+
+    def fill_in_types_by_typename(self, symtable):
+        self.returnSymbol.fill_in_types_by_typename(symtable)
 
 
-class ProcedureSymbol(Symbol):
-    def __init__(self, name, params=None, ctx=None):
-        super(ProcedureSymbol, self).__init__(name)
-        self.params = params if params is not None else []
-        self.ctx = ctx
-
-    def __str__(self):
-        return '<{class_name}(name={name}, parameters={params})>'.format(
-            class_name=self.__class__.__name__,
-            name=self.name,
-            params=self.params,
-        )
-
-    __repr__ = __str__
-
-
-class ModuleSymbol(Symbol):
-    def __init__(self, name, ctx=None):
-        super(ModuleSymbol, self).__init__(name)
-        self.ctx = ctx
-
-    def __str__(self):
-        return '<{class_name}(name={name})>'.format(
-            class_name=self.__class__.__name__,
-            name=self.name,
-        )
-
-    __repr__ = __str__
+class DatFileSymbol(CallableSymbol):
+    def __init__(self, name, ctx):
+        super().__init__(name, ctx)
+        self.executed = False

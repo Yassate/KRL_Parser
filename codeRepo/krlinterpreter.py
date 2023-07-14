@@ -86,11 +86,18 @@ class KrlInterpreter(krlVisitor):
         a_record = ActivationRecord(name=scope_name, type_=ARType.MODULE, nesting_level=1, enclosing_ar=self._callstack.peek())
         self._callstack.push(a_record)
         self.visitChildren(ctx)
+        #self._callstack.pop()
 
-    # METHODS UNDER ARE COVERED WITH UNITTESTS
-    def visitEnumElement(self, ctx: krlParser.EnumElementContext):
+    def visitSubprogramCall(self, ctx: krlParser.SubprogramCallContext):
+        #unlikely or even impossible (no examples in robot backup) routine calls with dot like "module.function()"
+        routine_name = self.visit(ctx.variableName()[0])
+        routine_symbol = self._current_symtable.lookup(routine_name)
+        if routine_symbol:
+            self.visit(routine_symbol.module_ctx)
+            self.visit(routine_symbol.ctx)
         return self.visitChildren(ctx)
 
+    # METHODS UNDER ARE COVERED WITH UNIT TESTS
     def visitStructLiteral(self, ctx: krlParser.StructLiteralContext):
         var_type: str = self.visit(ctx.typeName()) if ctx.typeName() else None
         var_value: dict = self.visit(ctx.structElementList())
@@ -99,7 +106,6 @@ class KrlInterpreter(krlVisitor):
     #TODO >> varlistrest to be implemented
     def visitVariableDeclarationInDataList(self, ctx: krlParser.VariableDeclarationInDataListContext):
         if ctx.DECL():
-
             var_type = self.visit(ctx.typeVar())
             var_name = self.visit(ctx.variableName())
             var_list_rest = ctx.variableListRest()
@@ -158,6 +164,7 @@ class KrlInterpreter(krlVisitor):
     def visitVariableCall(self, ctx: krlParser.VariableCallContext):
         ar = self._callstack.peek()
         var_name = self.visit(ctx.variableName())
+        logger.debug(f"Variable value resolved - {var_name}:{ar[var_name]}")
         return ar[var_name]
 
     def visitVariableName(self, ctx: krlParser.VariableNameContext):
